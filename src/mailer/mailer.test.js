@@ -48,6 +48,8 @@ describe("mailer", () => {
       certificate
     });
     const previewUrl = nodemailer.getTestMessageUrl(emailReceipt);
+    // eslint-disable-next-line
+    console.log(`Preview your message at ${previewUrl}`);
     const rawEmailUrl = `${previewUrl}/message.eml`;
     const valid = await validateRawEmail({
       url: rawEmailUrl,

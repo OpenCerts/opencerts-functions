@@ -10,7 +10,8 @@ const captchaValidator = recaptcha(process.env.RECAPTCHA_SECRET);
 const app = express();
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "10mb", extended: true }));
+app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 
 app.post("/", async (req, res) => {
   try {
@@ -26,6 +27,7 @@ app.post("/", async (req, res) => {
 
     res.send("OK");
   } catch (e) {
+    // eslint-disable-next-line
     console.log(e);
     res.status(500).send({ error: "Request failed" });
   }

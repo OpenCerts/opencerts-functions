@@ -34,6 +34,7 @@ const messageTemplate = certificate => {
       text: txtMailTemplate(params)
     };
   } catch (e) {
+    // eslint-disable-next-line
     console.error(e);
     throw new Error("Fail to read data from certificate");
   }
