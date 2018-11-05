@@ -9,6 +9,7 @@ provider:
 functions:
   app:
     handler: index.handler
+    description: Sends email on behalf of user to third party with the OpenCerts' preset template.
     events:
       - http: ANY /
       - http: 'ANY {proxy+}'
