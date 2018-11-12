@@ -14,10 +14,17 @@ const expectedContentSubject = fs.readFileSync(expectedPathSubject).toString();
 
 describe("messageTemplate", () => {
   it("returns html and text given a certificate", () => {
+    const extractContent = str => str.replace(/ +/g, "");
     const message = messageTemplate(certificate);
-    expect(message.html).to.eql(expectedContentHtml);
-    expect(message.text).to.eql(expectedContentTxt);
-    expect(message.subject).to.eql(expectedContentSubject);
+    expect(extractContent(message.html)).to.eql(
+      extractContent(expectedContentHtml)
+    );
+    expect(extractContent(message.text)).to.eql(
+      extractContent(expectedContentTxt)
+    );
+    expect(extractContent(message.subject)).to.eql(
+      extractContent(expectedContentSubject)
+    );
   });
 
   it("throws for undefined certificate", () => {

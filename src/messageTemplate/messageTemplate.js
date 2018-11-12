@@ -25,8 +25,9 @@ const messageTemplate = certificate => {
       throw new Error("Fail to read data from certificate");
     }
 
+    const issuerName = get(data, "issuers[0].name");
     const recipientName = get(data, "recipient.name");
-    const params = { recipientName };
+    const params = { recipientName, issuerName };
 
     return {
       subject: subjectMailTemplate(params),

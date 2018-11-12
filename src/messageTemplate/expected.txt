@@ -1,1 +1,20 @@
-You got a file from John Snow
+John Snow sent you a certificate from Singapore Examination and Assessment Board
+
+----------
+
+How do I view the certificate?
+
+1. Save the .opencert document found in this email's attachment
+2. Visit https://opencerts.io
+3. Drop the .opencert file into the dropzone to verify the certificate
+4. If the .opencert file is verified, the certificate will load in a new page
+
+----------
+
+What is OpenCerts?
+
+OpenCerts is a blockchain-based platform for issuing and validating certs. It is developed by the Singapore Government Technology Agency (GovTech).
+
+Various education institutes work together to issue certificates that employers can easily verify. Using OpenCerts, you can view a certificate sent to you and validate it originates from the correct institution or if the certificate has been tampered with.
+
+To find out more, visit https://opencerts.io/

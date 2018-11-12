@@ -1,1 +1,1 @@
-OpenCerts from <%- recipientName %>
+<%- recipientName %> sent you a certificate<% if (issuerName) { %> from <%- issuerName %><% } %>
