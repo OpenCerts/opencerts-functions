@@ -24,7 +24,27 @@ const sendCertificate = transporter => async ({ to, certificate }) => {
     subject,
     html,
     text,
-    attachments: [{ filename: FILE_NAME, content }]
+    attachments: [
+      {
+        filename: "logo.png",
+        path: `${__dirname}/../static/logo.png`,
+        cid: "logo"
+      },
+      {
+        filename: "certificate.png",
+        path: `${__dirname}/../static/certificate.png`,
+        cid: "certificate"
+      },
+      {
+        filename: "dropzone.png",
+        path: `${__dirname}/../static/dropzone.png`,
+        cid: "dropzone"
+      },
+      {
+        filename: FILE_NAME,
+        content
+      }
+    ]
   });
 };
 
