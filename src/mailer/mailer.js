@@ -3,7 +3,7 @@ const messageTemplate = require("../messageTemplate");
 const FROM_ADDRESS = "OpenCerts™ <donotreply@opencerts.io>";
 
 // TODO: Filename according to recipient name
-const FILE_NAME = "certificate.opencerts";
+const FILE_NAME = "certificate.opencert";
 
 const sendRawMail = (transporter, data) =>
   new Promise((resolve, reject) => {
