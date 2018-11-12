@@ -53,7 +53,7 @@ describe("mailer", () => {
     const rawEmailUrl = `${previewUrl}/message.eml`;
     const valid = await validateRawEmail({
       url: rawEmailUrl,
-      html: '"bg-brand-dark"',
+      html: "cid:certificate",
       text: "----------",
       subject: "Subject: John Snow sent you a certificate",
       to: account.user

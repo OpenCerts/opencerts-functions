@@ -6,22 +6,14 @@
   #email-body a:visited {
     color: steelblue;
   }
-
-  .bg-brand-dark {
-    background-color: #324353
-  }
-
-  .text-white {
-    color: white;
-  }
 </style>
 <div style="font-family: sans-serif;" id="email-body">
-  <div style="padding: 2rem;" class="bg-brand-dark">
-    <img style="max-height: 2rem;" src="cid:logo"/>
+  <div style="padding: 2rem; background-color: #324353">
+    <img style="max-height: 2rem;" src="cid:logo" />
     <div style="max-width: 150px; margin-left: auto; margin-right: auto; margin-top: 2rem; margin-bottom: 2rem;">
-      <img src="cid:certificate"/>
+      <img src="cid:certificate" />
     </div>
-    <div style="text-align: center; font-size: 2rem;" class="text-white">
+    <div style="text-align: center; font-size: 2rem; color: white;">
       <%- recipientName %> sent you a certificate<% if (issuerName) { %> from <%- issuerName %><% } %>
     </div>
   </div>
@@ -32,7 +24,7 @@
     <div style="max-width: 150px; margin-left: auto; margin-right: auto; margin-top: 2rem; margin-bottom: 2rem;">
       <img src="cid:dropzone">
     </div>
-    
+
     <p>
       <ol>
         <li>Save the .opencert document found in this email's attachment</li>
@@ -58,6 +50,6 @@
       To find out more, visit <a href="https://opencerts.io/">https://opencerts.io/</a>
     </p>
   </div>
-  <div style="padding: 2rem;" class="bg-brand-dark">
+  <div style="padding: 2rem; background-color: #324353">
   </div>
 </div>
