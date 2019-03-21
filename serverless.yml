@@ -7,12 +7,14 @@ provider:
   region: ap-southeast-1
 
 functions:
-  app:
-    handler: index.handler
+  email:
+    handler: src/email.handler
     description: Sends email on behalf of user to third party with the OpenCerts' preset template.
     events:
-      - http: ANY /
-      - http: 'ANY {proxy+}'
+      - http:
+          path: /email
+          method: post
+          cors: true
 plugins:
   - serverless-dotenv-plugin
   - serverless-offline

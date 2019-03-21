@@ -6,25 +6,14 @@
   "env": {
     "mocha": true
   },
-  "parserOptions": {
-    "ecmaVersion": 2017,
-    "sourceType": "module",
-    "ecmaFeatures": {
-        "jsx": true
-    }
-  },
   "plugins": [
     "prettier",
     "chai-friendly",
     "mocha"
   ],
   "globals": {
-    "artifacts": false,
-    "contract": false,
     "assert": false,
     "expect": true,
-    "window": true,
-    "document": true
   },
   "rules": {
     "no-unused-vars": [
@@ -37,7 +26,6 @@
       "error",
       "as-needed"
     ],
-    "react/react-in-jsx-scope": "off",
     "prettier/prettier": "error",
     "no-unused-expressions": "off",
     "mocha/no-exclusive-tests": "error",

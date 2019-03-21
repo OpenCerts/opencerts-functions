@@ -2,7 +2,7 @@ const nodemailer = require("nodemailer");
 const fetch = require("node-fetch");
 const mailer = require("./mailer");
 
-const certificate = require("../../test/fixtures/certificate.json");
+const certificate = require("../../../test/fixtures/certificate.json");
 
 const etherealCreateAccount = () =>
   new Promise((resolve, reject) => {

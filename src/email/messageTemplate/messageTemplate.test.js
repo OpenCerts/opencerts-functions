@@ -1,7 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const messageTemplate = require("./messageTemplate");
-const certificate = require("../../test/fixtures/certificate.json");
+const certificate = require("../../../test/fixtures/certificate.json");
 
 const expectedPathHtml = path.join(__dirname, "./expected.html");
 const expectedContentHtml = fs.readFileSync(expectedPathHtml).toString();
