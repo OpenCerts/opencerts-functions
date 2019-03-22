@@ -1,117 +1,197 @@
-const {
-  getIdentity,
-  getIdentities,
-  isAllIdentityValid,
-  verifyAddresses
-} = require("./identity");
+const axios = require("axios");
+const { mapKeys } = require("lodash");
 
-describe("verify/getIdentity", () => {
-  it("returns getIdentity for identified issuer address", async () => {
-    const address = "0x007d40224f6562461633ccfbaffd359ebb2fc9ba";
-    const identified = await getIdentity(address);
-    expect(identified).to.eql(
-      "Government Technology Agency of Singapore (GovTech)"
-    );
+const REGISTRY_URL = "https://opencerts.io/static/registry.json";
+const CACHE_TTL = 30 * 60 * 1000; // 30 min
+
+let cachedRegistryResponse;
+let cachedRegistryBestBefore;
+
+const setCache = (res, expiry) => {
+  cachedRegistryResponse = res;
+  cachedRegistryBestBefore = expiry;
+};
+
+const isValidData = () =>
+  !!cachedRegistryResponse && Date.now() < cachedRegistryBestBefore;
+
+const fetchData = async () => {
+  if (isValidData()) return;
+  const res = await axios.get(REGISTRY_URL);
+  setCache(res, Date.now() + CACHE_TTL);
+};
+
+const getIdentity = async (address = "") => {
+  await fetchData();
+  const {
+    data: { issuers }
+  } = cachedRegistryResponse;
+  const lowercaseAddress = mapKeys(issuers, (_val, key) => key.toLowerCase());
+  const getIdentity = lowercaseAddress[address.toLowerCase()];
+  return getIdentity;
+};
+
+const getIdentities = async (addresses = []) => {
+  const identities = [];
+  for (const address of addresses) {
+    const id = await getIdentity(address);
+    identities.push(id);
+  }
+  return identities;
+};
+
+const isAllIdentityValid = (identities = []) => {
+  return identities.reduce((prev, curr) => {
+    return prev && !!curr;
+  }, identities.length > 0 && true);
+};
+
+const verifyAddresses = async (addresses = []) => {
+  const identities = await getIdentities(addresses);
+  const valid = isAllIdentityValid(identities);
+  return {
+    valid,
+    identities
+  };
+};
+
+// const {
+//   getIdentity,
+//   getIdentities,
+//   isAllIdentityValid,
+//   verifyAddresses
+// } = require("./identity");
+
+describe.only("verify/identity", () => {
+  describe("isValidData", () => {
+    after(() => {
+      setCache(undefined, undefined);
+    });
+    
+    it("returns false if the cache is empty", () => {
+      setCache(undefined, undefined);
+      expect(isValidData()).to.eql(false);
+    });
+
+    it("returns false if the cache has content but has expired", () => {
+      setCache("Foo", Date.now() - 1);
+      expect(isValidData()).to.eql(false);
+    });
+
+    it("returns true if the cache has content and has not expired", () => {
+      setCache("Foo", Date.now() + 10000);
+      expect(isValidData()).to.eql(true);
+    });
   });
 
-  it("returns getIdentity for identified issuer address in other cases", async () => {
-    const address = "0X007D40224F6562461633CCFBAFFD359EBB2FC9BA";
-    const identified = await getIdentity(address);
-    expect(identified).to.eql(
-      "Government Technology Agency of Singapore (GovTech)"
-    );
+  describe("getIdentity", () => {
+    it("returns getIdentity for identified issuer address", async () => {
+      const address = "0x007d40224f6562461633ccfbaffd359ebb2fc9ba";
+      const identified = await getIdentity(address);
+      expect(identified).to.eql(
+        "Government Technology Agency of Singapore (GovTech)"
+      );
+    });
+
+    it("returns getIdentity for identified issuer address in other cases", async () => {
+      const address = "0X007D40224F6562461633CCFBAFFD359EBB2FC9BA";
+      const identified = await getIdentity(address);
+      expect(identified).to.eql(
+        "Government Technology Agency of Singapore (GovTech)"
+      );
+    });
+
+    it("returns undefined for unidentified issuers", async () => {
+      const address = "0x0000000000000000000000000000000000000000";
+      const identified = await getIdentity(address);
+      expect(identified).to.eql(undefined);
+    });
   });
 
-  it("returns undefined for unidentified issuers", async () => {
-    const address = "0x0000000000000000000000000000000000000000";
-    const identified = await getIdentity(address);
-    expect(identified).to.eql(undefined);
-  });
-});
+  describe("getIdentities", () => {
+    it("returns getIdentity for identified issuer address", async () => {
+      const addresses = [
+        "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
+        "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495",
+        "0x897E224a6a8b72535D67940B3B8CE53f9B596800"
+      ];
+      const identities = await getIdentities(addresses);
+      expect(identities).to.eql([
+        "Government Technology Agency of Singapore (GovTech)",
+        "ROPSTEN: Ngee Ann Polytechnic",
+        "ROPSTEN: Singapore Institute of Technology"
+      ]);
+    });
 
-describe("verify/getIdentities", () => {
-  it("returns getIdentity for identified issuer address", async () => {
-    const addresses = [
-      "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
-      "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495",
-      "0x897E224a6a8b72535D67940B3B8CE53f9B596800"
-    ];
-    const identities = await getIdentities(addresses);
-    expect(identities).to.eql([
-      "Government Technology Agency of Singapore (GovTech)",
-      "ROPSTEN: Ngee Ann Polytechnic",
-      "ROPSTEN: Singapore Institute of Technology"
-    ]);
-  });
-
-  it("returns undefined for any unidentified issuers", async () => {
-    const addresses = [
-      "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
-      "0xc36484efa1544c32ffed2e80a1ea9f0dfc517496",
-      "0x897E224a6a8b72535D67940B3B8CE53f9B596800"
-    ];
-    const identities = await getIdentities(addresses);
-    expect(identities).to.eql([
-      "Government Technology Agency of Singapore (GovTech)",
-      undefined,
-      "ROPSTEN: Singapore Institute of Technology"
-    ]);
-  });
-});
-
-describe("verify/isAllIdentityValid", () => {
-  it("return true if all issuers are identified", async () => {
-    const verified = isAllIdentityValid([
-      "Government Technology Agency of Singapore (GovTech)",
-      "ROPSTEN: Ngee Ann Polytechnic",
-      "ROPSTEN: Singapore Institute of Technology"
-    ]);
-    expect(verified).to.eql(true);
+    it("returns undefined for any unidentified issuers", async () => {
+      const addresses = [
+        "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
+        "0xc36484efa1544c32ffed2e80a1ea9f0dfc517496",
+        "0x897E224a6a8b72535D67940B3B8CE53f9B596800"
+      ];
+      const identities = await getIdentities(addresses);
+      expect(identities).to.eql([
+        "Government Technology Agency of Singapore (GovTech)",
+        undefined,
+        "ROPSTEN: Singapore Institute of Technology"
+      ]);
+    });
   });
 
-  it("should return false if any issuers are not identified", async () => {
-    const verified = isAllIdentityValid([
-      "Government Technology Agency of Singapore (GovTech)",
-      undefined,
-      "ROPSTEN: Singapore Institute of Technology"
-    ]);
-    expect(verified).to.eql(false);
+  describe("isAllIdentityValid", () => {
+    it("return true if all issuers are identified", async () => {
+      const verified = isAllIdentityValid([
+        "Government Technology Agency of Singapore (GovTech)",
+        "ROPSTEN: Ngee Ann Polytechnic",
+        "ROPSTEN: Singapore Institute of Technology"
+      ]);
+      expect(verified).to.eql(true);
+    });
+
+    it("should return false if any issuers are not identified", async () => {
+      const verified = isAllIdentityValid([
+        "Government Technology Agency of Singapore (GovTech)",
+        undefined,
+        "ROPSTEN: Singapore Institute of Technology"
+      ]);
+      expect(verified).to.eql(false);
+    });
+
+    it("should return false if no identities are provided", async () => {
+      const verified = isAllIdentityValid([]);
+      expect(verified).to.eql(false);
+    });
   });
 
-  it("should return false if no identities are provided", async () => {
-    const verified = isAllIdentityValid([]);
-    expect(verified).to.eql(false);
-  });
-});
+  describe("verifyAddresses", () => {
+    it("returns summary of check on multiple address", async () => {
+      const addresses = [
+        "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
+        "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495",
+        "0x897E224a6a8b72535D67940B3B8CE53f9B596800"
+      ];
+      const { valid, identities } = await verifyAddresses(addresses);
+      expect(identities).to.eql([
+        "Government Technology Agency of Singapore (GovTech)",
+        "ROPSTEN: Ngee Ann Polytechnic",
+        "ROPSTEN: Singapore Institute of Technology"
+      ]);
+      expect(valid).to.eql(true);
+    });
 
-describe("verify/verifyAddresses", () => {
-  it("returns summary of check on multiple address", async () => {
-    const addresses = [
-      "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
-      "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495",
-      "0x897E224a6a8b72535D67940B3B8CE53f9B596800"
-    ];
-    const { valid, identities } = await verifyAddresses(addresses);
-    expect(identities).to.eql([
-      "Government Technology Agency of Singapore (GovTech)",
-      "ROPSTEN: Ngee Ann Polytechnic",
-      "ROPSTEN: Singapore Institute of Technology"
-    ]);
-    expect(valid).to.eql(true);
-  });
-
-  it("returns summary of check on multiple address", async () => {
-    const addresses = [
-      "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
-      "0xc36484efa1544c32ffed2e80a1ea9f0dfc517496",
-      "0x897E224a6a8b72535D67940B3B8CE53f9B596800"
-    ];
-    const { valid, identities } = await verifyAddresses(addresses);
-    expect(identities).to.eql([
-      "Government Technology Agency of Singapore (GovTech)",
-      undefined,
-      "ROPSTEN: Singapore Institute of Technology"
-    ]);
-    expect(valid).to.eql(false);
+    it("returns summary of check on multiple address", async () => {
+      const addresses = [
+        "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
+        "0xc36484efa1544c32ffed2e80a1ea9f0dfc517496",
+        "0x897E224a6a8b72535D67940B3B8CE53f9B596800"
+      ];
+      const { valid, identities } = await verifyAddresses(addresses);
+      expect(identities).to.eql([
+        "Government Technology Agency of Singapore (GovTech)",
+        undefined,
+        "ROPSTEN: Singapore Institute of Technology"
+      ]);
+      expect(valid).to.eql(false);
+    });
   });
 });
