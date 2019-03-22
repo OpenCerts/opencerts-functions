@@ -7,13 +7,18 @@ const CACHE_TTL = 30 * 60 * 1000; // 30 min
 let cachedRegistryResponse;
 let cachedRegistryBestBefore;
 
+const setCache = (res, expiry) => {
+  cachedRegistryResponse = res;
+  cachedRegistryBestBefore = expiry;
+};
+
 const isValidData = () =>
-  cachedRegistryResponse && Date.now() < cachedRegistryBestBefore;
+  !!cachedRegistryResponse && Date.now() < cachedRegistryBestBefore;
 
 const fetchData = async () => {
   if (isValidData()) return;
-  cachedRegistryResponse = await axios.get(REGISTRY_URL);
-  cachedRegistryBestBefore = Date.now() + CACHE_TTL;
+  const res = await axios.get(REGISTRY_URL);
+  setCache(res, Date.now() + CACHE_TTL);
 };
 
 const getIdentity = async (address = "") => {
@@ -47,10 +52,12 @@ const verifyAddresses = async (addresses = []) => {
   return {
     valid,
     identities
-  }
-}
+  };
+};
 
 module.exports = {
+  setCache,
+  isValidData,
   getIdentity,
   getIdentities,
   isAllIdentityValid,
