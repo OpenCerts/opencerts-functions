@@ -2,7 +2,7 @@ const verify = require("./hash");
 const certificate = require("../../../test/fixtures/certificate.json");
 const certificateTampered = require("../../../test/fixtures/tampered-certificate.json");
 
-describe("hash", () => {
+describe("verify/hash", () => {
   it("should return true for untampered certificate", () => {
     expect(verify(certificate)).to.eql(true);
   });

@@ -1,6 +1,6 @@
 const issued = require("./issued");
 
-describe.only("issued", () => {
+describe("verify/issued", () => {
   it("returns true for issued certificates", async () => {
     const isIssued = await issued(
       "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
