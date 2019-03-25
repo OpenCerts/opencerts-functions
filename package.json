@@ -38,6 +38,7 @@
     "mocha": "^5.2.0",
     "nyc": "^13.0.1",
     "prettier": "^1.14.2",
-    "serverless-offline": "^3.25.11"
+    "serverless-offline": "^3.25.11",
+    "sinon": "^7.3.0"
   }
 }

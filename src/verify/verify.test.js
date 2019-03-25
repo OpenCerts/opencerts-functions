@@ -1,22 +1,23 @@
-const {get} = require("lodash");
-const { certificateData } = require("@govtechsg/open-certificate");
-const hash = require("./hash/hash");
-const identity = require("./identity/identity");
-const issued = require("./issued/issued");
-const unrevoked = require("./unrevoked/unrevoked");
+const verify = require('./verify');
 
 const certificateTampered = require("../../test/fixtures/tampered-certificate.json");
 
+describe("verify", () => {
+  it("returns a summary of all 4 test", async () => {
+    const results = await verify(certificateTampered);
 
-describe.skip("verify", () => {
-  it("works", () => {
-    const verify = certificate => {
-        const validHash = hash(certificate);
-
-        const data = certificateData(certificate);
-        const identity = get(data, "issuers")
-    };
-
-    verify(certificateTampered);
-  });
+    expect(results).to.be.eql({
+      hash: { valid: false },
+      identity: { valid: false, identities: [undefined] },
+      issued: {
+        valid: false,
+        issued: { "0x20bc9C354A18C8178A713B9BcCFFaC2152b53990": false }
+      },
+      revoked: {
+        valid: true,
+        revoked: { "0x20bc9C354A18C8178A713B9BcCFFaC2152b53990": false }
+      },
+      valid: false
+    });
+  }).timeout(5000);
 });
