@@ -1,143 +1,70 @@
+const proxyquire = require("proxyquire");
 const sinon = require("sinon");
-const {
-  setCache,
-  isValidData,
-  getIdentity,
-  getIdentities,
-  isAllIdentityValid,
-  verifyAddresses
-} = require("./identity");
+const getIdentity = sinon.stub();
+const { getIdentities, isAllIdentityValid, getIdentitySummary } = proxyquire(
+  "./identity",
+  {
+    "../common/identityRegistry": { getIdentity }
+  }
+);
 
-describe("verify/identity", () => {
-  describe("isValidData", () => {
-    after(() => {
-      setCache(undefined, undefined);
-    });
-    
-    it("returns false if the cache is empty", () => {
-      setCache(undefined, undefined);
-      expect(isValidData()).to.eql(false);
-    });
-
-    it("returns false if the cache has content but has expired", () => {
-      setCache("Foo", Date.now() - 1);
-      expect(isValidData()).to.eql(false);
-    });
-
-    it("returns true if the cache has content and has not expired", () => {
-      setCache("Foo", Date.now() + 10000);
-      expect(isValidData()).to.eql(true);
-    });
-  });
-
-  describe("getIdentity", () => {
-    it("returns getIdentity for identified issuer address", async () => {
-      const address = "0x007d40224f6562461633ccfbaffd359ebb2fc9ba";
-      const identified = await getIdentity(address);
-      expect(identified).to.eql(
-        "Government Technology Agency of Singapore (GovTech)"
-      );
-    });
-
-    it("returns getIdentity for identified issuer address in other cases", async () => {
-      const address = "0X007D40224F6562461633CCFBAFFD359EBB2FC9BA";
-      const identified = await getIdentity(address);
-      expect(identified).to.eql(
-        "Government Technology Agency of Singapore (GovTech)"
-      );
-    });
-
-    it("returns undefined for unidentified issuers", async () => {
-      const address = "0x0000000000000000000000000000000000000000";
-      const identified = await getIdentity(address);
-      expect(identified).to.eql(undefined);
-    });
+describe.only("verify/identity", () => {
+  beforeEach(() => {
+    getIdentity.reset();
   });
 
   describe("getIdentities", () => {
-    it("returns getIdentity for identified issuer address", async () => {
-      const addresses = [
-        "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
-        "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495",
-        "0x897E224a6a8b72535D67940B3B8CE53f9B596800"
-      ];
-      const identities = await getIdentities(addresses);
-      expect(identities).to.eql([
-        "Government Technology Agency of Singapore (GovTech)",
-        "ROPSTEN: Ngee Ann Polytechnic",
-        "ROPSTEN: Singapore Institute of Technology"
-      ]);
-    });
-
-    it("returns undefined for any unidentified issuers", async () => {
-      const addresses = [
-        "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
-        "0xc36484efa1544c32ffed2e80a1ea9f0dfc517496",
-        "0x897E224a6a8b72535D67940B3B8CE53f9B596800"
-      ];
-      const identities = await getIdentities(addresses);
-      expect(identities).to.eql([
-        "Government Technology Agency of Singapore (GovTech)",
-        undefined,
-        "ROPSTEN: Singapore Institute of Technology"
-      ]);
+    it("returns object of identities where the identifier is the key", async () => {
+      getIdentity.onCall(0).resolves("Foo-ID");
+      getIdentity.onCall(1).resolves(undefined);
+      const identities = await getIdentities(["Foo", "Bar"]);
+      expect(getIdentity.args).to.eql([["Foo"], ["Bar"]]);
+      expect(identities).to.eql({
+        Foo: "Foo-ID",
+        Bar: undefined
+      });
     });
   });
 
   describe("isAllIdentityValid", () => {
-    it("return true if all issuers are identified", async () => {
-      const verified = isAllIdentityValid([
-        "Government Technology Agency of Singapore (GovTech)",
-        "ROPSTEN: Ngee Ann Polytechnic",
-        "ROPSTEN: Singapore Institute of Technology"
-      ]);
-      expect(verified).to.eql(true);
+    it("returns false if any identifier does not resolve", async () => {
+      const identities = {
+        Foo: "Foo-ID",
+        Bar: undefined
+      };
+      const valid = isAllIdentityValid(identities);
+      expect(valid).to.eql(false);
     });
 
-    it("should return false if any issuers are not identified", async () => {
-      const verified = isAllIdentityValid([
-        "Government Technology Agency of Singapore (GovTech)",
-        undefined,
-        "ROPSTEN: Singapore Institute of Technology"
-      ]);
-      expect(verified).to.eql(false);
-    });
-
-    it("should return false if no identities are provided", async () => {
-      const verified = isAllIdentityValid([]);
-      expect(verified).to.eql(false);
+    it("returns true if all identifiers resolves", async () => {
+      const identities = {
+        Foo: "Foo-ID",
+        Bar: "Bar-ID"
+      };
+      const valid = isAllIdentityValid(identities);
+      expect(valid).to.eql(true);
     });
   });
 
-  describe("verifyAddresses", () => {
-    it("returns summary of check on multiple address", async () => {
-      const addresses = [
-        "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
-        "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495",
-        "0x897E224a6a8b72535D67940B3B8CE53f9B596800"
-      ];
-      const { valid, identities } = await verifyAddresses(addresses);
-      expect(identities).to.eql([
-        "Government Technology Agency of Singapore (GovTech)",
-        "ROPSTEN: Ngee Ann Polytechnic",
-        "ROPSTEN: Singapore Institute of Technology"
-      ]);
-      expect(valid).to.eql(true);
+  describe("getIdentitySummary", () => {
+    it("returns summary with invalid status if any identifier does not resolve", async () => {
+      getIdentity.onCall(0).resolves("Foo-ID");
+      getIdentity.onCall(1).resolves(undefined);
+      const summary = await getIdentitySummary(["Foo", "Bar"]);
+      expect(summary).to.eql({
+        valid: false,
+        identities: { Foo: "Foo-ID", Bar: undefined }
+      });
     });
 
-    it("returns summary of check on multiple address", async () => {
-      const addresses = [
-        "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
-        "0xc36484efa1544c32ffed2e80a1ea9f0dfc517496",
-        "0x897E224a6a8b72535D67940B3B8CE53f9B596800"
-      ];
-      const { valid, identities } = await verifyAddresses(addresses);
-      expect(identities).to.eql([
-        "Government Technology Agency of Singapore (GovTech)",
-        undefined,
-        "ROPSTEN: Singapore Institute of Technology"
-      ]);
-      expect(valid).to.eql(false);
+    it("returns summary with vallid status if all identifier resolves", async () => {
+      getIdentity.onCall(0).resolves("Foo-ID");
+      getIdentity.onCall(1).resolves("Bar-ID");
+      const summary = await getIdentitySummary(["Foo", "Bar"]);
+      expect(summary).to.eql({
+        valid: true,
+        identities: { Foo: "Foo-ID", Bar: "Bar-ID" }
+      });
     });
   });
 });

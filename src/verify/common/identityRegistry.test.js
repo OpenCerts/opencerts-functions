@@ -32,7 +32,7 @@ const whenHasCachedData = () => {
   setCache(cachedData, Date.now() + 1000);
 };
 
-describe.only("identityRegistry", () => {
+describe("identityRegistry", () => {
   beforeEach(() => {
     setCache(undefined, undefined);
     axios.reset();
