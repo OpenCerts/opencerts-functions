@@ -1,12 +1,16 @@
 const proxyquire = require("proxyquire");
 const sinon = require("sinon");
 const getIdentity = sinon.stub();
-const { getIdentities, isAllIdentityValid, getIdentitySummary } = proxyquire(
-  "./identity",
-  {
-    "../common/identityRegistry": { getIdentity }
-  }
-);
+const getData = sinon.stub();
+const {
+  getIdentities,
+  isAllIdentityValid,
+  getIdentitySummary,
+  verifyIdentity
+} = proxyquire("./identity", {
+  "../common/identityRegistry": { getIdentity },
+  "@govtechsg/open-attestation": { getData }
+});
 
 describe.only("verify/identity", () => {
   beforeEach(() => {
@@ -64,6 +68,36 @@ describe.only("verify/identity", () => {
       expect(summary).to.eql({
         valid: true,
         identities: { Foo: "Foo-ID", Bar: "Bar-ID" }
+      });
+    });
+  });
+
+  describe("verifyIdentity", () => {
+    it("returns the identity summary of the document", async () => {
+      getData.returns({
+        issuers: [
+          { certificateStore: "CertStore1" },
+          { certificateStore: "CertStore2" },
+          { documentStore: "DocStore1" },
+          { documentStore: "DocStore2" }
+        ]
+      });
+      getIdentity.onCall(0).resolves("Foo-ID");
+      getIdentity.onCall(1).resolves("Bar-ID");
+      getIdentity.onCall(2).resolves(undefined);
+      getIdentity.onCall(3).resolves("Moo-ID");
+      
+      const document = "DOCUMENT";
+      const summary = await verifyIdentity(document);
+      expect(getData.args[0]).to.eql(["DOCUMENT"]);
+      expect(summary).to.eql({
+        valid: false,
+        identities: {
+          CertStore1: "Foo-ID",
+          CertStore2: "Bar-ID",
+          DocStore1: undefined,
+          DocStore2: "Moo-ID"
+        }
       });
     });
   });
