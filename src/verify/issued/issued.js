@@ -1,5 +1,5 @@
 const { get, every, values, zipObject } = require("lodash");
-const { certificateData } = require("@govtechsg/open-certificate");
+const { getData } = require("@govtechsg/open-attestation");
 
 const documentStore = require("../common/documentStore");
 
@@ -56,15 +56,17 @@ const getIssuedSummary = async (storeAddresses = [], hash) => {
 /**
  * Provide a summary of issued status, given a document
  *
- * @param  {object} certificate Raw certificate data
+ * @param  {object} document Raw document data
  * @return {object} Summary of validity status, see getIssuedSummary()
  */
-const verifyIssued = certificate => {
-  const storeAddresses = get(certificateData(certificate), "issuers", []).map(
-    i => i.certificateStore
+const verifyIssued = document => {
+  const documentData = getData(document);
+  const documentStoreAddresses = get(documentData, "issuers", []).map(
+    // Returns the documentStore or certificateStore(openCerts's legacy) address
+    i => i.documentStore || i.certificateStore
   );
-  const merkleRoot = get(certificate, "signature.merkleRoot");
-  return getIssuedSummary(storeAddresses, merkleRoot)
+  const merkleRoot = get(document, "signature.merkleRoot");
+  return getIssuedSummary(documentStoreAddresses, merkleRoot);
 };
 
 module.exports = {

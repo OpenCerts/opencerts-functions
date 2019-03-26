@@ -1,19 +1,22 @@
 const sinon = require("sinon");
 const proxyquire = require("proxyquire");
 const documentStore = sinon.stub();
+const getData = sinon.stub();
 const {
   getIssued,
   getIssuedOnAll,
   getIssuedSummary,
   verifyIssued
 } = proxyquire("./issued", {
-  "../common/documentStore": documentStore
+  "../common/documentStore": documentStore,
+  "@govtechsg/open-attestation": { getData }
 });
 const certificateTampered = require("../../../test/fixtures/tampered-certificate.json");
 
 describe.only("verify/issued", () => {
   beforeEach(() => {
     documentStore.reset();
+    getData.reset();
   });
   describe("getIssued", () => {
     it("returns true if certificate is issued", async () => {
@@ -56,6 +59,10 @@ describe.only("verify/issued", () => {
       documentStore.onCall(1).resolves(false);
 
       const isIssued = await getIssuedOnAll(["Store1", "Store2"], "MerkleRoot");
+      expect(documentStore.args).to.eql([
+        ["Store1", "isIssued", "0xMerkleRoot"],
+        ["Store2", "isIssued", "0xMerkleRoot"]
+      ]);
       expect(isIssued).to.eql({
         Store1: true,
         Store2: false
@@ -70,6 +77,10 @@ describe.only("verify/issued", () => {
         ["Store1", "Store2"],
         "MerkleRoot"
       );
+      expect(documentStore.args).to.eql([
+        ["Store1", "isIssued", "0xMerkleRoot"],
+        ["Store2", "isIssued", "0xMerkleRoot"]
+      ]);
       expect(isIssued).to.eql({
         valid: true,
         issued: {
@@ -86,6 +97,10 @@ describe.only("verify/issued", () => {
         ["Store1", "Store2"],
         "MerkleRoot"
       );
+      expect(documentStore.args).to.eql([
+        ["Store1", "isIssued", "0xMerkleRoot"],
+        ["Store2", "isIssued", "0xMerkleRoot"]
+      ]);
       expect(isIssued).to.eql({
         valid: false,
         issued: {
@@ -98,12 +113,36 @@ describe.only("verify/issued", () => {
 
   describe("verifyIssued", () => {
     it("returns the summary of the issued check, given a certificate", async () => {
+      // Mocks OA getData
+      getData.returns({
+        issuers: [
+          { certificateStore: "CertStore1" },
+          { certificateStore: "CertStore2" },
+          { documentStore: "DocStore1" },
+          { documentStore: "DocStore2" }
+        ]
+      });
       documentStore.resolves(true);
-      const verifySummary = await verifyIssued(certificateTampered);
+      const documentRaw = {
+        signature: {
+          merkleRoot: "MerkleRoot"
+        }
+      };
+
+      const verifySummary = await verifyIssued(documentRaw);
+      expect(documentStore.args).to.eql([
+        ["CertStore1", "isIssued", "0xMerkleRoot"],
+        ["CertStore2", "isIssued", "0xMerkleRoot"],
+        ["DocStore1", "isIssued", "0xMerkleRoot"],
+        ["DocStore2", "isIssued", "0xMerkleRoot"]
+      ]);
       expect(verifySummary).to.eql({
         valid: true,
         issued: {
-          "0x20bc9C354A18C8178A713B9BcCFFaC2152b53990": true
+          CertStore1: true,
+          CertStore2: true,
+          DocStore1: true,
+          DocStore2: true
         }
       });
     });
