@@ -11,9 +11,8 @@ const {
   "../common/documentStore": documentStore,
   "@govtechsg/open-attestation": { getData }
 });
-const certificateTampered = require("../../../test/fixtures/tampered-certificate.json");
 
-describe.only("verify/issued", () => {
+describe("verify/issued", () => {
   beforeEach(() => {
     documentStore.reset();
     getData.reset();
