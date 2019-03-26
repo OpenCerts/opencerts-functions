@@ -1,34 +1,48 @@
-const ethers = require("ethers");
-const { every, values } = require("lodash");
-const abi = require("../common/abi.json");
+const { get, every, values, zipObject } = require("lodash");
+const { certificateData } = require("@govtechsg/open-certificate");
 
-const NETWORK = "homestead";
-const INFURA_API_KEY = "92c9a51428b946c1b8c1ac5a237616e4";
+const documentStore = require("../common/documentStore");
 
-const provider = new ethers.providers.InfuraProvider(NETWORK, INFURA_API_KEY);
-
-// TODO Possible to use a cache to speed up lookups
+/**
+ * Checks issue status on a single document store
+ *
+ * @param  {} storeAddress Address of document store to check issue status on
+ * @param  {} hash Hash of the merkle root of the document, not the target hash
+ */
 const getIssued = async (storeAddress, hash) => {
   try {
-    const contract = new ethers.Contract(storeAddress, abi, provider);
-    const issued = await contract.functions.isIssued(`0x${hash}`);
+    const issued = await documentStore(storeAddress, "isIssued", `0x${hash}`);
     return issued;
   } catch (e) {
-    // If contract is not deployed, the function will throw. It should return false if there is errors.
+    // If contract is not deployed, the function will throw.
+    // It should default to false if there is errors.
     return false;
   }
 };
 
+/**
+ * Get issue states on all store in parallel
+ *
+ * @param  {string[]} storeAddresses Array of all store addresses
+ * @param  {string} hash Hash of the merkle root of the document, not the target hash
+ * @return {object} Issue status of the document on each of the store, with store address as the key
+ */
 const getIssuedOnAll = async (storeAddresses = [], hash) => {
-  const issued = {};
-  for (const address of storeAddresses) {
-    const isIssued = await getIssued(address, hash);
-    issued[address] = isIssued;
-  }
-  return issued;
+  const issuesStatusesDefered = storeAddresses.map(storeAddress =>
+    getIssued(storeAddress, hash)
+  );
+  const issueStatuses = await Promise.all(issuesStatusesDefered);
+  return zipObject(storeAddresses, issueStatuses);
 };
 
-const verifyIssued = async (storeAddresses = [], hash) => {
+/**
+ * Provide a summary of the validity of the issued status
+ *
+ * @param  {string[]} storeAddresses Array of all store addresses
+ * @param  {string} hash Hash of the merkle root of the document, not the target hash
+ * @return {object} Object containing valid status and the issued status on all store
+ */
+const getIssuedSummary = async (storeAddresses = [], hash) => {
   const issued = await getIssuedOnAll(storeAddresses, hash);
   const issuedValues = values(issued);
   const valid =
@@ -39,8 +53,23 @@ const verifyIssued = async (storeAddresses = [], hash) => {
   };
 };
 
+/**
+ * Provide a summary of issued status, given a document
+ *
+ * @param  {object} certificate Raw certificate data
+ * @return {object} Summary of validity status, see getIssuedSummary()
+ */
+const verifyIssued = certificate => {
+  const storeAddresses = get(certificateData(certificate), "issuers", []).map(
+    i => i.certificateStore
+  );
+  const merkleRoot = get(certificate, "signature.merkleRoot");
+  return getIssuedSummary(storeAddresses, merkleRoot)
+};
+
 module.exports = {
   getIssued,
   getIssuedOnAll,
+  getIssuedSummary,
   verifyIssued
 };

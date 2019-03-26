@@ -4,7 +4,7 @@ const {
   verifyRevoked
 } = require("./unrevoked");
 
-describe("verify/revoked", () => {
+describe.skip("verify/revoked", () => {
   describe("getRevoked", () => {
     it("returns true for revoked certificates", async () => {
       const isRevoked = await getRevoked(
