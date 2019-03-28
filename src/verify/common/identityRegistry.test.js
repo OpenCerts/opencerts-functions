@@ -1,5 +1,6 @@
 const proxquire = require("proxyquire");
 const sinon = require("sinon");
+
 const axios = sinon.stub();
 const { setCache, isValidData, fetchData, getIdentity } = proxquire(
   "./identityRegistry",
@@ -13,7 +14,7 @@ const freshData = {
     issuers: {
       "0x01": "Foo(Fresh)",
       "0x02": "Bar(Fresh)",
-      "0xab": "Moo(Fresh)",
+      "0xab": "Moo(Fresh)"
     }
   }
 };
@@ -23,7 +24,7 @@ const cachedData = {
     issuers: {
       "0x01": "Foo(Cached)",
       "0x02": "Bar(Cached)",
-      "0xab": "Moo(Cached)",
+      "0xab": "Moo(Cached)"
     }
   }
 };
@@ -75,7 +76,7 @@ describe("identityRegistry", () => {
       const res = await getIdentity(identifier);
       expect(res).to.eql("Foo(Fresh)");
     });
-    
+
     it("returns name of identity if the identifier (in another case) resolves", async () => {
       const identifier = "0xAB";
       const res = await getIdentity(identifier);

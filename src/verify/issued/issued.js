@@ -28,10 +28,10 @@ const getIssued = async (storeAddress, hash) => {
  * @return {object} Issue status of the document on each of the store, with store address as the key
  */
 const getIssuedOnAll = async (storeAddresses = [], hash) => {
-  const issuesStatusesDefered = storeAddresses.map(storeAddress =>
+  const issueStatusesDefered = storeAddresses.map(storeAddress =>
     getIssued(storeAddress, hash)
   );
-  const issueStatuses = await Promise.all(issuesStatusesDefered);
+  const issueStatuses = await Promise.all(issueStatusesDefered);
   return zipObject(storeAddresses, issueStatuses);
 };
 

@@ -1,5 +1,6 @@
 const proxyquire = require("proxyquire");
 const sinon = require("sinon");
+
 const getIdentity = sinon.stub();
 const getData = sinon.stub();
 const {
@@ -12,7 +13,7 @@ const {
   "@govtechsg/open-attestation": { getData }
 });
 
-describe.only("verify/identity", () => {
+describe("verify/identity", () => {
   beforeEach(() => {
     getIdentity.reset();
   });
@@ -86,7 +87,7 @@ describe.only("verify/identity", () => {
       getIdentity.onCall(1).resolves("Bar-ID");
       getIdentity.onCall(2).resolves(undefined);
       getIdentity.onCall(3).resolves("Moo-ID");
-      
+
       const document = "DOCUMENT";
       const summary = await verifyIdentity(document);
       expect(getData.args[0]).to.eql(["DOCUMENT"]);

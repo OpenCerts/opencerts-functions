@@ -1,10 +1,10 @@
-const { get, every, values, zipObject } = require("lodash");
+const { get, every, values } = require("lodash");
 const { getIdentity } = require("../common/identityRegistry");
 const { getData } = require("@govtechsg/open-attestation");
 
 /**
  * Resolves multiple addresses, returning their identities if found
- * 
+ *
  * @param  {string[]} addresses Array of addresses to resolve
  * @returns {object} Object of identities, with address as identifier
  */
@@ -20,7 +20,7 @@ const getIdentities = async (addresses = []) => {
 
 /**
  * Checks an identity object to see if all identifier has resolved identity
- * 
+ *
  * @param  {object} identities Object of identities, with address as identifier
  * @returns {boolean} True if all identifiers resolves
  */
@@ -33,7 +33,7 @@ const isAllIdentityValid = (identities = {}) => {
 
 /**
  * Get summary of the identity check, with a valid flag
- * 
+ *
  * @param  {string[]} addresses Array of addresses to resolve, to support ENS names in future
  * @return {object} Summary of the check, with a valid flag
  */
@@ -48,7 +48,7 @@ const getIdentitySummary = async (addresses = []) => {
 
 /**
  * Given a document, perform the check and return a summary
- * 
+ *
  * @param  {object} document Raw OpenAttestation document
  * @return {object} Summary of the check, with a valid flag
  */

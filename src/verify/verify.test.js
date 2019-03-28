@@ -1,4 +1,4 @@
-const verify = require('./verify');
+const verify = require("./verify");
 
 const certificateTampered = require("../../test/fixtures/tampered-certificate.json");
 

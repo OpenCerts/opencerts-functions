@@ -31,4 +31,4 @@ const verify = async certificate => {
   };
 };
 
-module.exports = verify
+module.exports = verify;

@@ -1,5 +1,6 @@
 const sinon = require("sinon");
 const proxyquire = require("proxyquire");
+
 const documentStore = sinon.stub();
 const getData = sinon.stub();
 const {
