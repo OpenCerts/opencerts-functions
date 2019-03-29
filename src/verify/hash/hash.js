@@ -1,4 +1,4 @@
-const { verifySignature } = require("@govtechsg/open-certificate");
+const { verifySignature } = require("@govtechsg/open-attestation");
 
 const verifyHash = certificate => ({ valid: verifySignature(certificate) });
 

@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require("fs");
-const opencerts = require("@govtechsg/open-certificate");
+const oa = require("@govtechsg/open-attestation");
 const { get, template } = require("lodash");
 
 const htmlTemplatePath = path.join(__dirname, "./template.html");
@@ -20,7 +20,7 @@ const subjectMailTemplate = template(subjectMailTemplateContent);
 const messageTemplate = certificate => {
   try {
     // Might throw if the certificate is undefined
-    const data = opencerts.certificateData(certificate);
+    const data = oa.getData(certificate);
     if (!data) {
       throw new Error("Fail to read data from certificate");
     }
