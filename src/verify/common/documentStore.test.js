@@ -1,6 +1,6 @@
 const documentStore = require("./documentStore");
 
-describe("documentStoreApi", () => {
+describe("documentStoreApi(integration)", () => {
   it("should reject if the contract is not deployed", async () => {
     await expect(
       documentStore(

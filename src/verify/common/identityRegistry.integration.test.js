@@ -1,6 +1,6 @@
 const { getIdentity } = require("./identityRegistry");
 
-describe("identityRegistry", () => {
+describe("identityRegistry(integration)", () => {
   describe("getIdentity", () => {
     it("returns identity if found", async () => {
       const res = await getIdentity(
