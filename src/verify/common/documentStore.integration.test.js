@@ -11,12 +11,12 @@ describe("documentStoreApi(integration)", () => {
     ).to.eventually.be.rejectedWith("contract not deployed");
   }).timeout(10000);
 
-  it("should reject for malformed args", async () => {
+  it("should reject for args not conforming to ABI", async () => {
     await expect(
       documentStore(
         "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
         "isIssued",
-        "0000000000000000000000000000000000000000000000000000000000000000"
+        "0000"
       )
     ).to.eventually.be.rejectedWith("invalid input argument");
   }).timeout(10000);
