@@ -1,4 +1,4 @@
-const verify = require("./verify");
+const verify = require("@govtechsg/oa-verify");
 
 const handler = async (event, _context, callback) => {
   const { certificate } = JSON.parse(event.body);
