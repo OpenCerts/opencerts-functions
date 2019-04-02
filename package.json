@@ -18,9 +18,7 @@
     "@govtechsg/oa-verify": "^1.0.6",
     "@govtechsg/open-attestation": "^1.1.30",
     "aws-sdk": "^2.314.0",
-    "axios": "^0.18.0",
     "dotenv": "^6.0.0",
-    "ethers": "^4.0.27",
     "lodash": "^4.17.11",
     "node-fetch": "^2.2.0",
     "nodemailer": "^4.6.8",
@@ -40,8 +38,6 @@
     "mocha": "^5.2.0",
     "nyc": "^13.3.0",
     "prettier": "^1.14.2",
-    "proxyquire": "^2.1.0",
-    "serverless-offline": "^3.25.11",
-    "sinon": "^7.3.0"
+    "serverless-offline": "^3.25.11"
   }
 }
