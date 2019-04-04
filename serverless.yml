@@ -1,9 +1,9 @@
-service: dlt-send-cert-on-behalf
+service: dlt-functions
 
 provider:
   name: aws
   runtime: nodejs8.10
-  stage: dev
+  stage: ${opt:stage, 'staging'}
   region: ap-southeast-1
 
 functions:
