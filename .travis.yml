@@ -4,10 +4,10 @@ node_js:
 cache: npm install
 jobs:
   include:
-    - stage: unit_test
-      script:
-        - npm run lint
-        - npm run test
+    # - stage: unit_test
+    #   script:
+    #     - npm run lint
+    #     - npm run test
     - stage: deploy_staging
       script:
         - ./scripts/deploy_staging.sh
@@ -15,6 +15,6 @@ jobs:
       script:
         - ./scripts/deploy_production.sh
 stages:
-  - unit_test
+  # - unit_test
   - deploy_staging
   - deploy_production

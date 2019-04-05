@@ -23,14 +23,6 @@ functions:
           path: /verify
           method: post
           cors: true
-  verify-too:
-    description: Checks the validity of the certificate against the 4 checks.
-    handler: src/verify.handler
-    events:
-      - http:
-          path: /verify2
-          method: post
-          cors: true
 
 plugins:
   - serverless-dotenv-plugin
