@@ -11,10 +11,10 @@ jobs:
     - stage: deploy_staging
       script:
         - ./scripts/deploy_staging.sh
-    - stage: deploy_production
-      script:
-        - ./scripts/deploy_production.sh
+    # - stage: deploy_production
+    #   script:
+    #     - ./scripts/deploy_production.sh
 stages:
   # - unit_test
   - deploy_staging
-  - deploy_production
+  # - deploy_production
