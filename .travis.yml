@@ -8,13 +8,13 @@ jobs:
     #   script:
     #     - npm run lint
     #     - npm run test
-    - stage: deploy_staging
-      script:
-        - ./scripts/deploy_staging.sh
-    # - stage: deploy_production
+    # - stage: deploy_staging
     #   script:
-    #     - ./scripts/deploy_production.sh
+    #     - ./scripts/deploy_staging.sh
+    - stage: deploy_production
+      script:
+        - ./scripts/deploy_production.sh
 stages:
   # - unit_test
-  - deploy_staging
-  # - deploy_production
+  # - deploy_staging
+  - deploy_production
