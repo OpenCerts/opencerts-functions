@@ -20,6 +20,7 @@
     "aws-sdk": "^2.314.0",
     "dotenv": "^6.0.0",
     "lodash": "^4.17.11",
+    "middy": "^0.24.0",
     "node-fetch": "^2.2.0",
     "nodemailer": "^4.6.8",
     "serverless": "^1.40.0",

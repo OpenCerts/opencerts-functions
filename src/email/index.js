@@ -1,3 +1,6 @@
+const middy = require("middy");
+const { cors } = require("middy/middlewares");
+
 require("dotenv").config();
 const recaptcha = require("./recaptcha");
 const certificateMailer = require("./mailer/mailerWithSESTransporter");
@@ -14,7 +17,7 @@ const email = async ({ to, data, captcha }) => {
   await certificateMailer({ to, certificate });
 };
 
-module.exports.handler = (event, _context, callback) => {
+const handleEmail = (event, _context, callback) => {
   const body = JSON.parse(event.body);
   email(body)
     .then(() => {
@@ -30,3 +33,7 @@ module.exports.handler = (event, _context, callback) => {
       });
     });
 };
+
+const handler = middy(handleEmail).use(cors());
+
+module.exports = { handler };

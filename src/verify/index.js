@@ -1,6 +1,8 @@
+const middy = require("middy");
+const { cors } = require("middy/middlewares");
 const verify = require("@govtechsg/oa-verify");
 
-const handler = async (event, _context, callback) => {
+const handleVerify = async (event, _context, callback) => {
   const { certificate } = JSON.parse(event.body);
   try {
     const verificationResults = await verify(certificate);
@@ -16,6 +18,8 @@ const handler = async (event, _context, callback) => {
     });
   }
 };
+
+const handler = middy(handleVerify).use(cors());
 
 module.exports = {
   handler
