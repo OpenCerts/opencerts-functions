@@ -4,13 +4,17 @@ node_js:
 cache: npm install
 jobs:
   include:
-    - stage: unit_test
+    # - stage: unit_test
+    #   script:
+    #     - npm run lint
+    #     - npm run test
+    # - stage: deploy_staging
+    #   script:
+    #     - ./scripts/deploy_staging.sh
+    - stage: deploy_production
       script:
-        - npm run lint
-    #       - npm run test
-    - stage: deploy_staging
-      script:
-        - ./build/deploy_staging.sh
+        - ./scripts/deploy_production.sh
 stages:
-  - unit_test
-  - deploy_staging
+  # - unit_test
+  # - deploy_staging
+  - deploy_production
