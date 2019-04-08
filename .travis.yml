@@ -9,14 +9,14 @@ jobs:
         - npm run lint
         - npm run test
     - stage: deploy_staging
+      if: branch = master AND type != pull_request
       script:
         - ./scripts/deploy_staging.sh
     - stage: deploy_production
+      if: branch = master AND type != pull_request
       script:
         - ./scripts/deploy_production.sh
 stages:
   - unit_test
-  - name: deploy_staging
-    if: branch = master AND type != pull_request
-  - name: deploy_production
-    if: branch = master AND type != pull_request
+  - deploy_staging
+  - deploy_production
