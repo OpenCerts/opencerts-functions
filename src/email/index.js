@@ -9,8 +9,8 @@ const captchaValidator = recaptcha(process.env.RECAPTCHA_SECRET);
 
 const email = async ({ to, data, captcha }) => {
   // Validate captcha
-  // const valid = await captchaValidator(captcha);
-  // if (!valid) throw new Error("Invalid captcha");
+  const valid = await captchaValidator(captcha);
+  if (!valid) throw new Error("Invalid captcha");
 
   // Send certificate out
   const certificate = data;
