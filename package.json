@@ -15,9 +15,9 @@
   "author": "Raymond Yeh <yehjxraymond@gmail.com> (http://geek.sg)",
   "license": "ISC",
   "dependencies": {
-    "@govtechsg/oa-verify": "^1.0.6",
+    "@govtechsg/oa-verify": "^1.0.11",
     "@govtechsg/open-attestation": "^1.1.30",
-    "aws-sdk": "^2.314.0",
+    "aws-sdk": "^2.437.0",
     "dotenv": "^6.0.0",
     "lodash": "^4.17.11",
     "middy": "^0.24.0",
@@ -30,7 +30,7 @@
   "devDependencies": {
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
-    "eslint": "^5.6.0",
+    "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-config-prettier": "^3.0.1",
     "eslint-plugin-chai-friendly": "^0.4.1",

@@ -1,19 +1,27 @@
 const middy = require("middy");
 const { cors } = require("middy/middlewares");
+const verify = require("@govtechsg/oa-verify");
 
 require("dotenv").config();
 const recaptcha = require("./recaptcha");
 const certificateMailer = require("./mailer/mailerWithSESTransporter");
+const config = require("./config");
 
-const captchaValidator = recaptcha(process.env.RECAPTCHA_SECRET);
+const captchaValidator = recaptcha(config.recaptchaSecret);
 
 const email = async ({ to, data, captcha }) => {
   // Validate captcha
   const valid = await captchaValidator(captcha);
   if (!valid) throw new Error("Invalid captcha");
 
-  // Send certificate out
   const certificate = data;
+
+  // Verify Certificate
+  const verificationResults = await verify(certificate, config.network);
+  if (!verificationResults || !verificationResults.valid)
+    throw new Error("Invalid certificate");
+
+  // Send certificate out
   await certificateMailer({ to, certificate });
 };
 

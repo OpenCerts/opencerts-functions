@@ -14,7 +14,6 @@ const sendRawMail = (transporter, data) =>
   });
 
 const sendCertificate = transporter => async ({ to, certificate }) => {
-  // TODO: Check validity of certificate
   const { html, text, subject } = messageTemplate(certificate);
   const content = JSON.stringify(certificate);
 
