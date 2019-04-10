@@ -16,27 +16,29 @@ describe("messageTemplate", () => {
   it("returns html and text given a certificate", () => {
     const extractContent = str => str.replace(/ +/g, "");
     const message = messageTemplate(certificate);
-    expect(extractContent(message.html)).to.eql(
+    expect(extractContent(message.html)).toEqual(
       extractContent(expectedContentHtml)
     );
-    expect(extractContent(message.text)).to.eql(
+    expect(extractContent(message.text)).toEqual(
       extractContent(expectedContentTxt)
     );
-    expect(extractContent(message.subject)).to.eql(
+    expect(extractContent(message.subject)).toEqual(
       extractContent(expectedContentSubject)
     );
   });
 
   it("throws for undefined certificate", () => {
-    expect(() => messageTemplate()).to.throw;
-    expect(() => messageTemplate(undefined)).to.throw;
+    expect(() => messageTemplate()).toThrow();
+    expect(() => messageTemplate(undefined)).toThrow();
   });
 
   it("throws for null certificate", () => {
-    expect(() => messageTemplate(null)).to.throw;
+    expect(() => messageTemplate(null)).toThrow();
   });
 
   it("throws for invalid certificate", () => {
-    expect(() => messageTemplate({ data: "Invalid Data" })).to.throw;
+    expect(() => messageTemplate({ foo: "Invalid Data" })).toThrow(
+      "Fail to read data from certificate"
+    );
   });
 });
