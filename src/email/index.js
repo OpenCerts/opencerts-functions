@@ -1,4 +1,5 @@
 const middy = require("middy");
+const { get } = require("lodash");
 const { cors } = require("middy/middlewares");
 const verify = require("@govtechsg/oa-verify");
 
@@ -9,37 +10,38 @@ const config = require("./config");
 
 const captchaValidator = recaptcha(config.recaptchaSecret);
 
-const email = async ({ to, data, captcha }) => {
-  // Validate captcha
-  const valid = await captchaValidator(captcha);
-  if (!valid) throw new Error("Invalid captcha");
+const validateApiKey = key => key && config.emailApiKeys.includes(key);
 
-  const certificate = data;
+const handleEmail = async (event, _context, callback) => {
+  try {
+    const { to, data, captcha } = JSON.parse(event.body);
 
-  // Verify Certificate
-  const verificationResults = await verify(certificate, config.network);
-  if (!verificationResults || !verificationResults.valid)
-    throw new Error("Invalid certificate");
+    // Validate captcha if api key is not present
+    const apiKey = get(event, "headers['X-API-KEY']");
+    if (!validateApiKey(apiKey)) {
+      const valid = await captchaValidator(captcha);
+      if (!valid) throw new Error("Invalid captcha");
+    }
 
-  // Send certificate out
-  await certificateMailer({ to, certificate });
-};
+    // Verify Certificate
+    const verificationResults = await verify(data, config.network);
+    if (!verificationResults || !verificationResults.valid) {
+      throw new Error("Invalid certificate");
+    }
 
-const handleEmail = (event, _context, callback) => {
-  const body = JSON.parse(event.body);
-  email(body)
-    .then(() => {
-      callback(null, {
-        statusCode: 200,
-        body: "OK"
-      });
-    })
-    .catch(e => {
-      callback(null, {
-        statusCode: 501,
-        body: e.message
-      });
+    // Send certificate out
+    await certificateMailer({ to, certificate: data });
+
+    callback(null, {
+      statusCode: 200,
+      body: "OK"
     });
+  } catch (e) {
+    callback(null, {
+      statusCode: 501,
+      body: JSON.stringify(e.message)
+    });
+  }
 };
 
 const handler = middy(handleEmail).use(cors());
