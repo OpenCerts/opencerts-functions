@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "sls offline",
     "deploy": "sls deploy",
-    "test": "nyc --reporter=html mocha --timeout 5000 -- ./test/helpers.js './schema/**/*.test.js' './src/**/*.test.js' './test/**/*.test.js'",
-    "test-watch": "mocha ./test/helpers.js './schema/**/*.test.js' './src/**/*.test.js' './test/**/*.test.js' --watch --watch-extensions js,json --recursive",
+    "depcheck": "depcheck . --ignores=\"serverless-*\"",
+    "test": "jest",
+    "test-watch": "jest --watch",
     "lint": "eslint . --ext .js --max-warnings 0",
     "lint:fix": "eslint . --ext .js --fix"
   },
@@ -28,17 +29,14 @@
     "serverless-http": "^1.6.0"
   },
   "devDependencies": {
-    "chai": "^4.1.2",
-    "chai-as-promised": "^7.1.1",
+    "depcheck": "^0.7.2",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-config-prettier": "^3.0.1",
-    "eslint-plugin-chai-friendly": "^0.4.1",
     "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-mocha": "^5.2.0",
+    "eslint-plugin-jest": "^22.4.1",
     "eslint-plugin-prettier": "^2.6.2",
-    "mocha": "^5.2.0",
-    "nyc": "^13.3.0",
+    "jest": "^24.7.1",
     "prettier": "^1.14.2",
     "serverless-offline": "^3.25.11"
   }

@@ -28,7 +28,7 @@ describe("mailer", () => {
   let account;
   let mailByEthereal;
 
-  before(async () => {
+  beforeAll(async () => {
     account = await etherealCreateAccount();
     const etherealTransporter = nodemailer.createTransport({
       host: account.smtp.host,
@@ -58,6 +58,6 @@ describe("mailer", () => {
       subject: "Subject: John Snow sent you a certificate",
       to: account.user
     });
-    expect(valid).to.be.true;
-  }).timeout(10000);
+    expect(valid).toBe(true);
+  }, 20000);
 });

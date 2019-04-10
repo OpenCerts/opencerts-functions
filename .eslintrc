@@ -1,20 +1,9 @@
 {
-  "extends": [
-    "airbnb-base",
-    "prettier"
-  ],
+  "extends": ["airbnb-base", "prettier"],
   "env": {
-    "mocha": true
+    "jest/globals": true
   },
-  "plugins": [
-    "prettier",
-    "chai-friendly",
-    "mocha"
-  ],
-  "globals": {
-    "assert": false,
-    "expect": true,
-  },
+  "plugins": ["prettier", "jest"],
   "rules": {
     "no-unused-vars": [
       "error",
@@ -22,13 +11,8 @@
         "argsIgnorePattern": "^_"
       }
     ],
-    "func-names": [
-      "error",
-      "as-needed"
-    ],
+    "func-names": ["error", "as-needed"],
     "prettier/prettier": "error",
-    "no-unused-expressions": "off",
-    "mocha/no-exclusive-tests": "error",
-    "chai-friendly/no-unused-expressions": "error"
+    "no-unused-expressions": "off"
   }
 }

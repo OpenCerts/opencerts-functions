@@ -22,7 +22,7 @@ const messageTemplate = certificate => {
     // Might throw if the certificate is undefined
     const data = openAttestation.getData(certificate);
     if (!data) {
-      throw new Error("Fail to read data from certificate");
+      throw new Error("Empty document");
     }
 
     const issuerName = get(data, "issuers[0].name");
@@ -36,7 +36,6 @@ const messageTemplate = certificate => {
     };
   } catch (e) {
     // eslint-disable-next-line
-    console.error(e);
     throw new Error("Fail to read data from certificate");
   }
 };
