@@ -14,6 +14,7 @@ jobs:
       script:
         - ./scripts/deploy_staging.sh
     - stage: integration_test
+      if: branch = master AND type != pull_request
       script:
         - npm run integration
     - stage: deploy_production
