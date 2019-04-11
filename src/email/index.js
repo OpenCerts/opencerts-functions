@@ -3,7 +3,6 @@ const { get } = require("lodash");
 const { cors } = require("middy/middlewares");
 const verify = require("@govtechsg/oa-verify");
 
-require("dotenv").config();
 const recaptcha = require("./recaptcha");
 const certificateMailer = require("./mailer/mailerWithSESTransporter");
 const config = require("./config");

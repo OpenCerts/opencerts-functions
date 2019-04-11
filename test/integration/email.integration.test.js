@@ -1,4 +1,3 @@
-require("dotenv").config();
 const supertest = require("supertest");
 const ropstenCertificate = require("../fixtures/certificate.json");
 const mainnetCertificate = require("../fixtures/certificateMainnetValid.json");
