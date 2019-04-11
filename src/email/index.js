@@ -34,12 +34,12 @@ const handleEmail = async (event, _context, callback) => {
 
     callback(null, {
       statusCode: 200,
-      body: "OK"
+      body: JSON.stringify({ success: true })
     });
   } catch (e) {
     callback(null, {
       statusCode: 501,
-      body: JSON.stringify(e.message)
+      body: JSON.stringify({ error: e.message })
     });
   }
 };
