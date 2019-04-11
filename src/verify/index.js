@@ -14,7 +14,7 @@ const handleVerify = async (event, _context, callback) => {
     });
   } catch (e) {
     callback(null, {
-      statusCode: 501,
+      statusCode: 400,
       body: e.message
     });
   }
