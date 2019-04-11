@@ -7,5 +7,5 @@ module.exports = {
   recaptchaSecret: process.env.RECAPTCHA_SECRET,
   network: process.env.NETWORK || "homestead",
   emailApiKeys:
-    (process.env.EMAIL_API_KEYS && JSON.parse(process.env.EMAIL_API_KEYS)) || []
+    (process.env.EMAIL_API_KEYS && process.env.EMAIL_API_KEYS.split(":")) || []
 };
