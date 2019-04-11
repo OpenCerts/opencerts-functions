@@ -55,7 +55,7 @@ describe("mailer", () => {
       url: rawEmailUrl,
       html: "cid:certificate",
       text: "----------",
-      subject: "Subject: John Snow sent you a certificate",
+      subject: "Subject: Student Name PHARM Cert sent you a certificate",
       to: account.user
     });
     expect(valid).toBe(true);

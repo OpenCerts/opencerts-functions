@@ -7,8 +7,9 @@
     "dev": "sls offline",
     "deploy": "sls deploy",
     "depcheck": "depcheck . --ignores=\"serverless-*\"",
-    "test": "jest",
+    "test": "jest --testPathPattern=src",
     "test-watch": "jest --watch",
+    "integration": "jest --testPathPattern=test/integration",
     "lint": "eslint . --ext .js --max-warnings 0",
     "lint:fix": "eslint . --ext .js --fix"
   },
@@ -19,7 +20,7 @@
     "@govtechsg/oa-verify": "^1.0.14",
     "@govtechsg/open-attestation": "^1.1.30",
     "aws-sdk": "^2.437.0",
-    "dotenv": "^6.0.0",
+    "dotenv": "^6.2.0",
     "lodash": "^4.17.11",
     "middy": "^0.24.0",
     "node-fetch": "^2.2.0",
@@ -38,6 +39,7 @@
     "eslint-plugin-prettier": "^2.6.2",
     "jest": "^24.7.1",
     "prettier": "^1.14.2",
-    "serverless-offline": "^3.25.11"
+    "serverless-offline": "^3.25.11",
+    "supertest": "^4.0.2"
   }
 }

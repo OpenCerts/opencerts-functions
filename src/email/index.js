@@ -10,7 +10,13 @@ const config = require("./config");
 
 const captchaValidator = recaptcha(config.recaptchaSecret);
 
-const validateApiKey = key => key && config.emailApiKeys.includes(key);
+const validateApiKey = key => {
+  if (!key) return false;
+  if (config.emailApiKeys.includes(key)) {
+    return true;
+  }
+  throw new Error("Invalid API key");
+};
 
 const handleEmail = async (event, _context, callback) => {
   try {
@@ -20,7 +26,7 @@ const handleEmail = async (event, _context, callback) => {
     const apiKey = get(event, "headers['X-API-KEY']");
     if (!validateApiKey(apiKey)) {
       const valid = await captchaValidator(captcha);
-      if (!valid) throw new Error("Invalid captcha");
+      if (!valid) throw new Error("Invalid captcha or missing API key");
     }
 
     // Verify Certificate
@@ -34,12 +40,12 @@ const handleEmail = async (event, _context, callback) => {
 
     callback(null, {
       statusCode: 200,
-      body: "OK"
+      body: JSON.stringify({ success: true })
     });
   } catch (e) {
     callback(null, {
-      statusCode: 501,
-      body: JSON.stringify(e.message)
+      statusCode: 400,
+      body: JSON.stringify({ error: e.message })
     });
   }
 };

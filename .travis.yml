@@ -13,6 +13,10 @@ jobs:
       if: branch = master AND type != pull_request
       script:
         - ./scripts/deploy_staging.sh
+    - stage: integration_test
+      if: branch = master AND type != pull_request
+      script:
+        - npm run integration
     - stage: deploy_production
       if: branch = master AND type != pull_request
       script:
@@ -20,4 +24,5 @@ jobs:
 stages:
   - unit_test
   - deploy_staging
+  - integration_test
   - deploy_production
