@@ -22,6 +22,9 @@ const handleEmail = async (event, _context, callback) => {
   try {
     const { to, data, captcha } = JSON.parse(event.body);
 
+    // eslint-disable-next-line no-console
+    console.log(event.headers);
+
     // Validate captcha if api key is not present
     const apiKey = get(event, "headers['X-API-KEY']");
     if (!validateApiKey(apiKey)) {
