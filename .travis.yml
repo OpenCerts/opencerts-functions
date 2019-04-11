@@ -22,7 +22,6 @@ jobs:
       script:
         - ./scripts/deploy_production.sh
 stages:
-  - unit_test
   - deploy_staging
   - integration_test
   - deploy_production
