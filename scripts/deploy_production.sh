@@ -8,4 +8,4 @@ aws_access_key_id = ${PRODUCTION_AWS_ACCESS_KEY_ID}
 aws_secret_access_key = ${PRODUCTION_AWS_SECRET_ACCESS_KEY}
 EOL
 
-npm run deploy -- --stage production
+npm run deploy -- --stage prd
