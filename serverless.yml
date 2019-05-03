@@ -5,6 +5,41 @@ provider:
   runtime: nodejs8.10
   stage: ${opt:stage, 'staging'}
   region: ap-southeast-1
+  environment:
+    OA_DOC_STORAGE_TABLE: dlt-oa-doc-storage-${opt:stage, self:provider.stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.OA_DOC_STORAGE_TABLE}"
+
+resources:
+  Resources:
+    DocsDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.OA_DOC_STORAGE_TABLE}
+        TimeToLiveSpecification:
+          -
+            AttributeName: ttl
+            Enabled: true
 
 functions:
   email:
@@ -23,7 +58,33 @@ functions:
           path: /verify
           method: post
           cors: true
+  list:
+    handler: src/storage/list.handler
+    events:
+      - http:
+          path: /storage/list
+          method: get
+          cors: true
+  create:
+    handler: src/storage/create.handler
+    events:
+      - http:
+          path: /storage/create
+          method: post
+          cors: true
+
+custom:
+  # Enable auto migration in local dynamodb on start
+  dynamodb:
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+    migration:
+      dir: offline/migrations
+
 
 plugins:
   - serverless-dotenv-plugin
   - serverless-offline
+  - serverless-dynamodb-local
