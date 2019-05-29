@@ -29,7 +29,7 @@ const handleEmail = async (event, _context, callback) => {
     // eslint-disable-next-line no-console
     console.log(`ENV: ${process.env.EMAIL_API_KEYS}`);
     // eslint-disable-next-line no-console
-    console.log(`Config: ${config.emailApiKeys}`);
+    console.log(`Config: ${config}`);
 
     if (!validateApiKey(apiKey)) {
       const valid = await captchaValidator(captcha);
