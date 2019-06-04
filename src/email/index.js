@@ -33,6 +33,10 @@ const handleEmail = async (event, _context, callback) => {
 
     if (!validateApiKey(apiKey)) {
       const valid = await captchaValidator(captcha);
+      // eslint-disable-next-line no-console
+      console.log(`Captcha: ${captcha}`);
+      // eslint-disable-next-line no-console
+      console.log(`Captcha isValid: ${valid}`);
       if (!valid) throw new Error("Invalid captcha or missing API key");
     }
 
