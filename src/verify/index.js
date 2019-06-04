@@ -4,9 +4,9 @@ const verify = require("@govtechsg/oa-verify");
 const config = require("./config");
 
 const handleVerify = async (event, _context, callback) => {
-  const { certificate } = JSON.parse(event.body);
+  const { document } = JSON.parse(event.body);
   try {
-    const verificationResults = await verify(certificate, config.network);
+    const verificationResults = await verify(document, config.network);
     callback(null, {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
