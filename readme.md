@@ -1,8 +1,49 @@
-# Email Function
+# OpenAttestation Function
 
-This function sends email on behalf of OpenCerts user to another recipient.
+## Verify
 
-This function is to be deployed to AWS lamba. 
+This function will perform a 3 step check for documents issued under OpenAttestaion or OpenCerts format. The function checkes for
+
+- document is issued on document store
+- document is not revoked on document store
+- document has not been tampered with
+
+This function does not check the identity of the issuer as current implementations make use of centralised registries. A decentralised identity check is currently underway to check for the identity of the issuer.
+
+Example:
+
+```
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"document":"<OA_DOCUMENT_HERE>"}' \
+  https://api.opencerts.io/verify
+```
+
+## Email
+
+This function sends email on behalf of OpenCerts user to another recipient. This function is for OpenCerts documents only.
+
+Example (with captcha):
+
+```
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"to": "someone@example.com", "captcha": "<CAPTCHA_SECRET>", "certificate":"<OA_DOCUMENT_HERE>"}' \
+  https://api.opencerts.io/email
+```
+
+Example (with API KEY):
+
+```
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"to": "someone@example.com", "X-API-KEY": "<API_KEY>", "certificate":"<OA_DOCUMENT_HERE>"}' \
+  https://api.opencerts.io/email
+```
+
+## Storage (TBD)
+
+This function is currently being developed to transfer a OpenAttestation document via QR. There are two parts of the function to upload and then download the document. 
 
 # Development
 
@@ -10,34 +51,4 @@ Copy `.env` from a co-worker or insert own credentials to get started. A copy of
 
 ```
 yarn dev
-```
-
-# Styling Certificate
-
-The templates for the email are located in the folder `/src/messageTemplate`. 
-
-- template.txt (raw text template)
-- template.html (html email template)
-- template.subject (subject title template)
-
-Please update the test files after updating the template files:
-
-- expected.txt
-- expected.html
-- expected.subject
-
-# Test
-
-The test make use of ethereal email service. Upon running the test you may visit the preview url to see how your email will look like. 
-
-```
-yarn test
-```
-
-# Deployment
-
-To deploy to AWS you will require the necessary AWS credentials.
-
-```
-yarn deploy
 ```
