@@ -52,3 +52,11 @@ Copy `.env` from a co-worker or insert own credentials to get started. A copy of
 ```
 yarn dev
 ```
+
+## Dynamodb 
+
+Start dynamodb
+
+```
+sls dynamodb start
+```

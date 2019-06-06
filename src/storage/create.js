@@ -1,38 +1,45 @@
-const uuid = require('uuid/v4');
+const uuid = require("uuid/v4");
 const middy = require("middy");
 const { cors } = require("middy/middlewares");
 const dynamodb = require("./dynamoDb");
 
-const handleCreate = async (event, _context, callback) => {
+// Creates a new document (and returns the decryption key)
+const createDocument = async document => {
   const params = {
     TableName: process.env.OA_DOC_STORAGE_TABLE,
     Item: {
       id: uuid(),
-      document: "This is a document",
+      document,
       created: Date.now()
     }
   };
 
-  // write the todo to the database
-  dynamodb.put(params, error => {
-    // handle potential errors
-    if (error) {
-      console.error(error);
-      callback(null, {
-        statusCode: error.statusCode || 501,
-        headers: { "Content-Type": "text/plain" },
-        body: "Couldn't create the todo item."
-      });
-      return;
-    }
+  return new Promise((resolve, reject) => {
+    dynamodb.put(params, error => {
+      if (error) {
+        console.log("There")
+        return reject(error);
+      }
+      console.log("Hre");
+      resolve(params.Item);
+    });
+  });
+};
 
-    // create a response
+const handleCreate = async (event, _context, callback) => {
+  try {
+    const { document } = JSON.parse(event.body);
+    console.log(document);
+    const receipt = await createDocument(document);
+    console.log("Receipt", receipt)
     const response = {
       statusCode: 200,
-      body: JSON.stringify(params.Item)
+      body: JSON.stringify(receipt)
     };
     callback(null, response);
-  });
+  } catch (e) {
+    callback(e);
+  }
 };
 
 const handler = middy(handleCreate).use(cors());
