@@ -65,6 +65,17 @@ functions:
           path: /storage/list
           method: get
           cors: true
+  get: 
+    handler: src/storage/get.handler
+    events:
+      - http:
+          path: /storage/get/{id}
+          method: get
+          request:
+            parameters:
+              paths:
+                id: true
+          cors: true
   create:
     handler: src/storage/create.handler
     events:

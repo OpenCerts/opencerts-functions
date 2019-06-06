@@ -1,7 +1,9 @@
 const uuid = require("uuid/v4");
 const middy = require("middy");
 const { cors } = require("middy/middlewares");
-const dynamodb = require("./dynamoDb");
+const { put } = require("./dynamoDb");
+
+const DEFAULT_TTL = 1000 * 60 * 5; // 5 Minutes
 
 // Creates a new document (and returns the decryption key)
 const createDocument = async document => {
@@ -10,31 +12,21 @@ const createDocument = async document => {
     Item: {
       id: uuid(),
       document,
-      created: Date.now()
+      created: Date.now(),
+      ttl: Date.now() + DEFAULT_TTL
     }
   };
 
-  return new Promise((resolve, reject) => {
-    dynamodb.put(params, error => {
-      if (error) {
-        console.log("There")
-        return reject(error);
-      }
-      console.log("Hre");
-      resolve(params.Item);
-    });
-  });
+  return put(params).then(() => JSON.stringify(params.Item));
 };
 
 const handleCreate = async (event, _context, callback) => {
   try {
     const { document } = JSON.parse(event.body);
-    console.log(document);
     const receipt = await createDocument(document);
-    console.log("Receipt", receipt)
     const response = {
       statusCode: 200,
-      body: JSON.stringify(receipt)
+      body: receipt
     };
     callback(null, response);
   } catch (e) {

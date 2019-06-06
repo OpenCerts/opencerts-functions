@@ -27,4 +27,12 @@ const put = params =>
     });
   });
 
-module.exports = { client, scan, put };
+const get = params =>
+  new Promise((resolve, reject) => {
+    client.get(params, (err, res) => {
+      if (err) return reject(err);
+      resolve(res.Item);
+    });
+  });
+
+module.exports = { client, scan, put, get };
