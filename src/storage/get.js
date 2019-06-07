@@ -13,10 +13,16 @@ const getDocument = async id => {
   return get(params);
 };
 
+/**
+ * Todo
+ * - Delete document after serving it
+ */
 const handleGet = async (event, _context, callback) => {
   try {
     const { id } = event.pathParameters;
+    console.log(id);
     const document = await getDocument(id);
+    console.log(document);
     const response = {
       statusCode: 200,
       body: JSON.stringify(document)

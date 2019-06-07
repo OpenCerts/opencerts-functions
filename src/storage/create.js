@@ -20,6 +20,14 @@ const createDocument = async document => {
   return put(params).then(() => JSON.stringify(params.Item));
 };
 
+/**
+ * Todo
+ * - Verify document first
+ * - Encrypt document with randomly generate key
+ * - Return key to client
+ * - Options (custom ttl)
+ * - Options (network: homestead/ropsten)
+ */
 const handleCreate = async (event, _context, callback) => {
   try {
     const { document } = JSON.parse(event.body);
