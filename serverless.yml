@@ -37,9 +37,8 @@ resources:
           WriteCapacityUnits: 1
         TableName: ${self:provider.environment.OA_DOC_STORAGE_TABLE}
         TimeToLiveSpecification:
-          -
-            AttributeName: ttl
-            Enabled: true
+          AttributeName: ttl
+          Enabled: true
 
 functions:
   email:
