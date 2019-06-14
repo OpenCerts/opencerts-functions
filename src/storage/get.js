@@ -1,6 +1,6 @@
 const middy = require("middy");
 const { cors } = require("middy/middlewares");
-const { get } = require("./dynamoDb");
+const { get } = require("./dynamoDb/");
 
 const getDocument = async id => {
   const params = {

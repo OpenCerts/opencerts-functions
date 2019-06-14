@@ -1,6 +1,6 @@
 const middy = require("middy");
 const { cors } = require("middy/middlewares");
-const { scan } = require("./dynamoDb");
+const { scan } = require("./dynamoDb/");
 
 /**
  * Todo
