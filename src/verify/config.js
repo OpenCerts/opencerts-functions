@@ -1,3 +1,3 @@
 module.exports = {
-  network: process.env.NETWORK || "homestead"
+  network: process.env.NETWORK || 'homestead',
 };

@@ -1,1 +1,1 @@
-module.exports = require("./messageTemplate");
+module.exports = require('./messageTemplate');
