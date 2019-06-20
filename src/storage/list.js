@@ -1,6 +1,6 @@
-const middy = require("middy");
-const { cors } = require("middy/middlewares");
-const { scan } = require("./dynamoDb/");
+const middy = require('middy');
+const {cors} = require('middy/middlewares');
+const {scan} = require('./dynamoDb/');
 
 /**
  * Todo
@@ -9,15 +9,15 @@ const { scan } = require("./dynamoDb/");
 
 const handleList = async (_event, _context, callback) => {
   const params = {
-    TableName: process.env.OA_DOC_STORAGE_TABLE
+    TableName: process.env.OA_DOC_STORAGE_TABLE,
   };
 
   const res = await scan(params);
-  callback(null, { statusCode: 200, body: JSON.stringify(res) });
+  callback(null, {statusCode: 200, body: JSON.stringify(res)});
 };
 
 const handler = middy(handleList).use(cors());
 
 module.exports = {
-  handler
+  handler,
 };

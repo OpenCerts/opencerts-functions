@@ -1,13 +1,13 @@
-const middy = require("middy");
-const { cors } = require("middy/middlewares");
-const { get } = require("./dynamoDb/");
+const middy = require('middy');
+const {cors} = require('middy/middlewares');
+const {get} = require('./dynamoDb/');
 
-const getDocument = async id => {
+const getDocument = async (id) => {
   const params = {
     TableName: process.env.OA_DOC_STORAGE_TABLE,
     Key: {
-      id
-    }
+      id,
+    },
   };
 
   return get(params);
@@ -19,13 +19,13 @@ const getDocument = async id => {
  */
 const handleGet = async (event, _context, callback) => {
   try {
-    const { id } = event.pathParameters;
+    const {id} = event.pathParameters;
     console.log(id);
     const document = await getDocument(id);
     console.log(document);
     const response = {
       statusCode: 200,
-      body: JSON.stringify(document)
+      body: JSON.stringify(document),
     };
     callback(null, response);
   } catch (e) {
@@ -36,5 +36,5 @@ const handleGet = async (event, _context, callback) => {
 const handler = middy(handleGet).use(cors());
 
 module.exports = {
-  handler
+  handler,
 };

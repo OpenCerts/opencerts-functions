@@ -1,1 +1,1 @@
-module.exports = require("./documentService")
+module.exports = require('./documentService');
