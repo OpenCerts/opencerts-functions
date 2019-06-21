@@ -57,13 +57,6 @@ functions:
           path: /verify
           method: post
           cors: true
-  list:
-    handler: src/storage/list.handler
-    events:
-      - http:
-          path: /storage/list
-          method: get
-          cors: true
   get: 
     handler: src/storage/get.handler
     events:
