@@ -1,18 +1,22 @@
 const middy = require('middy');
 const {cors} = require('middy/middlewares');
-const {putDocument} = require('./documentService');
+const {uploadDocument} = require('./documentService');
 
-const handleCreate = async (event, _context, callback) => {
+const handleCreate = async (event) => {
   try {
     const {document} = JSON.parse(event.body);
-    const receipt = await putDocument(document);
-    const response = {
+    const receipt = await uploadDocument(document);
+    return {
       statusCode: 200,
       body: JSON.stringify(receipt),
     };
-    callback(null, response);
   } catch (e) {
-    callback(e);
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        error: e.message,
+      }),
+    };
   }
 };
 

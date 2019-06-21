@@ -34,7 +34,17 @@ const generateEncryptionKey = async (keyLengthInBits) => {
   return Buffer.from(sessionKey).toString('hex');
 };
 
-const pgpEncryptString = async (document) => {
+/**
+ * Uses PGP aes-256 symmetric encryption (tag: 9) to encrypt a given string, generating its own Key and IV
+ * Key is returned in the return object, IV is part of the encryptedString
+ *
+ * Zlib compression is applied
+ * @param {string} document Input string to encrypt
+ */
+const encryptString = async (document) => {
+  if (typeof document !== 'string') {
+    throw new Error('encryptString only accepts strings');
+  }
   const passphrase = await generateEncryptionKey(256);
   const message = openpgp.message.fromText(document);
   const options = {
@@ -45,7 +55,7 @@ const pgpEncryptString = async (document) => {
   };
 
   const encryptedMessage = await openpgp.encrypt(options);
-  return {encryptedString: encryptedMessage.data, key: passphrase};
+  return {encryptedString: encryptedMessage.data, key: passphrase, type: 'PGP'};
 };
 
 const PGP_META_LENGTHS = {
@@ -53,28 +63,8 @@ const PGP_META_LENGTHS = {
   footer: 29,
 };
 
-const stripPgpMeta = (pgpEncryptedMessage) =>
-  pgpEncryptedMessage.slice(PGP_META_LENGTHS.header, -PGP_META_LENGTHS.footer);
-
-/**
- * Uses PGP aes-256 symmetric encryption (tag: 9) to encrypt a given string, generating its own Key and IV
- * Key is returned in the return object, IV is part of the encryptedString
- *
- * Zlib compression is applied
- * @param {string} document Input string to encrypt
- */
-const encryptString = async (document) => {
-  const encryptionResults = await pgpEncryptString(document);
-  return {
-    encryptedString: stripPgpMeta(encryptionResults.encryptedString),
-    key: encryptionResults.key,
-  };
-};
-
 module.exports = {
   generateEncryptionKey,
-  pgpEncryptString,
-  stripPgpMeta,
   PGP_META_LENGTHS,
   encryptString,
 };

@@ -1,17 +1,15 @@
 jest.mock('../dynamoDb');
+jest.mock('./crypto');
+jest.mock('@govtechsg/oa-verify');
+
+const verify = require('@govtechsg/oa-verify');
+const mainnetCert = require('../../../test/fixtures/certificateMainnetValid.json');
 const dynamoDb = require('../dynamoDb');
-const config = require('../config');
-const {cipher, decipher, encryptDocument, decryptDocument, putDocument, DEFAULT_TTL} = require('./documentService');
-const openpgp = require('openpgp');
+const crypto = require('./crypto');
 
-const crypto = require('crypto');
+const {uploadDocument, putDocument, DEFAULT_TTL} = require('./documentService');
 
-Object.defineProperty(global.self, 'crypto', {
-  value: {
-    getRandomValues: (arr) => crypto.randomBytes(arr.length),
-  },
-});
-
+const uuidV4Regex = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i);
 describe('documentService', () => {
   describe('putDocument', () => {
     it('should call put and return the right results', async () => {
@@ -21,14 +19,24 @@ describe('documentService', () => {
 
       expect(res.document).toEqual(document);
       expect(res.ttl).toEqual(res.created + DEFAULT_TTL);
-      expect(res.id).toBeTruthy();
+      expect(res.id).toMatch(uuidV4Regex);
     });
   });
 
-  describe('encryptDocument', () => {
-    it.only('works', async () => {});
+  describe('uploadDocument', () => {
+    crypto.encryptString.mockResolvedValue({encryptedString: 'foo', key: 'bar', type: 'PGP'});
+    verify.mockResolvedValue({valid: true});
+    it('works', async () => {
+      const result = await uploadDocument(mainnetCert);
+      expect(result).toMatchObject({
+        id: expect.stringMatching(uuidV4Regex),
+        ttl: expect.any(Number),
+        key: expect.any(String),
+      });
+    });
+    it('should throw an error if its not a valid opencert', async () => {
+      verify.mockResolvedValue({valid: false});
+      await expect(uploadDocument({foo: 'bar'})).rejects.toThrow('Document is not valid');
+    });
   });
 });
-
-// documentService
-// takes a opencert file and returns a url and a random passphrase

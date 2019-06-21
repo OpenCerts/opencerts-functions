@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const {generateEncryptionKey, pgpEncryptString, PGP_META_LENGTHS} = require('./crypto');
+const {generateEncryptionKey, encryptString, PGP_META_LENGTHS} = require('./crypto');
 
 /* eslint-disable no-param-reassign */
 // doing fucky things here because window.crypto.randomBytes populates
@@ -31,10 +31,10 @@ describe('storage/crypto', () => {
     });
   });
 
-  describe('pgpEncryptString', () => {
+  describe('encryptString', () => {
     let encryptionResults;
     beforeAll(async () => {
-      encryptionResults = await pgpEncryptString('a');
+      encryptionResults = await encryptString('a');
     });
     test('should have pgp header and footer', async () => {
       const encryptedDocument = encryptionResults.encryptedString;
@@ -43,6 +43,9 @@ describe('storage/crypto', () => {
 
       expect(header).toBe('-----BEGIN PGP MESSAGE-----\r\n\r\n');
       expect(footer).toBe('\r\n-----END PGP MESSAGE-----\r\n');
+    });
+    test('should throw error if input is not a string', async () => {
+      await expect(encryptString({})).rejects.toThrow();
     });
   });
 });
