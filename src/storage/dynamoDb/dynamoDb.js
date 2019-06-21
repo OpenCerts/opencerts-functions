@@ -11,16 +11,9 @@ const options = process.env.IS_OFFLINE
 
 const dynamoClient = new AWS.DynamoDB.DocumentClient(options);
 
-const promisifyClient = (method, client) => (params) =>
-  new Promise((resolve, reject) => {
-    client[method](params, (err, res) => {
-      if (err) return reject(err);
-      resolve(res.Item || res.Items);
-    });
-  });
+const scan = (...args) => dynamoClient.scan(...args).promise();
+const put = (...args) => dynamoClient.put(...args).promise();
+const get = (...args) => dynamoClient.get(...args).promise();
+const remove = (...args) => dynamoClient.delete(...args).promise();
 
-const scan = promisifyClient('scan', dynamoClient);
-const put = promisifyClient('put', dynamoClient);
-const get = promisifyClient('get', dynamoClient);
-
-module.exports = {promisifyClient, scan, put, get};
+module.exports = {scan, put, get, remove};
