@@ -5,4 +5,5 @@ module.exports = {
     region: process.env.SES_REGION || 'us-west-2',
     storageTableName: process.env.OA_DOC_STORAGE_TABLE,
   },
+  network: process.env.NETWORK || 'homestead',
 };

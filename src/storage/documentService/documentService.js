@@ -2,7 +2,7 @@ const verify = require('@govtechsg/oa-verify');
 const uuid = require('uuid/v4');
 const {encryptString} = require('./crypto');
 const config = require('../config');
-const {put} = require('../dynamoDb');
+const {put, get, remove} = require('../dynamoDb');
 
 const DEFAULT_TTL = 1000 * 60 * 5; // 5 Minutes
 
@@ -22,29 +22,36 @@ const putDocument = async (document) => {
   return put(params).then(() => params.Item);
 };
 
-const uploadDocument = async (document, network = 'homestead') => {
+const getDocument = async (id, {cleanup}) => {
+  const params = {
+    TableName: process.env.OA_DOC_STORAGE_TABLE,
+    Key: {
+      id,
+    },
+  };
+  const document = await get(params);
+  if (cleanup && cleanup === 'true') {
+    await remove(params);
+  }
+  return document;
+};
+
+const uploadDocument = async (document, network = config.network) => {
   const verificationResults = await verify(document, network);
   if (!verificationResults.valid) throw new Error('Document is not valid');
-  const {encryptedString, key} = await encryptString(JSON.stringify(document));
+  const {encryptedString, key, type} = await encryptString(JSON.stringify(document));
   const {id, ttl} = await putDocument(encryptedString);
   return {
     id,
     ttl,
     key,
+    type,
   };
 };
-
-/**
- * Todo
- * - Verify document first
- * - Encrypt document with randomly generate key
- * - Return key to client
- * - Options (custom ttl)
- * - Options (network: homestead/ropsten)
- */
 
 module.exports = {
   putDocument,
   DEFAULT_TTL,
   uploadDocument,
+  getDocument,
 };
