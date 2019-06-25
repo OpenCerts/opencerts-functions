@@ -11,9 +11,12 @@ const options = process.env.IS_OFFLINE
 
 const dynamoClient = new AWS.DynamoDB.DocumentClient(options);
 
-const scan = (...args) => dynamoClient.scan(...args).promise();
 const put = (...args) => dynamoClient.put(...args).promise();
-const get = (...args) => dynamoClient.get(...args).promise();
+const get = (...args) =>
+  dynamoClient
+    .get(...args)
+    .promise()
+    .then((results) => results.Item);
 const remove = (...args) => dynamoClient.delete(...args).promise();
 
-module.exports = {scan, put, get, remove};
+module.exports = {put, get, remove};
