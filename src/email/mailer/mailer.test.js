@@ -1,8 +1,8 @@
-const nodemailer = require('nodemailer');
-const fetch = require('node-fetch');
-const mailer = require('./mailer');
+const nodemailer = require("nodemailer");
+const fetch = require("node-fetch");
+const mailer = require("./mailer");
 
-const certificate = require('../../../test/fixtures/certificate.json');
+const certificate = require("../../../test/fixtures/certificate.json");
 
 const etherealCreateAccount = () =>
   new Promise((resolve, reject) => {
@@ -14,8 +14,8 @@ const etherealCreateAccount = () =>
     });
   });
 
-const validateRawEmail = async ({url, subject, text, html, to}) => {
-  const rawEmail = await fetch(url).then((res) => res.text());
+const validateRawEmail = async ({ url, subject, text, html, to }) => {
+  const rawEmail = await fetch(url).then(res => res.text());
   return (
     rawEmail.includes(subject) &&
     rawEmail.includes(`To: ${to}`) &&
@@ -24,7 +24,7 @@ const validateRawEmail = async ({url, subject, text, html, to}) => {
   );
 };
 
-describe('mailer', () => {
+describe("mailer", () => {
   let account;
   let mailByEthereal;
 
@@ -36,16 +36,16 @@ describe('mailer', () => {
       secure: account.smtp.secure,
       auth: {
         user: account.user,
-        pass: account.pass,
-      },
+        pass: account.pass
+      }
     });
     mailByEthereal = mailer(etherealTransporter);
   });
 
-  it('sends test email through ethereal transporter', async () => {
+  it("sends test email through ethereal transporter", async () => {
     const emailReceipt = await mailByEthereal({
       to: account.user,
-      certificate,
+      certificate
     });
     const previewUrl = nodemailer.getTestMessageUrl(emailReceipt);
     // eslint-disable-next-line
@@ -53,10 +53,10 @@ describe('mailer', () => {
     const rawEmailUrl = `${previewUrl}/message.eml`;
     const valid = await validateRawEmail({
       url: rawEmailUrl,
-      html: 'cid:certificate',
-      text: '----------',
-      subject: 'Subject: Student Name PHARM Cert sent you a certificate',
-      to: account.user,
+      html: "cid:certificate",
+      text: "----------",
+      subject: "Subject: Student Name PHARM Cert sent you a certificate",
+      to: account.user
     });
     expect(valid).toBe(true);
   }, 20000);

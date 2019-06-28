@@ -1,4 +1,4 @@
-const openpgp = require('openpgp');
+const openpgp = require("openpgp");
 
 /**
  * Sets up recommended openpgp configuration options
@@ -6,7 +6,7 @@ const openpgp = require('openpgp');
  */
 const openpgpSetup = ({
   enableAead = false, // AEAD is recommended but has poor compatibility
-  enableMaxPassphraseSecurity = true, // has significant computational impact
+  enableMaxPassphraseSecurity = true // has significant computational impact
 } = {}) => {
   openpgp.config.show_comment = false;
   openpgp.config.show_version = false;
@@ -29,9 +29,11 @@ openpgpSetup();
  * Generates a random key represented as a hexadecimal string
  * @param {integer} keyLengthInBits Key length
  */
-const generateEncryptionKey = async (keyLengthInBits) => {
-  const sessionKey = await openpgp.crypto.random.getRandomBytes(keyLengthInBits / 8);
-  return Buffer.from(sessionKey).toString('hex');
+const generateEncryptionKey = async keyLengthInBits => {
+  const sessionKey = await openpgp.crypto.random.getRandomBytes(
+    keyLengthInBits / 8
+  );
+  return Buffer.from(sessionKey).toString("hex");
 };
 
 /**
@@ -41,9 +43,9 @@ const generateEncryptionKey = async (keyLengthInBits) => {
  * Zlib compression is applied
  * @param {string} document Input string to encrypt
  */
-const encryptString = async (document) => {
-  if (typeof document !== 'string') {
-    throw new Error('encryptString only accepts strings');
+const encryptString = async document => {
+  if (typeof document !== "string") {
+    throw new Error("encryptString only accepts strings");
   }
   const passphrase = await generateEncryptionKey(256);
   const message = openpgp.message.fromText(document);
@@ -51,20 +53,24 @@ const encryptString = async (document) => {
     passwords: passphrase,
     message,
     armor: true,
-    compression: openpgp.enums.compression.zlib,
+    compression: openpgp.enums.compression.zlib
   };
 
   const encryptedMessage = await openpgp.encrypt(options);
-  return {encryptedString: encryptedMessage.data, key: passphrase, type: 'PGP'};
+  return {
+    encryptedString: encryptedMessage.data,
+    key: passphrase,
+    type: "PGP"
+  };
 };
 
 const PGP_META_LENGTHS = {
   header: 31,
-  footer: 29,
+  footer: 29
 };
 
 module.exports = {
   generateEncryptionKey,
   PGP_META_LENGTHS,
-  encryptString,
+  encryptString
 };

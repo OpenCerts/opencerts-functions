@@ -1,9 +1,9 @@
-const messageTemplate = require('../messageTemplate');
+const messageTemplate = require("../messageTemplate");
 
-const FROM_ADDRESS = 'OpenCerts™ <donotreply@opencerts.io>';
+const FROM_ADDRESS = "OpenCerts™ <donotreply@opencerts.io>";
 
 // TODO: Filename according to recipient name
-const FILE_NAME = 'certificate.opencert';
+const FILE_NAME = "certificate.opencert";
 
 const sendRawMail = (transporter, data) =>
   new Promise((resolve, reject) => {
@@ -13,8 +13,8 @@ const sendRawMail = (transporter, data) =>
     });
   });
 
-const sendCertificate = (transporter) => async ({to, certificate}) => {
-  const {html, text, subject} = messageTemplate(certificate);
+const sendCertificate = transporter => async ({ to, certificate }) => {
+  const { html, text, subject } = messageTemplate(certificate);
   const content = JSON.stringify(certificate);
 
   return sendRawMail(transporter, {
@@ -25,25 +25,25 @@ const sendCertificate = (transporter) => async ({to, certificate}) => {
     text,
     attachments: [
       {
-        filename: 'logo.png',
+        filename: "logo.png",
         path: `${__dirname}/../static/logo.png`,
-        cid: 'logo',
+        cid: "logo"
       },
       {
-        filename: 'certificate.png',
+        filename: "certificate.png",
         path: `${__dirname}/../static/certificate.png`,
-        cid: 'certificate',
+        cid: "certificate"
       },
       {
-        filename: 'dropzone.png',
+        filename: "dropzone.png",
         path: `${__dirname}/../static/dropzone.png`,
-        cid: 'dropzone',
+        cid: "dropzone"
       },
       {
         filename: FILE_NAME,
-        content,
-      },
-    ],
+        content
+      }
+    ]
   });
 };
 

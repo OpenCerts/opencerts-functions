@@ -1,11 +1,11 @@
-const AWS = require('aws-sdk');
+const AWS = require("aws-sdk");
 
 const options = process.env.IS_OFFLINE
   ? {
-      region: 'localhost',
-      endpoint: 'http://localhost:8000',
-      accessKeyId: 'DEFAULT_ACCESS_KEY',
-      secretAccessKey: 'DEFAULT_SECRET',
+      region: "localhost",
+      endpoint: "http://localhost:8000",
+      accessKeyId: "DEFAULT_ACCESS_KEY",
+      secretAccessKey: "DEFAULT_SECRET"
     }
   : {};
 
@@ -16,7 +16,7 @@ const get = (...args) =>
   dynamoClient
     .get(...args)
     .promise()
-    .then((results) => results.Item);
+    .then(results => results.Item);
 const remove = (...args) => dynamoClient.delete(...args).promise();
 
-module.exports = {put, get, remove};
+module.exports = { put, get, remove };
