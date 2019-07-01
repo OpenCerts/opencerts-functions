@@ -8,6 +8,8 @@ const request = supertest(API_ENDPOINT);
 
 describe("email", () => {
   it("should works for valid Ropsten certificate", async () => {
+    console.log("K1", process.env.EMAIL_INTEGRATION_TEST_API_KEY)
+    console.log("K2", process.env.stg_EMAIL_INTEGRATION_TEST_API_KEY)
     const apiKey = process.env.EMAIL_INTEGRATION_TEST_API_KEY;
     await request
       .post("/email")

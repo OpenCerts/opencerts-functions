@@ -19,9 +19,6 @@ custom:
   EMAIL_API_KEYS:
     stg: ${env:stg_EMAIL_API_KEYS}
     prd: ${env:prd_EMAIL_API_KEYS}
-  EMAIL_INTEGRATION_TEST_API_KEY:
-    stg: ${env:stg_EMAIL_INTEGRATION_TEST_API_KEY}
-    prd: ${env:prd_EMAIL_INTEGRATION_TEST_API_KEY}
 
 provider:
   name: aws
@@ -35,7 +32,6 @@ provider:
     RECAPTCHA_SECRET: ${self:custom.RECAPTCHA_SECRET.${self:provider.stage}}
     NETWORK: ${self:custom.NETWORK.${self:provider.stage}}
     EMAIL_API_KEYS: ${self:custom.EMAIL_API_KEYS.${self:provider.stage}}
-    EMAIL_INTEGRATION_TEST_API_KEY: ${self:custom.EMAIL_INTEGRATION_TEST_API_KEY.${self:provider.stage}}
 
 functions:
   email:
