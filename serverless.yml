@@ -3,8 +3,16 @@ service: dlt-functions
 provider:
   name: aws
   runtime: nodejs8.10
-  stage: ${opt:stage, 'staging'}
+  stage: ${opt:stage, 'stg'}
   region: ap-southeast-1
+  environment:
+    SES_KEY_ID: ${env:${opt:stage, 'stg'}-SES_KEY_ID}
+    SES_SECRET: ${env:${opt:stage, 'stg'}-SES_SECRET}
+    SES_REGION: ${env:${opt:stage, 'stg'}-SES_REGION}
+    RECAPTCHA_SECRET: ${env:${opt:stage, 'stg'}-RECAPTCHA_SECRET}
+    NETWORK: ${env:${opt:stage, 'stg'}-NETWORK}
+    EMAIL_API_KEYS: ${env:${opt:stage, 'stg'}-EMAIL_API_KEYS}
+    EMAIL_INTEGRATION_TEST_API_KEY: ${env:${opt:stage, 'stg'}-EMAIL_INTEGRATION_TEST_API_KEY}
 
 functions:
   email:
