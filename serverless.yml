@@ -1,10 +1,41 @@
 service: dlt-functions
 
+custom:
+  SES_KEY_ID:
+    stg: ${env:stg_SES_KEY_ID}
+    prd: ${env:prd_SES_KEY_ID}
+  SES_SECRET:
+    stg: ${env:stg_SES_SECRET}
+    prd: ${env:prd_SES_SECRET}
+  SES_REGION:
+    stg: ${env:stg_SES_REGION}
+    prd: ${env:prd_SES_REGION}
+  RECAPTCHA_SECRET:
+    stg: ${env:stg_RECAPTCHA_SECRET}
+    prd: ${env:prd_RECAPTCHA_SECRET}
+  NETWORK:
+    stg: ${env:stg_NETWORK}
+    prd: ${env:prd_NETWORK}
+  EMAIL_API_KEYS:
+    stg: ${env:stg_EMAIL_API_KEYS}
+    prd: ${env:prd_EMAIL_API_KEYS}
+  EMAIL_INTEGRATION_TEST_API_KEY:
+    stg: ${env:stg_EMAIL_INTEGRATION_TEST_API_KEY}
+    prd: ${env:prd_EMAIL_INTEGRATION_TEST_API_KEY}
+
 provider:
   name: aws
   runtime: nodejs8.10
-  stage: ${opt:stage, 'staging'}
+  stage: ${opt:stage, 'stg'}
   region: ap-southeast-1
+  environment:
+    SES_KEY_ID: ${self:custom.SES_KEY_ID.${self:provider.stage}}
+    SES_SECRET: ${self:custom.SES_SECRET.${self:provider.stage}}
+    SES_REGION: ${self:custom.SES_REGION.${self:provider.stage}}
+    RECAPTCHA_SECRET: ${self:custom.RECAPTCHA_SECRET.${self:provider.stage}}
+    NETWORK: ${self:custom.NETWORK.${self:provider.stage}}
+    EMAIL_API_KEYS: ${self:custom.EMAIL_API_KEYS.${self:provider.stage}}
+    EMAIL_INTEGRATION_TEST_API_KEY: ${self:custom.EMAIL_INTEGRATION_TEST_API_KEY.${self:provider.stage}}
 
 functions:
   email:
