@@ -5,9 +5,9 @@ const { getDocument } = require("./documentService");
 const handleGet = async event => {
   try {
     const { id } = event.pathParameters;
-    const { cleanup } = event.queryStringParameters || {
-      queryStringParameters: { cleanup: false }
-    };
+    const cleanup =
+      event.queryStringParameters &&
+      event.queryStringParameters.cleanup === "true";
     const document = await getDocument(id, { cleanup });
     return {
       statusCode: 200,
@@ -16,7 +16,7 @@ const handleGet = async event => {
   } catch (e) {
     return {
       statusCode: 400,
-      body: JSON.stringify(e.message)
+      body: JSON.stringify({ error: e.message })
     };
   }
 };

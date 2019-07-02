@@ -16,7 +16,12 @@ const get = (...args) =>
   dynamoClient
     .get(...args)
     .promise()
-    .then(results => results.Item);
+    .then(results => {
+      if (results.Item) {
+        return results.Item;
+      }
+      throw new Error("No Document Found");
+    });
 const remove = (...args) => dynamoClient.delete(...args).promise();
 
 module.exports = { put, get, remove };

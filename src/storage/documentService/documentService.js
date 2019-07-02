@@ -5,8 +5,9 @@ const config = require("../config");
 const { put, get, remove } = require("../dynamoDb");
 
 const DEFAULT_TTL = 1000 * 60 * 5; // 5 Minutes
+const MAX_TTL = 1000 * 60 * 60 * 30; // 30 Days
 
-const putDocument = async document => {
+const putDocument = async (document, ttl = DEFAULT_TTL) => {
   const created = Date.now(); // TTL is handled by dynamoDb natively, this timestamp has to be UTC unixtime
   // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/time-to-live-ttl-how-to.html
   const params = {
@@ -15,7 +16,7 @@ const putDocument = async document => {
       id: uuid(),
       document,
       created,
-      ttl: created + DEFAULT_TTL
+      ttl: created + ttl
     }
   };
 
@@ -30,22 +31,34 @@ const getDocument = async (id, { cleanup }) => {
     }
   };
   const document = await get(params);
-  if (cleanup && cleanup === "true") {
+  if (cleanup) {
     await remove(params);
   }
   return document;
 };
 
-const uploadDocument = async (document, network = config.network) => {
+const validateTtl = ttl => {
+  if (typeof ttl !== "number" || ttl < 0)
+    throw new Error("TTL must be a positive number of seconds");
+  if (ttl > MAX_TTL) throw new Error("TTL exceeds maximum of 30 days");
+  return true;
+};
+
+const uploadDocument = async (
+  document,
+  ttl = DEFAULT_TTL,
+  network = config.network
+) => {
   const verificationResults = await verify(document, network);
   if (!verificationResults.valid) throw new Error("Document is not valid");
+  validateTtl(ttl);
   const { encryptedString, key, type } = await encryptString(
     JSON.stringify(document)
   );
-  const { id, ttl } = await putDocument(encryptedString);
+  const { id, ttl: recordedTtl } = await putDocument(encryptedString, ttl);
   return {
     id,
-    ttl,
+    ttl: recordedTtl,
     key,
     type
   };
