@@ -7,6 +7,7 @@
     "dev": "sls offline",
     "deploy": "sls deploy",
     "depcheck": "depcheck . --ignores=\"serverless-*\"",
+    "sls-config-check": "sls print",
     "test": "jest --testPathPattern=src",
     "test-watch": "jest --watch",
     "integration": "jest --testPathPattern=test/integration",
