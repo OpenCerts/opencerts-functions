@@ -36,7 +36,7 @@ const messageTemplate = certificate => {
     };
   } catch (e) {
     // eslint-disable-next-line
-    throw new Error("Fail to read data from certificate");
+    throw new Error('Fail to read data from certificate');
   }
 };
 

@@ -52,3 +52,19 @@ Copy `.env` from a co-worker or insert own credentials to get started. A copy of
 ```
 yarn dev
 ```
+
+## Dynamodb 
+
+The development environment uses [serverless-dynamodb-local](https://www.npmjs.com/package/serverless-dynamodb-local) to emulate the dynamodb in AWS.
+
+Install dynamodb locally
+
+```
+sls dynamodb install
+```
+
+Start dynamodb
+
+```
+sls dynamodb start
+```
