@@ -48,6 +48,14 @@ resources:
           Enabled: true
 
 functions:
+  healthcheck:
+    description: Healthcheck
+    handler: src/healthcheck.handler
+    events:
+      - http:
+          path: /healthcheck
+          method: get
+          cors: true
   email:
     description: Sends email on behalf of user to third party with the OpenCerts' preset template.
     handler: src/email.handler
