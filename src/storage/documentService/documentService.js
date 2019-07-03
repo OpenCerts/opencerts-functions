@@ -8,7 +8,7 @@ const DEFAULT_TTL = 1000 * 60 * 60; // 1 Hour
 const MAX_TTL = 1000 * 60 * 60 * 30; // 30 Days
 
 const putDocument = async (document, ttl = DEFAULT_TTL) => {
-  const created = Math.floor(Date.now() / 1000); 
+  const created = Math.floor(Date.now() / 1000);
   // TTL is handled by dynamoDb natively, this timestamp has to be UTC unixtime in seconds
   // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/time-to-live-ttl-how-to.html
   const params = {
