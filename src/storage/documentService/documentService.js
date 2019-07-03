@@ -4,7 +4,7 @@ const { encryptString } = require("./crypto");
 const config = require("../config");
 const { put, get, remove } = require("../dynamoDb");
 
-const DEFAULT_TTL = 1000 * 60 * 5; // 5 Minutes
+const DEFAULT_TTL = 1000 * 60 * 60; // 1 Hour
 const MAX_TTL = 1000 * 60 * 60 * 30; // 30 Days
 
 const putDocument = async (document, ttl = DEFAULT_TTL) => {
