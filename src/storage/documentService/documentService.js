@@ -5,7 +5,7 @@ const config = require("../config");
 const { put, get, remove } = require("../dynamoDb");
 
 const DEFAULT_TTL = 60 * 60; // 1 Hour
-const MAX_TTL = 60 * 60 * 30; // 30 Days
+const MAX_TTL = 60 * 60 * 24 * 30; // 30 Days
 
 const putDocument = async (document, ttl = DEFAULT_TTL) => {
   const created = Math.floor(Date.now() / 1000);
