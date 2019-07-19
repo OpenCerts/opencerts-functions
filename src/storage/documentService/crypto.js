@@ -1,76 +1,125 @@
-const openpgp = require("openpgp");
-
+const forge = require("node-forge");
 /**
- * Sets up recommended openpgp configuration options
- * Most of these options are only relevant to passphrase mode
+ * Default options from responses here
+ * https://crypto.stackexchange.com/questions/26783/ciphertext-and-tag-size-and-iv-transmission-with-aes-in-gcm-mode/26787
  */
-const openpgpSetup = ({
-  enableAead = false, // AEAD is recommended but has poor compatibility
-  enableMaxPassphraseSecurity = true // has significant computational impact
-} = {}) => {
-  openpgp.config.show_comment = false;
-  openpgp.config.show_version = false;
-  openpgp.config.integrity_protect = true;
-  openpgp.config.encryption_cipher = openpgp.enums.symmetric.aes256;
-  openpgp.config.prefer_hash_algorithm = openpgp.enums.hash.sha256;
-  openpgp.config.deflate_level = 9;
-  if (enableMaxPassphraseSecurity) {
-    openpgp.config.s2k_iteration_count_byte = 255; // Set s2k iterations to 65011712
-  }
-  if (enableAead) {
-    openpgp.config.aead_protect = true;
-    openpgp.config.aead_mode = openpgp.enums.aead.eax;
-  }
+const ENCRYPTION_PARAMETERS = {
+  algorithm: "AES-GCM",
+  keyLength: 256, // Key length in bits
+  ivLength: 96, // IV length in bits: NIST suggests 12 bytes
+  tagLength: 128, // GCM authentication tag length in bits, see link above for explanation
+  version: "OPEN-ATTESTATION-TYPE-1" // Type 1 using the above params without compression
 };
-
-openpgpSetup();
 
 /**
  * Generates a random key represented as a hexadecimal string
- * @param {integer} keyLengthInBits Key length
+ * @param {number} keyLengthInBits Key length
  */
-const generateEncryptionKey = async keyLengthInBits => {
-  const sessionKey = await openpgp.crypto.random.getRandomBytes(
-    keyLengthInBits / 8
-  );
-  return Buffer.from(sessionKey).toString("hex");
+const generateEncryptionKey = (
+  keyLengthInBits = ENCRYPTION_PARAMETERS.keyLength
+) => {
+  const encryptionKey = forge.random.getBytesSync(keyLengthInBits / 8);
+  return forge.util.bytesToHex(encryptionKey);
 };
 
 /**
- * Uses PGP aes-256 symmetric encryption (tag: 9) to encrypt a given string, generating its own Key and IV
- * Key is returned in the return object, IV is part of the encryptedString
- *
- * Zlib compression is applied
- * @param {string} document Input string to encrypt
+ * Generates a initialisation vector represented as a base64 string
+ * @param {integer} ivLengthInBits Key length
  */
-const encryptString = async document => {
+const generateIv = (ivLengthInBits = ENCRYPTION_PARAMETERS.ivLength) => {
+  const iv = forge.random.getBytesSync(ivLengthInBits / 8);
+  return forge.util.encode64(iv);
+};
+
+/**
+ * Generates the requisite randomised variables and initialises the cipher with them
+ * @returns the cipher object, encryption key in hex, and iv in base64
+ */
+const makeCipher = () => {
+  const encryptionKey = generateEncryptionKey();
+  const iv = generateIv();
+  const cipher = forge.cipher.createCipher(
+    ENCRYPTION_PARAMETERS.algorithm,
+    forge.util.hexToBytes(encryptionKey)
+  );
+
+  cipher.start({
+    iv: forge.util.decode64(iv),
+    tagLength: ENCRYPTION_PARAMETERS.tagLength
+  });
+
+  return { cipher, encryptionKey, iv };
+};
+
+const preProcessDocument = document =>
+  // TODO: put compression in here?
+  forge.util.createBuffer(document);
+
+/**
+ * Encrypts a given string with symmetric AES
+ * @param {string} document Input string to encrypt
+ * @returns cipherText cipher text in base64
+ * @returns iv iv in base64
+ * @returns tag authenticated encryption tag in base64
+ * @returns key encryption key in hexadecimal
+ * @returns type The encryption algorithm identifier
+ */
+const encryptString = document => {
   if (typeof document !== "string") {
     throw new Error("encryptString only accepts strings");
   }
-  const passphrase = await generateEncryptionKey(256);
-  const message = openpgp.message.fromText(document);
-  const options = {
-    passwords: passphrase,
-    message,
-    armor: true,
-    compression: openpgp.enums.compression.zlib
-  };
 
-  const encryptedMessage = await openpgp.encrypt(options);
+  const { cipher, encryptionKey, iv } = makeCipher();
+
+  cipher.update(preProcessDocument(document));
+  cipher.finish();
+
+  const encryptedMessage = forge.util.encode64(cipher.output.data);
+  const tag = forge.util.encode64(cipher.mode.tag.data);
   return {
-    encryptedString: encryptedMessage.data,
-    key: passphrase,
-    type: "PGP"
+    cipherText: encryptedMessage,
+    iv,
+    tag,
+    key: encryptionKey,
+    type: ENCRYPTION_PARAMETERS.version
   };
 };
 
-const PGP_META_LENGTHS = {
-  header: 31,
-  footer: 29
+/**
+ * Decrypts a given ciphertext along with its associated variables
+ * @param {string} cipherText cipher text base64 encoded
+ * @param {string} tag aes authentication tag base64 encoded
+ * @param {string} iv iv base64 encoded
+ * @param {string} key decryption key hexademical encoded
+ * @param {string} type encryption algorithm identifier
+ */
+const decryptString = ({ cipherText, tag, iv, key, type }) => {
+  if (type !== ENCRYPTION_PARAMETERS.version) {
+    throw new Error(
+      `Expecting version ${ENCRYPTION_PARAMETERS.version} but got ${type}`
+    );
+  }
+  const keyBytestring = forge.util.hexToBytes(key);
+  const cipherTextBytestring = forge.util.decode64(cipherText);
+  const ivBytestring = forge.util.decode64(iv);
+  const tagBytestring = forge.util.decode64(tag);
+
+  const decipher = forge.cipher.createDecipher("AES-GCM", keyBytestring);
+  decipher.start({
+    iv: ivBytestring,
+    tagLength: ENCRYPTION_PARAMETERS.tagLength,
+    tag: tagBytestring
+  });
+  decipher.update(forge.util.createBuffer(cipherTextBytestring, "raw"));
+  const success = decipher.finish();
+  if (!success) {
+    throw new Error("Error decrypting message");
+  }
+  return decipher.output.data;
 };
 
 module.exports = {
-  generateEncryptionKey,
-  PGP_META_LENGTHS,
-  encryptString
+  ENCRYPTION_PARAMETERS,
+  encryptString,
+  decryptString
 };
