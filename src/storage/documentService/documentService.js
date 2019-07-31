@@ -8,8 +8,8 @@ const DEFAULT_TTL = 60 * 60; // 1 Hour
 const MAX_TTL = 60 * 60 * 24 * 30; // 30 Days
 
 const putDocument = async (document, ttl = DEFAULT_TTL) => {
-  const created = Math.floor(Date.now() / 1000);
   // TTL is handled by dynamoDb natively, this timestamp has to be UTC unixtime in seconds
+  const created = Math.floor(Date.now() / 1000);
   // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/time-to-live-ttl-how-to.html
   const params = {
     TableName: config.dynamodb.storageTableName,
@@ -53,10 +53,13 @@ const uploadDocument = async (
   const verificationResults = await verify(document, network);
   if (!verificationResults.valid) throw new Error("Document is not valid");
   validateTtl(ttl);
-  const { encryptedString, key, type } = await encryptString(
+  const { cipherText, iv, tag, key, type } = await encryptString(
     JSON.stringify(document)
   );
-  const { id, ttl: recordedTtl } = await putDocument(encryptedString, ttl);
+  const { id, ttl: recordedTtl } = await putDocument(
+    { cipherText, iv, tag },
+    ttl
+  );
   return {
     id,
     ttl: recordedTtl,

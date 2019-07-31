@@ -1,55 +1,45 @@
-const crypto = require("crypto");
 const {
-  generateEncryptionKey,
   encryptString,
-  PGP_META_LENGTHS
+  decryptString,
+  ENCRYPTION_PARAMETERS
 } = require("./crypto");
 
-/* eslint-disable no-param-reassign */
-// doing fucky things here because window.crypto.randomBytes populates
-// the array that's passed in rather than returning one
-// also Jest fucks with window global so we need to put crypto back in for openpgp to work
-Object.defineProperty(global.self, "crypto", {
-  value: {
-    getRandomValues: arr => {
-      const rand = crypto.randomBytes(arr.length);
-      for (let i = 0; i <= arr.length; i += 1) {
-        arr[i] = rand[i];
-      }
-    }
-  }
-});
-/* eslint-enable */
+const base64Regex = /^(?:[a-zA-Z0-9+/]{4})*(?:|(?:[a-zA-Z0-9+/]{3}=)|(?:[a-zA-Z0-9+/]{2}==)|(?:[a-zA-Z0-9+/]{1}===))$/;
+const encryptionKeyRegex = new RegExp(
+  `^[0-9a-f]{${ENCRYPTION_PARAMETERS.keyLength / 4}}$`
+);
 
 describe("storage/crypto", () => {
-  describe("generateEncryptionKey", () => {
-    test("should generate a hexadecimal key of specified length", async () => {
-      const generatedKey = await generateEncryptionKey(256);
-      expect(generatedKey.length).toBe(64);
+  describe("encryptString", () => {
+    let encryptionResults;
+    beforeAll(() => {
+      encryptionResults = encryptString("hello world");
     });
-    test("should generate different keys on each invocation", async () => {
-      const key1 = await generateEncryptionKey(256);
-      const key2 = await generateEncryptionKey(256);
-
-      expect(key1 === key2).toBe(false);
+    test("should have the right keys and values", async () => {
+      expect(encryptionResults).toEqual(
+        expect.objectContaining({
+          cipherText: expect.stringMatching(base64Regex),
+          iv: expect.stringMatching(base64Regex),
+          tag: expect.stringMatching(base64Regex),
+          key: expect.stringMatching(encryptionKeyRegex),
+          type: ENCRYPTION_PARAMETERS.version
+        })
+      );
+    });
+    test("should throw error if input is not a string", () => {
+      expect(() => encryptString({})).toThrow(
+        "encryptString only accepts strings"
+      );
+      expect(() => encryptString(2)).toThrow(
+        "encryptString only accepts strings"
+      );
     });
   });
 
-  describe("encryptString", () => {
-    let encryptionResults;
-    beforeAll(async () => {
-      encryptionResults = await encryptString("a");
-    });
-    test("should have pgp header and footer", async () => {
-      const encryptedDocument = encryptionResults.encryptedString;
-      const header = encryptedDocument.slice(0, PGP_META_LENGTHS.header);
-      const footer = encryptedDocument.slice(-PGP_META_LENGTHS.footer);
-
-      expect(header).toBe("-----BEGIN PGP MESSAGE-----\r\n\r\n");
-      expect(footer).toBe("\r\n-----END PGP MESSAGE-----\r\n");
-    });
-    test("should throw error if input is not a string", async () => {
-      await expect(encryptString({})).rejects.toThrow();
+  describe("decryptString", () => {
+    test("can decrypt", () => {
+      const encryptionResults = encryptString("hello world");
+      expect(decryptString(encryptionResults)).toBe("hello world");
     });
   });
 });
