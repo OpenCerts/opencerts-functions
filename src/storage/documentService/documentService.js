@@ -1,5 +1,4 @@
 const verify = require("@govtechsg/oa-verify");
-const uuid = require("uuid/v4");
 const { encryptString } = require("./crypto");
 const config = require("../config");
 const { put, get, remove } = require("../dynamoDb");
@@ -7,14 +6,14 @@ const { put, get, remove } = require("../dynamoDb");
 const DEFAULT_TTL = 60 * 60; // 1 Hour
 const MAX_TTL = 60 * 60 * 24 * 30; // 30 Days
 
-const putDocument = async (document, ttl = DEFAULT_TTL) => {
+const putDocument = async (document, uuid, ttl = DEFAULT_TTL) => {
   // TTL is handled by dynamoDb natively, this timestamp has to be UTC unixtime in seconds
   const created = Math.floor(Date.now() / 1000);
   // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/time-to-live-ttl-how-to.html
   const params = {
     TableName: config.dynamodb.storageTableName,
     Item: {
-      id: uuid(),
+      id: uuid,
       document,
       created,
       ttl: created + ttl
@@ -47,6 +46,7 @@ const validateTtl = ttl => {
 
 const uploadDocument = async (
   document,
+  uuid,
   ttl = DEFAULT_TTL,
   network = config.network
 ) => {
@@ -58,6 +58,7 @@ const uploadDocument = async (
   );
   const { id, ttl: recordedTtl } = await putDocument(
     { cipherText, iv, tag },
+    uuid,
     ttl
   );
   return {
