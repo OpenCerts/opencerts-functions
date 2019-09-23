@@ -21,7 +21,8 @@ describe("documentService", () => {
     it("should call put and return the right results", async () => {
       dynamoDb.put.mockResolvedValue();
       const document = { foo: "bar" };
-      const res = await putDocument(document);
+      const uuid = "1e43994b-508d-4382-b756-5818a619c65a";
+      const res = await putDocument(document, uuid);
 
       expect(res.document).toEqual(document);
       expect(res.ttl).toEqual(res.created + DEFAULT_TTL);
@@ -37,7 +38,8 @@ describe("documentService", () => {
     });
     verify.mockResolvedValue({ valid: true });
     it("works", async () => {
-      const result = await uploadDocument(mainnetCert);
+      const uuid = "1e43994b-508d-4382-b756-5818a619c65a";
+      const result = await uploadDocument(mainnetCert, uuid);
       expect(result).toMatchObject({
         id: expect.stringMatching(uuidV4Regex),
         ttl: expect.any(Number),
@@ -46,9 +48,9 @@ describe("documentService", () => {
     });
     it("should throw an error if its not a valid opencert", async () => {
       verify.mockResolvedValue({ valid: false });
-      await expect(uploadDocument({ foo: "bar" })).rejects.toThrow(
-        "Document is not valid"
-      );
+      await expect(
+        uploadDocument({ foo: "bar" }, "1e43994b-508d-4382-b756-5818a619c65a")
+      ).rejects.toThrow("Document is not valid");
     });
   });
 });
