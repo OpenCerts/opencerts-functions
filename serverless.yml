@@ -82,6 +82,13 @@ functions:
           path: /storage/create
           method: post
           cors: true
+  update:
+    handler: src/storage/update.handler
+    events: 
+      - http:
+          path: /storage/update
+          method: post
+          cors: true
   getQueueNumber:
     handler: src/storage/queueNumber.handler
     events:

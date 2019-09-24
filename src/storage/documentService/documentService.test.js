@@ -11,7 +11,8 @@ const {
   uploadDocument,
   putDocument,
   DEFAULT_TTL,
-  getDocument
+  getDocument,
+  updateDocument
 } = require("./documentService");
 
 const uuidV4Regex = new RegExp(
@@ -22,8 +23,7 @@ describe("documentService", () => {
     it("should call put and return the right results", async () => {
       dynamoDb.put.mockResolvedValue();
       const document = { foo: "bar" };
-      const uuid = "1e43994b-508d-4382-b756-5818a619c65a";
-      const res = await putDocument(document, uuid);
+      const res = await putDocument(document);
 
       expect(res.document).toEqual(document);
       expect(res.ttl).toEqual(res.created + DEFAULT_TTL);
@@ -40,20 +40,6 @@ describe("documentService", () => {
 
     verify.mockResolvedValue({ valid: true });
 
-    it("should return the expected result when uuid is passed", async () => {
-      const uuid = "1e43994b-508d-4382-b756-5818a619c65a";
-      dynamoDb.get.mockReturnValueOnce({
-        id: "1e43994b-508d-4382-b756-5818a619c65a"
-      });
-      const result = await uploadDocument(mainnetCert, uuid);
-      expect(result).toMatchObject({
-        id: expect.stringMatching(uuidV4Regex),
-        ttl: expect.any(Number),
-        key: expect.any(String)
-      });
-      expect(result.id).toEqual(uuid);
-    });
-
     it("should return the expected result when there is no uuid", async () => {
       const result = await uploadDocument(mainnetCert);
       expect(result).toMatchObject({
@@ -63,21 +49,12 @@ describe("documentService", () => {
       });
     });
 
-    it("should throw an error when wrong uuid is passed", async () => {
-      const uuid = "1e43994b-508d-4382-b756-5818a619c65b";
-      await expect(uploadDocument(mainnetCert, uuid)).rejects.toThrow(
-        "Can not find the valid queue number"
-      );
-    });
-
     it("should throw an error if its not a valid opencert", async () => {
       verify.mockResolvedValue({ valid: false });
-      dynamoDb.get.mockReturnValueOnce({
-        id: "1e43994b-508d-4382-b756-5818a619c65a"
-      });
-      await expect(
-        uploadDocument({ foo: "bar" }, "1e43994b-508d-4382-b756-5818a619c65a")
-      ).rejects.toThrow("Document is not valid");
+
+      await expect(uploadDocument({ foo: "bar" })).rejects.toThrow(
+        "Document is not valid"
+      );
     });
   });
 
@@ -102,6 +79,21 @@ describe("documentService", () => {
       const uuid = "1e43994b-508d-4382-b756-5818a619c65a";
       const result = await getDocument(uuid, { cleanup: false });
       expect(result).toEqual(undefined);
+    });
+  });
+
+  describe("updatetDocument", () => {
+    it("should update the document result when uuid is passed", async () => {
+      const uuid = "1e43994b-508d-4382-b756-5818a619c65a";
+      verify.mockResolvedValue({ valid: true });
+      dynamoDb.update.mockResolvedValue();
+      const result = await updateDocument(mainnetCert, uuid);
+      expect(result).toMatchObject({
+        id: expect.stringMatching(uuidV4Regex),
+        ttl: expect.any(Number),
+        key: expect.any(String)
+      });
+      expect(result.id).toEqual(uuid);
     });
   });
 });

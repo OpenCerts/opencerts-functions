@@ -1,12 +1,12 @@
 const middy = require("middy");
 const { cors } = require("middy/middlewares");
-const { uploadDocument } = require("./documentService");
+const { updateDocument } = require("./documentService");
 
-const handleCreate = async event => {
+const handleUpdate = async event => {
   try {
-    const { document, ttl } = JSON.parse(event.body);
+    const { document, id, ttl } = JSON.parse(event.body);
     const time = ttl ? Number(ttl) : 60 * 60;
-    const receipt = await uploadDocument(document, time);
+    const receipt = await updateDocument(document, id, time);
     return {
       statusCode: 200,
       body: JSON.stringify(receipt)
@@ -21,7 +21,7 @@ const handleCreate = async event => {
   }
 };
 
-const handler = middy(handleCreate).use(cors());
+const handler = middy(handleUpdate).use(cors());
 
 module.exports = {
   handler
