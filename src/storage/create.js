@@ -1,13 +1,12 @@
 const middy = require("middy");
 const { cors } = require("middy/middlewares");
-const uuid = require("uuid/v4");
 const { uploadDocument } = require("./documentService");
 
 const handleCreate = async event => {
   try {
     const { document, id, ttl } = JSON.parse(event.body);
-    const docStoreId = id || uuid();
-    const receipt = await uploadDocument(document, docStoreId, Number(ttl));
+    const time = ttl ? Number(ttl) : 60 * 60;
+    const receipt = await uploadDocument(document, id, time);
     return {
       statusCode: 200,
       body: JSON.stringify(receipt)

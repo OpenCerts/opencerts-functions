@@ -1,13 +1,20 @@
 const middy = require("middy");
 const { cors } = require("middy/middlewares");
-const uuid = require("uuid/v4");
+const { getQueueNumber } = require("./documentService");
 
 const handleQueueNumber = async () => {
-  const id = uuid();
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ queueNumber: id })
-  };
+  try {
+    const { id } = await getQueueNumber();
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ queueNumber: id })
+    };
+  } catch (e) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: e.message })
+    };
+  }
 };
 
 const handler = middy(handleQueueNumber).use(cors());

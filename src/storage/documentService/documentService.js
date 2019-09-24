@@ -1,4 +1,5 @@
 const verify = require("@govtechsg/oa-verify");
+const uuid = require("uuid/v4");
 const { encryptString } = require("./crypto");
 const config = require("../config");
 const { put, get, remove } = require("../dynamoDb");
@@ -6,21 +7,24 @@ const { put, get, remove } = require("../dynamoDb");
 const DEFAULT_TTL = 60 * 60; // 1 Hour
 const MAX_TTL = 60 * 60 * 24 * 30; // 30 Days
 
-const putDocument = async (document, uuid, ttl = DEFAULT_TTL) => {
+const putDocument = async (document, id, ttl = DEFAULT_TTL) => {
   // TTL is handled by dynamoDb natively, this timestamp has to be UTC unixtime in seconds
   const created = Math.floor(Date.now() / 1000);
   // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/time-to-live-ttl-how-to.html
   const params = {
     TableName: config.dynamodb.storageTableName,
     Item: {
-      id: uuid,
+      id,
       document,
       created,
       ttl: created + ttl
     }
   };
-
-  return put(params).then(() => params.Item);
+  return put(params)
+    .then(() => params.Item)
+    .catch(e => {
+      throw new Error(e);
+    });
 };
 
 const getDocument = async (id, { cleanup }) => {
@@ -46,11 +50,22 @@ const validateTtl = ttl => {
 
 const uploadDocument = async (
   document,
-  uuid,
+  docId,
   ttl = DEFAULT_TTL,
   network = config.network
 ) => {
+  let docStoreId = docId;
+  if (docId) {
+    const response = await getDocument(docId, { cleanup: false });
+    if (!response || response.document) {
+      throw new Error("Can not find the valid queue number");
+    }
+  } else {
+    docStoreId = uuid();
+  }
+
   const verificationResults = await verify(document, network);
+
   if (!verificationResults.valid) throw new Error("Document is not valid");
   validateTtl(ttl);
   const { cipherText, iv, tag, key, type } = await encryptString(
@@ -58,7 +73,7 @@ const uploadDocument = async (
   );
   const { id, ttl: recordedTtl } = await putDocument(
     { cipherText, iv, tag },
-    uuid,
+    docStoreId,
     ttl
   );
   return {
@@ -69,9 +84,28 @@ const uploadDocument = async (
   };
 };
 
+const getQueueNumber = async () => {
+  const created = Math.floor(Date.now() / 1000);
+  const params = {
+    TableName: config.dynamodb.storageTableName,
+    Item: {
+      id: uuid(),
+      created,
+      ttl: created + DEFAULT_TTL
+    }
+  };
+
+  return put(params)
+    .then(() => params.Item)
+    .catch(e => {
+      throw new Error(e);
+    });
+};
+
 module.exports = {
   putDocument,
   DEFAULT_TTL,
   uploadDocument,
-  getDocument
+  getDocument,
+  getQueueNumber
 };
