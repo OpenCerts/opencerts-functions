@@ -23,6 +23,5 @@ const get = (...args) =>
       throw new Error("No Document Found");
     });
 const remove = (...args) => dynamoClient.delete(...args).promise();
-const update = (...args) => dynamoClient.update(...args).promise();
 
-module.exports = { put, get, remove, update };
+module.exports = { put, get, remove };
