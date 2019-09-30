@@ -4,13 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "sls offline",
+    "dev": "sls offline start",
     "deploy": "sls deploy",
     "depcheck": "depcheck . --ignores=\"serverless-*\"",
     "sls-config-check": "sls print",
     "test": "jest --testPathPattern=src",
     "test-watch": "jest --watch",
-    "integration": "jest --testPathPattern=test/integration",
+    "e2etest": "jest --testPathPattern=test/e2e",
+    "docker-compose:test": "docker-compose -f docker-compose.test.yml",
+    "integration:local": "IS_OFFLINE=true jest --testPathPattern=test/integration",
     "lint": "eslint . --ext .js --max-warnings 0",
     "lint:fix": "eslint . --ext .js --fix"
   },
@@ -28,7 +30,6 @@
     "nodemailer": "^4.6.8",
     "serverless": "^1.40.0",
     "serverless-dotenv-plugin": "^1.2.0",
-    "serverless-dynamodb-local": "^0.2.37",
     "serverless-http": "^1.6.0",
     "uuid": "^3.3.2"
   },
@@ -43,6 +44,7 @@
     "eslint-plugin-prettier": "^2.6.2",
     "jest": "^24.7.1",
     "prettier": "^1.14.2",
+    "serverless-dynamodb-local": "^0.2.37",
     "serverless-offline": "^3.25.11",
     "supertest": "^4.0.2"
   }

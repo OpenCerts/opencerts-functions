@@ -16,6 +16,7 @@ const putDocument = async (
   // TTL is handled by dynamoDb natively, this timestamp has to be UTC unixtime in seconds
   const created = Math.floor(Date.now() / 1000);
   const params = {
+    TableName: config.dynamodb.storageTableName,
     Item: {
       id,
       document,
@@ -27,14 +28,17 @@ const putDocument = async (
   return put(params).then(() => params.Item);
 };
 
-const getDocument = async (id, { cleanup }) => {
+const getDocument = async (id, { cleanup } = { cleanup: false }) => {
   const params = {
-    TableName: process.env.OA_DOC_STORAGE_TABLE,
+    TableName: config.dynamodb.storageTableName,
     Key: {
       id
     }
   };
   const document = await get(params);
+  if (document.awaitingUpload) {
+    throw new Error("No Document Found");
+  }
   if (cleanup) {
     await remove(params);
   }
@@ -65,7 +69,7 @@ const uploadDocument = async (
     ? await putDocument({ cipherText, iv, tag }, documentId, ttl, {
         ConditionExpression: "awaitingUpload = :aTrueValue",
         ExpressionAttributeValues: { ":aTrueValue": true }
-      })
+      }) // This expression throws "The conditional request failed" if uuid already exists
     : await putDocument({ cipherText, iv, tag }, uuid(), ttl);
 
   return {

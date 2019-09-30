@@ -8,16 +8,18 @@ jobs:
       script:
         - npm run lint
         - npm run test
+        - npm run dev
+        - npm run integration:local
         - npm run depcheck
         - npm run sls-config-check
     - stage: deploy_staging
       if: branch = master AND type != pull_request
       script:
         - ./scripts/deploy_staging.sh
-    - stage: integration_test
+    - stage: e2etest
       if: branch = master AND type != pull_request
       script:
-        - npm run integration
+        - npm run e2etest
     - stage: deploy_production
       if: branch = master AND type != pull_request
       script:
@@ -25,5 +27,5 @@ jobs:
 stages:
   - unit_test
   - deploy_staging
-  - integration_test
+  - e2etest
   - deploy_production
