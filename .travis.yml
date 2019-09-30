@@ -12,7 +12,8 @@ jobs:
         - npm run lint
         - npm run test
         - npm run dynamodb-local-setup
-        - npm run dev
+        - npm run dev &
+        - sleep 2
         - npm run integration:local
         - npm run depcheck
         - npm run sls-config-check

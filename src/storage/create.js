@@ -11,6 +11,12 @@ const handleCreate = async event => {
       body: JSON.stringify(receipt)
     };
   } catch (e) {
+    if (e.message === "The conditional request failed") {
+      return {
+        statusCode: 400,
+        body: "Unauthorised"
+      };
+    }
     return {
       statusCode: 400,
       body: JSON.stringify({
