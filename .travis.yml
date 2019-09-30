@@ -1,13 +1,17 @@
 language: node_js
 node_js:
   - lts/*
-cache: npm install
+cache:
+  - directories:
+    - .dynamodb
+  - npm
 jobs:
   include:
     - stage: unit_test
       script:
         - npm run lint
         - npm run test
+        - npm run dynamodb-local-setup
         - npm run dev
         - npm run integration:local
         - npm run depcheck

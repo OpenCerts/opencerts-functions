@@ -7,6 +7,7 @@
     "dev": "sls offline start",
     "deploy": "sls deploy",
     "depcheck": "depcheck . --ignores=\"serverless-*\"",
+    "dynamodb-local-setup": "sls dynamodb install",
     "sls-config-check": "sls print",
     "test": "jest --testPathPattern=src",
     "test-watch": "jest --watch",
