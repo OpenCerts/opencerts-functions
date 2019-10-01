@@ -1,6 +1,6 @@
 const verify = require("@govtechsg/oa-verify");
 const uuid = require("uuid/v4");
-const { encryptString } = require("./crypto");
+const { encryptString } = require("@govtechsg/opencerts-encryption");
 const config = require("../config");
 const { put, get, remove } = require("../dynamoDb");
 

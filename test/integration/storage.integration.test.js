@@ -2,7 +2,7 @@ jest.mock("@govtechsg/oa-verify"); // mocked because we'll test this part in e2e
 
 const uuid = require("uuid/v4");
 const verify = require("@govtechsg/oa-verify");
-
+const { decryptString } = require("@govtechsg/opencerts-encryption");
 const {
   uploadDocument,
   getDocument,
@@ -57,7 +57,19 @@ describe("uploadDocument", () => {
     expect(getResults.id).toEqual(queueNumber);
   });
 
-  test.todo("should work with ttl");
+  test("should work with queue number and ttl", async () => {
+    const { id: queueNumber } = await getQueueNumber();
+    const document = { foo: "bar" };
+    const ttl = 60 * 60;
+    const uploaded = await uploadDocument(document, queueNumber, ttl);
+
+    expect(uploaded).toMatchObject(thatIsUploadResponse);
+
+    const getResults = await getDocument(uploaded.id);
+
+    expect(getResults).toMatchObject(thatIsRetrievedDocument);
+    expect(getResults.id).toEqual(queueNumber);
+  });
 
   test("should throw error when you try to upload to a uuid that is not queue number", async () => {
     const document = { foo: "bar" };
@@ -73,7 +85,13 @@ describe("uploadDocument", () => {
     const uploaded = uploadDocument(document, undefined, 100000000000);
     expect(uploaded).rejects.toThrow("TTL exceeds maximum of 30 days");
   });
-  test.todo("should throw error if document verify fails");
+
+  test("should throw error when document verification failed", async () => {
+    const document = { foo: "bar" };
+    verify.mockResolvedValueOnce({ valid: false });
+    const uploaded = uploadDocument(document);
+    expect(uploaded).rejects.toThrow("Document is not valid");
+  });
 });
 
 describe("getDocument", () => {
@@ -94,13 +112,48 @@ describe("getDocument", () => {
     const retrieveAfterCleanup = getDocument(uploaded.id, { cleanup: true });
     await expect(retrieveAfterCleanup).rejects.toThrow("No Document Found");
   });
-  test.todo("should not cleanup if cleanup flag is off");
+  test("should not cleanup if cleanup flag is off", async () => {
+    const document = { foo: "bar" };
+
+    const uploaded = await uploadDocument(document);
+
+    const retrieve = await getDocument(uploaded.id, { cleanup: false });
+    expect(retrieve).toMatchObject(thatIsRetrievedDocument);
+    const retrieveAfter = await getDocument(uploaded.id, { cleanup: false });
+    expect(retrieveAfter).toMatchObject(thatIsRetrievedDocument);
+    expect(retrieveAfter.id).toEqual(uploaded.id);
+  });
 });
 
 describe("getQueueNumber", () => {
-  test.todo("should work");
+  test("should return a plceholder object", async () => {
+    const queueNumber = await getQueueNumber();
+    expect(queueNumber).toMatchObject({
+      created: expect.any(Number),
+      awaitingUpload: true,
+      id: expect.stringMatching(uuidV4Regex),
+      ttl: expect.any(Number)
+    });
+  });
 });
 
 describe("documentService", () => {
-  test.todo("should store and retrieve and decrypt fine");
+  test("should store and retrieve and decrypt the document", async () => {
+    const document = { foo: "bar" };
+    const uploaded = await uploadDocument(document);
+    const retrieve = await getDocument(uploaded.id, { cleanup: false });
+    expect(retrieve).toMatchObject(thatIsRetrievedDocument);
+
+    const decryptedDoc = JSON.parse(
+      decryptString({
+        tag: retrieve.document.tag,
+        cipherText: retrieve.document.cipherText,
+        iv: retrieve.document.iv,
+        key: uploaded.key,
+        type: "OPEN-ATTESTATION-TYPE-1"
+      })
+    );
+
+    expect(decryptedDoc).toMatchObject(document);
+  });
 });
