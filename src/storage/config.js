@@ -1,11 +1,11 @@
-const config = () => {
-  return process.env.IS_OFFLINE
+const config = () =>
+  process.env.IS_OFFLINE
     ? {
         dynamodb: {
           accessKeyId: "localAccessKeyID",
           secretAccessKey: "localAccessKey",
           region: "us-west-2",
-          storageTableName: 'dlt-oa-doc-storage-stg'
+          storageTableName: "dlt-oa-doc-storage-stg"
         },
         network:
           process.env.NETWORK === "undefined"
@@ -24,6 +24,5 @@ const config = () => {
             ? "homestead"
             : process.env.NETWORK
       };
-};
 
 module.exports = config();
