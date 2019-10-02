@@ -76,7 +76,19 @@ describe("uploadDocument", () => {
 
     const uploaded = uploadDocument(document, uuid());
 
-    await expect(uploaded).rejects.toThrow("The conditional request failed");
+    await expect(uploaded).rejects.toThrow("No Document Found");
+  });
+
+  test("should throw error when you try to upload to a uuid that is not queue number but exist in db", async () => {
+    const document = { foo: "bar" };
+    const { id: queueNumber } = await getQueueNumber();
+    const uploaded = await uploadDocument(document, queueNumber);
+    expect(uploaded).toMatchObject(thatIsUploadResponse);
+
+    const uploadedRepeat = uploadDocument(document, queueNumber);
+    await expect(uploadedRepeat).rejects.toThrow(
+      "The conditional request failed"
+    );
   });
 
   test("should throw error with invalid ttls", async () => {

@@ -81,7 +81,7 @@ const uploadDocument = async (
     : null;
   const { cipherText, iv, tag, key, type } = await encryptString(
     JSON.stringify(document),
-    placeHolderObj ? placeHolderObj.key : ""
+    placeHolderObj ? placeHolderObj.key : undefined
   );
 
   const { id, ttl: recordedTtl } = documentId
