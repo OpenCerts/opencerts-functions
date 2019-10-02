@@ -131,6 +131,7 @@ describe("getQueueNumber", () => {
     expect(queueNumber).toMatchObject({
       created: expect.any(Number),
       awaitingUpload: true,
+      key: expect.any(String),
       id: expect.stringMatching(uuidV4Regex),
       ttl: expect.any(Number)
     });

@@ -4,10 +4,10 @@ const { getQueueNumber } = require("./documentService");
 
 const handleQueueNumber = async () => {
   try {
-    const { id } = await getQueueNumber();
+    const { id, key } = await getQueueNumber();
     return {
       statusCode: 200,
-      body: JSON.stringify({ queueNumber: id })
+      body: JSON.stringify({ queueNumber: id, key })
     };
   } catch (e) {
     return {

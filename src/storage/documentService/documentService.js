@@ -1,6 +1,9 @@
 const verify = require("@govtechsg/oa-verify");
 const uuid = require("uuid/v4");
-const { encryptString } = require("@govtechsg/opencerts-encryption");
+const {
+  encryptString,
+  generateEncryptionKey
+} = require("@govtechsg/opencerts-encryption");
 const config = require("../config");
 const { put, get, remove } = require("../dynamoDb");
 
@@ -45,6 +48,17 @@ const getDocument = async (id, { cleanup } = { cleanup: false }) => {
   return document;
 };
 
+const getPlaceholderObject = async id => {
+  const params = {
+    TableName: config.dynamodb.storageTableName,
+    Key: {
+      id
+    }
+  };
+  const document = await get(params);
+  return document;
+};
+
 const validateTtl = ttl => {
   if (typeof ttl !== "number" || ttl < 0)
     throw new Error("TTL must be a positive number of seconds");
@@ -61,8 +75,13 @@ const uploadDocument = async (
   const verificationResults = await verify(document, network);
   if (!verificationResults.valid) throw new Error("Document is not valid");
   validateTtl(ttl);
+
+  const placeHolderObj = documentId
+    ? await getPlaceholderObject(documentId)
+    : null;
   const { cipherText, iv, tag, key, type } = await encryptString(
-    JSON.stringify(document)
+    JSON.stringify(document),
+    placeHolderObj ? placeHolderObj.key : ""
   );
 
   const { id, ttl: recordedTtl } = documentId
@@ -86,6 +105,7 @@ const getQueueNumber = async () => {
     TableName: config.dynamodb.storageTableName,
     Item: {
       id: uuid(),
+      key: generateEncryptionKey(),
       created,
       awaitingUpload: true,
       ttl: created + DEFAULT_TTL
