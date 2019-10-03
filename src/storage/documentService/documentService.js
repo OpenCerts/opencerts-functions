@@ -1,4 +1,4 @@
-const verify = require("@govtechsg/oa-verify");
+const { verify } = require("@govtechsg/oa-verify");
 const uuid = require("uuid/v4");
 const {
   encryptString,
@@ -73,7 +73,13 @@ const uploadDocument = async (
   network = config.network
 ) => {
   const verificationResults = await verify(document, network);
-  if (!verificationResults.valid) throw new Error("Document is not valid");
+  if (
+    (!documentId && !verificationResults.valid) ||
+    (documentId && !verificationResults.hash.checksumMatch)
+  ) {
+    throw new Error("Document is not valid");
+  }
+
   validateTtl(ttl);
 
   const placeHolderObj = documentId

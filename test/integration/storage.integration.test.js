@@ -1,7 +1,7 @@
 jest.mock("@govtechsg/oa-verify"); // mocked because we'll test this part in e2e
 
 const uuid = require("uuid/v4");
-const verify = require("@govtechsg/oa-verify");
+const { verify } = require("@govtechsg/oa-verify");
 const { decryptString } = require("@govtechsg/opencerts-encryption");
 const {
   uploadDocument,
@@ -33,7 +33,7 @@ const thatIsRetrievedDocument = {
 
 describe("uploadDocument", () => {
   beforeEach(() => {
-    verify.mockResolvedValue({ valid: true });
+    verify.mockResolvedValue({ valid: true, hash: { checksumMatch: true } });
   });
 
   test("should work without queue number or ttl", async () => {
@@ -102,6 +102,17 @@ describe("uploadDocument", () => {
     const document = { foo: "bar" };
     verify.mockResolvedValueOnce({ valid: false });
     const uploaded = uploadDocument(document);
+    expect(uploaded).rejects.toThrow("Document is not valid");
+  });
+
+  test("should throw error when document verification failed with queue number", async () => {
+    const document = { foo: "bar" };
+    const { id: queueNumber } = await getQueueNumber();
+    verify.mockResolvedValueOnce({
+      valid: false,
+      hash: { checksumMatch: false }
+    });
+    const uploaded = uploadDocument(document, queueNumber);
     expect(uploaded).rejects.toThrow("Document is not valid");
   });
 });
