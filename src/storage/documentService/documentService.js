@@ -39,6 +39,7 @@ const getDocument = async (id, { cleanup } = { cleanup: false }) => {
     }
   };
   const document = await get(params);
+  // we throw this error because if awaitingUpload exists on an object, it also has a decryption key in it and we don't want to return that, ever
   if (document.awaitingUpload) {
     throw new Error("No Document Found");
   }
@@ -47,8 +48,8 @@ const getDocument = async (id, { cleanup } = { cleanup: false }) => {
   }
   return document;
 };
-
-const getPlaceholderObject = async id => {
+// We define this function separately to getDocument as we don't want a future dev to accidentally return a decryption key by using the wrong function
+const getDecryptionKey = async id => {
   const params = {
     TableName: config.dynamodb.storageTableName,
     Key: {
@@ -73,18 +74,15 @@ const uploadDocument = async (
   network = config.network
 ) => {
   const verificationResults = await verify(document, network);
-  if (
-    (!documentId && !verificationResults.valid) ||
-    (documentId && !verificationResults.hash.checksumMatch)
-  ) {
+  if (!verificationResults.valid) {
     throw new Error("Document is not valid");
   }
 
   validateTtl(ttl);
 
   const placeHolderObj = documentId
-    ? await getPlaceholderObject(documentId)
-    : null;
+    ? await getDecryptionKey(documentId)
+    : undefined;
   const { cipherText, iv, tag, key, type } = await encryptString(
     JSON.stringify(document),
     placeHolderObj ? placeHolderObj.key : undefined
