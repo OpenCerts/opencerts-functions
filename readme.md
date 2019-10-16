@@ -50,8 +50,14 @@ This function is currently being developed to transfer a OpenAttestation documen
 Copy `.env` from a co-worker or insert own credentials to get started. A copy of the .env file is available at `.env.example`
 
 ```
-yarn dev
+npm run dev
 ```
+
+To run local tests against dynamodb-local, run commands
+
+ `npm run dev` to start the local database
+
+ `npm run integration:local` to run the tests
 
 ## Dynamodb 
 
