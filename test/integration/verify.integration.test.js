@@ -3,7 +3,7 @@ const ropstenDocument = require("../fixtures/certificate.json");
 const mainnetDocument = require("../fixtures/certificateMainnetValid.json");
 const { unissuedResponse, successfulResponse } = require("../utils/matchers");
 
-const API_ENDPOINT = "https://api-ropsten.opencerts.io";
+const API_ENDPOINT = "http://localhost:3000";
 const request = supertest(API_ENDPOINT);
 
 describe("verify", () => {

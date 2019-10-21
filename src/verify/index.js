@@ -1,6 +1,6 @@
 const middy = require("middy");
 const { cors } = require("middy/middlewares");
-const verify = require("@govtechsg/oa-verify");
+const { verify } = require("@govtechsg/oa-verify");
 const config = require("./config");
 
 const handleVerify = async (event, _context, callback) => {
