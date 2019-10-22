@@ -1,5 +1,8 @@
 service: dlt-functions
 
+custom:
+bucket: "tradetrust"
+
 provider:
   name: aws
   runtime: nodejs8.10
@@ -17,13 +20,11 @@ provider:
   iamRoleStatements:
     - Effect: Allow
       Action:
-        - dynamodb:Query
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.OA_DOC_STORAGE_TABLE}"
+        - s3:putObject
+        - s3:upload
+        - s3:deleteObject
+        - s3:getObject
+      Resource: "arn:aws:s3:::${self:custom.bucket}/*"
 
 resources:
   Resources:
