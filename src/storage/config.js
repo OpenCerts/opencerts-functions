@@ -1,11 +1,14 @@
+const AWS = require("aws-sdk");
+
 const config = () =>
   process.env.IS_OFFLINE
     ? {
         s3: {
-          accessKeyId: "localAccessKeyID",
-          secretAccessKey: "localAccessKey",
+          accessKeyId: "S3RVER",
+          secretAccessKey: "S3RVER",
           region: "us-west-2",
-          bucketName: "dlt-oa-doc-storage-stg"
+          bucketName: "tradetrust",
+          endpoint: new AWS.Endpoint('http://localhost:8000')
         },
         network:
           process.env.NETWORK === "undefined"
@@ -17,7 +20,7 @@ const config = () =>
           accessKeyId: process.env.SES_KEY_ID,
           secretAccessKey: process.env.SES_SECRET,
           region: process.env.SES_REGION || "us-west-2",
-          bucketName: process.env.OA_DOC_STORAGE_TABLE
+          bucketName: process.env.BUCKET
         },
         network:
           process.env.NETWORK === "undefined"

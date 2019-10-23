@@ -10,16 +10,16 @@ const { put, get, remove } = require("../s3");
 
 const putDocument = async (document, id) => {
   const params = {
-    BUCKET: config.s3.bucketName,
-    KEY: id,
-    BODY: JSON.stringify(document)
+    Bucket: config.s3.bucketName,
+    Key: id,
+    Body: JSON.stringify(document)
   };
   return put(params).then(() => ({ id: params.KEY }));
 };
 
 const getDocument = async (id, { cleanup } = { cleanup: false }) => {
   const params = {
-    TableName: config.s3.bucketName,
+    Bucket: config.s3.bucketName,
     Key: id
   };
   const document = await get(params);
@@ -34,9 +34,10 @@ const getDocument = async (id, { cleanup } = { cleanup: false }) => {
 };
 
 const getDecryptionKey = async id => {
+  console.log(id)
   const params = {
-    TableName: config.s3.bucketName,
-    KEY: id
+    Bucket: config.s3.bucketName,
+    Key: id
   };
   const document = await get(params);
   return document;
@@ -48,11 +49,9 @@ const uploadDocument = async (
   network = config.network
 ) => {
   const verificationResults = await verify(document, network);
-
   if (!verificationResults.valid) {
     throw new Error("Document is not valid");
   }
-
   const placeHolderObj = documentId
     ? await getDecryptionKey(documentId)
     : undefined;
@@ -60,6 +59,8 @@ const uploadDocument = async (
     JSON.stringify(document),
     placeHolderObj ? placeHolderObj.key : undefined
   );
+
+  console.log(cipherText, key)
 
   const documentName =
     placeHolderObj && placeHolderObj.awaitingUpload
@@ -84,9 +85,9 @@ const getQueueNumber = async () => {
     created
   };
   const params = {
-    BUCKET: config.s3.bucketName,
-    BODY: JSON.stringify(tempData),
-    KEY: `${id}.json`
+    Bucket: config.s3.bucketName,
+    Body: JSON.stringify(tempData),
+    Key: `${id}.json`
   };
   return put(params).then(() => ({ key: tempData.key, id: `${id}.json` }));
 };

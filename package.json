@@ -7,7 +7,7 @@
     "dev": "sls offline start",
     "deploy": "sls deploy",
     "depcheck": "depcheck . --ignores=\"serverless-*\"",
-    "dynamodb-local-setup": "sls dynamodb install",
+    "s3-local-setup": "sls plugin install --name serverless-s3-local",
     "sls-config-check": "sls print",
     "test": "jest --testPathPattern=src",
     "test-watch": "jest --watch",
@@ -47,6 +47,7 @@
     "prettier": "^1.14.2",
     "serverless-dynamodb-local": "^0.2.37",
     "serverless-offline": "^3.25.11",
+    "serverless-s3-local": "^0.5.2",
     "supertest": "^4.0.2"
   }
 }
