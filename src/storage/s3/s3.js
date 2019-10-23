@@ -1,11 +1,12 @@
 const AWS = require("aws-sdk");
 
 const s3bucket = new AWS.S3({
-  accessKeyId: "AKIAW5WRLO5KX3ZHXGKT",
-  secretAccessKey: "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",
+    s3ForcePathStyle: true,
+  accessKeyId: "S3RVER",
+  secretAccessKey: "S3RVER",
   region: "ap-southeast-1",
-  endpoint: new AWS.Endpoint('http://localhost:3000'),
-  Bucket: "tradetrust"
+  endpoint: new AWS.Endpoint('http://localhost:8000'),
+  Bucket: "tradetrust-bucket"
 });
 
 const put = (...args) => s3bucket.upload(...args).promise();

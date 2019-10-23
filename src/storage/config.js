@@ -7,7 +7,7 @@ const config = () =>
           accessKeyId: "S3RVER",
           secretAccessKey: "S3RVER",
           region: "us-west-2",
-          bucketName: "tradetrust",
+          bucketName: "tradetrust-bucket",
           endpoint: new AWS.Endpoint('http://localhost:8000')
         },
         network:
