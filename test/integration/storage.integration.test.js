@@ -25,7 +25,7 @@ const thatIsRetrievedDocument = {
     iv: expect.any(String),
     tag: expect.any(String)
   })
-  };
+};
 
 describe("uploadDocument", () => {
   beforeEach(() => {
@@ -96,16 +96,19 @@ describe("getDocument", () => {
   });
 
   it("should cleanup if cleanup flag is specified", async () => {
-
+    const document = { foo: "bar" };
     const { id: queueNumber } = await getQueueNumber();
     await uploadDocument(document, queueNumber);
     const retrieve = await getDocument(queueNumber, { cleanup: true });
 
     expect(retrieve).toMatchObject(thatIsRetrievedDocument);
     const retrieveAfterCleanup = getDocument(queueNumber, { cleanup: true });
-    await expect(retrieveAfterCleanup).rejects.toThrow("The specified key does not exist.");
+    await expect(retrieveAfterCleanup).rejects.toThrow(
+      "The specified key does not exist."
+    );
   });
   it("should not cleanup if cleanup flag is off", async () => {
+    const document = { foo: "bar" };
     const { id: queueNumber } = await getQueueNumber();
     await uploadDocument(document, queueNumber);
     const retrieve = await getDocument(queueNumber, { cleanup: false });

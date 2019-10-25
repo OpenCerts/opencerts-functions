@@ -39,7 +39,7 @@ const getDecryptionKey = async id => {
     Key: id
   };
   const document = await get(params);
-  if(!document.key) throw new Error("The conditional request failed")
+  if (!document.key) throw new Error("The conditional request failed");
   return document;
 };
 
