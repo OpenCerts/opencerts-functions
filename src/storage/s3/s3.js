@@ -1,13 +1,7 @@
 const AWS = require("aws-sdk");
+const config = require("../config");
 
-const s3bucket = new AWS.S3({
-    s3ForcePathStyle: true,
-  accessKeyId: "S3RVER",
-  secretAccessKey: "S3RVER",
-  region: "ap-southeast-1",
-  endpoint: new AWS.Endpoint('http://localhost:8000'),
-  Bucket: "tradetrust-bucket"
-});
+const s3bucket = new AWS.S3(config.s3);
 
 const put = (...args) => s3bucket.upload(...args).promise();
 const get = (...args) =>
@@ -16,7 +10,7 @@ const get = (...args) =>
     .promise()
     .then(results => {
       if (results) {
-        return JSON.parse(results);
+        return JSON.parse(results.Body.toString());
       }
       throw new Error("No Document Found");
     });

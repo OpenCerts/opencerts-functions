@@ -10,16 +10,16 @@ const { put, get, remove } = require("../s3");
 
 const putDocument = async (document, id) => {
   const params = {
-    Bucket: config.s3.bucketName,
+    Bucket: config.bucketName,
     Key: id,
-    Body: JSON.stringify(document)
+    Body: JSON.stringify({ document })
   };
-  return put(params).then(() => ({ id: params.KEY }));
+  return put(params).then(() => ({ id: params.Key }));
 };
 
 const getDocument = async (id, { cleanup } = { cleanup: false }) => {
   const params = {
-    Bucket: config.s3.bucketName,
+    Bucket: config.bucketName,
     Key: id
   };
   const document = await get(params);
@@ -34,12 +34,12 @@ const getDocument = async (id, { cleanup } = { cleanup: false }) => {
 };
 
 const getDecryptionKey = async id => {
-  console.log(id)
   const params = {
-    Bucket: config.s3.bucketName,
+    Bucket: config.bucketName,
     Key: id
   };
   const document = await get(params);
+  if(!document.key) throw new Error("The conditional request failed")
   return document;
 };
 
@@ -52,6 +52,7 @@ const uploadDocument = async (
   if (!verificationResults.valid) {
     throw new Error("Document is not valid");
   }
+
   const placeHolderObj = documentId
     ? await getDecryptionKey(documentId)
     : undefined;
@@ -60,14 +61,10 @@ const uploadDocument = async (
     placeHolderObj ? placeHolderObj.key : undefined
   );
 
-  console.log(cipherText, key)
-
   const documentName =
-    placeHolderObj && placeHolderObj.awaitingUpload
-      ? documentId
-      : `${uuid()}.json`;
-  const { id } = await putDocument({ cipherText, iv, tag }, documentName);
+    placeHolderObj && placeHolderObj.awaitingUpload ? documentId : uuid();
 
+  const { id } = await putDocument({ cipherText, iv, tag }, documentName);
   return {
     id,
     key,
@@ -85,11 +82,11 @@ const getQueueNumber = async () => {
     created
   };
   const params = {
-    Bucket: config.s3.bucketName,
+    Bucket: config.bucketName,
     Body: JSON.stringify(tempData),
-    Key: `${id}.json`
+    Key: id
   };
-  return put(params).then(() => ({ key: tempData.key, id: `${id}.json` }));
+  return put(params).then(() => ({ key: tempData.key, id }));
 };
 
 module.exports = {

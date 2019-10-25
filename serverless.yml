@@ -5,7 +5,7 @@ provider:
     stage: '${opt:stage, ''stg''}'
     region: ap-southeast-1
     environment:
-        BUCKET: '${self:custom.bucket}'
+        BUCKET_NAME: '${self:custom.BUCKET_NAME.${self:provider.stage}}'
         SES_KEY_ID: '${self:custom.SES_KEY_ID.${self:provider.stage}}'
         SES_SECRET: '${self:custom.SES_SECRET.${self:provider.stage}}'
         SES_REGION: '${self:custom.SES_REGION.${self:provider.stage}}'
@@ -16,13 +16,13 @@ provider:
         -
             Effect: Allow
             Action: ['s3:putObject', 's3:upload', 's3:deleteObject', 's3:getObject']
-            Resource: 'arn:aws:s3:::${self:custom.bucket}/*'
+            Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : '${self:custom.BUCKET_NAME.${self:provider.stage}}' } ] ]  }
 resources:
   Resources:
     NewResource:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: tradetrust-bucket
+        BucketName: '${self:custom.BUCKET_NAME.${self:provider.stage}}'
 functions:
     email:
         description: 'Sends email on behalf of user to third party with the OpenCerts'' preset template.'
@@ -47,7 +47,7 @@ functions:
         events:
             - {http: {path: /storage/queue, method: get, cors: true}}
 custom:
-    bucket: tradetrust-bucket
+    bucket: '${self:custom.BUCKET_NAME.${self:provider.stage}}'
     s3:
         port: 8000
         directory: /tmp
@@ -69,6 +69,9 @@ custom:
     EMAIL_API_KEYS:
         stg: '${env:stg_EMAIL_API_KEYS}'
         prd: '${env:prd_EMAIL_API_KEYS}'
+    BUCKET_NAME:
+        stg: '${env:stg_BUCKET_NAME}'
+        prd: '${env:prd_BUCKET_NAME}'
 plugins:
     - serverless-dotenv-plugin
     - serverless-s3-local
