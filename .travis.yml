@@ -11,7 +11,7 @@ jobs:
       script:
         - npm run lint
         - npm run test
-        - npm run dynamodb-local-setup
+        - npm run s3-local-setup
         - npm run dev &
         - sleep 5
         - npm run integration:local
