@@ -5,28 +5,28 @@ const config = () =>
     ? {
         s3: {
           s3ForcePathStyle: true,
-          accessKeyId: process.env.SES_KEY_ID,
-          secretAccessKey: process.env.SES_SECRET,
+          accessKeyId: process.env.stg_SES_KEY_ID,
+          secretAccessKey: process.env.stg_SES_SECRET,
           region: "us-west-2",
           endpoint: new AWS.Endpoint("http://localhost:8000")
         },
-        bucketName: process.env.BUCKET_NAME,
+        bucketName: process.env.stg_BUCKET_NAME,
         network:
-          process.env.NETWORK === "undefined"
-            ? "homestead"
-            : process.env.NETWORK
+          process.env.stg_NETWORK === "undefined"
+            ? "ropsten"
+            : process.env.stg_NETWORK
       }
     : {
         s3: {
-          accessKeyId: process.env.SES_KEY_ID,
-          secretAccessKey: process.env.SES_SECRET,
-          region: process.env.SES_REGION || "us-west-2"
+          accessKeyId: process.env.prd_SES_KEY_ID,
+          secretAccessKey: process.env.prd_SES_SECRET,
+          region: process.env.prd_SES_REGION || "us-west-2"
         },
-        bucketName: process.env.BUCKET_NAME,
+        bucketName: process.env.prd_BUCKET_NAME,
         network:
-          process.env.NETWORK === "undefined"
+          process.env.prd_NETWORK === "undefined"
             ? "homestead"
-            : process.env.NETWORK
+            : process.env.prd_NETWORK
       };
 
 module.exports = config();
