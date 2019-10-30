@@ -12,9 +12,7 @@ const config = () =>
         },
         bucketName: process.env.BUCKET_NAME,
         network:
-          process.env.NETWORK === "undefined"
-            ? "ropsten"
-            : process.env.NETWORK
+          process.env.NETWORK === "undefined" ? "ropsten" : process.env.NETWORK
       }
     : {
         s3: {
