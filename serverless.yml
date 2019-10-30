@@ -6,6 +6,8 @@ provider:
     region: ap-southeast-1
     environment:
         BUCKET_NAME: '${self:custom.BUCKET_NAME.${self:provider.stage}}'
+        IAM_KEY_ID: '${self:custom.IAM_KEY_ID.${self:provider.stage}}'
+        IAM_KEY_SECRET: '${self:custom.IAM_KEY_SECRET.${self:provider.stage}}'
         SES_KEY_ID: '${self:custom.SES_KEY_ID.${self:provider.stage}}'
         SES_SECRET: '${self:custom.SES_SECRET.${self:provider.stage}}'
         SES_REGION: '${self:custom.SES_REGION.${self:provider.stage}}'
@@ -72,6 +74,12 @@ custom:
     BUCKET_NAME:
         stg: '${env:stg_BUCKET_NAME}'
         prd: '${env:prd_BUCKET_NAME}'
+    IAM_KEY_ID:
+        stg: '${env:stg_IAM_KEY_ID}'
+        prd: '${env:prd_IAM_KEY_ID}'
+    IAM_KEY_SECRET:
+        stg: '${env:stg_IAM_KEY_SECRET}'
+        prd: '${env:prd_IAM_KEY_SECRET}'
 plugins:
     - serverless-dotenv-plugin
     - serverless-s3-local
