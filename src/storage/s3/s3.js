@@ -3,7 +3,10 @@ const config = require("../config");
 
 const s3bucket = new AWS.S3(config.s3);
 
-const put = (...args) => s3bucket.upload(...args).promise();
+const put = (...args) => {
+  console.log(args)
+  return s3bucket.upload(...args).promise()
+};
 const get = (...args) =>
   s3bucket
     .getObject(...args)
