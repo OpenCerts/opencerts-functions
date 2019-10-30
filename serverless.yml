@@ -19,7 +19,11 @@ provider:
             Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : '${self:custom.BUCKET_NAME.${self:provider.stage}}' } ] ]  }
 resources:
   Resources:
-    NewResource:
+    DevBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: 'dev-bucket'
+    DeployedBucket:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: '${self:custom.BUCKET_NAME.${self:provider.stage}}'
