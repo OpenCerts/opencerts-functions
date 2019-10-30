@@ -13,7 +13,7 @@
     "test-watch": "jest --watch",
     "e2etest": "jest --testPathPattern=test/e2e",
     "docker-compose:test": "docker-compose -f docker-compose.test.yml",
-    "integration:local": "IS_OFFLINE=true jest --testPathPattern=test/integration",
+    "integration:local": "IS_OFFLINE=true BUCKET_NAME=test jest --testPathPattern=test/integration",
     "lint": "eslint . --ext .js --max-warnings 0",
     "lint:fix": "eslint . --ext .js --fix"
   },
