@@ -5,8 +5,8 @@ const config = () =>
     ? {
         s3: {
           s3ForcePathStyle: true,
-          accessKeyId: process.env.IAM_KEY_ID,
-          secretAccessKey: process.env.IAM_KEY_SECRET,
+          accessKeyId: "S3RVER",
+          secretAccessKey: "S3RVER",
           region: "us-west-2",
           endpoint: new AWS.Endpoint("http://localhost:8000")
         },
@@ -16,8 +16,6 @@ const config = () =>
       }
     : {
         s3: {
-          accessKeyId: process.env.IAM_KEY_ID,
-          secretAccessKey: process.envIAM_KEY_SECRET,
           region: process.env.SES_REGION || "us-west-2"
         },
         bucketName: process.env.BUCKET_NAME,
