@@ -14,7 +14,6 @@ const putDocument = async (document, id) => {
     Key: id,
     Body: JSON.stringify({ document })
   };
-  console.log(config)
   return put(params).then(() => ({ id: params.Key }));
 };
 
