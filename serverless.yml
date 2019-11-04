@@ -23,20 +23,6 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: '${self:custom.BUCKET_NAME.${self:provider.stage}}'
-        AccessControl: PublicRead
-    BucketPolicy: 
-      Type: 'AWS::S3::BucketPolicy'
-      Properties: 
-        PolicyDocument:
-          Statement:
-            - Sid: PublicReadForGetBucketObjects
-              Effect: Allow
-              Principal: '*'
-              Action:
-                - 's3:GetObject'
-              Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : '${self:custom.BUCKET_NAME.${self:provider.stage}}' } ] ]  }
-        Bucket:
-          Ref: DeployedBucket
 functions:
     email:
       description: 'Sends email on behalf of user to third party with the OpenCerts'' preset template.'
@@ -62,7 +48,6 @@ functions:
         - {http: {path: /storage/queue, method: get, cors: true}}
         - s3:
           bucket: ${self:provider.environment.BUCKET_NAME}
-          event: s3:ObjectCreated:*
           lifecycle:
             -
               ExpirationInDays: 2
