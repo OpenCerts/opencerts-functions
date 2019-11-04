@@ -10,6 +10,7 @@ jobs:
         - npm run lint
         - npm run test
         - npm run s3-local-setup
+        - mv .env.example .env
         - npm run dev &
         - sleep 5
         - npm run integration:local
