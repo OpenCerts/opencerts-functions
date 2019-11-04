@@ -6,6 +6,7 @@ provider:
   region: ap-southeast-1
   environment:
     BUCKET_NAME: '${self:custom.BUCKET_NAME.${self:provider.stage}}'
+    OBJECT_TTL: '${self:custom.OBJECT_TTL}.${self:provider.stage}'
     SES_KEY_ID: '${self:custom.SES_KEY_ID.${self:provider.stage}}'
     SES_SECRET: '${self:custom.SES_SECRET.${self:provider.stage}}'
     SES_REGION: '${self:custom.SES_REGION.${self:provider.stage}}'
@@ -50,7 +51,7 @@ functions:
           bucket: ${self:provider.environment.BUCKET_NAME}
           lifecycle:
             -
-              ExpirationInDays: 2
+              ExpirationInDays: ${self:provider.environment.OBJECT_TTL}
               Status: Enabled
 
 custom:
@@ -79,6 +80,9 @@ custom:
   BUCKET_NAME:
     stg: '${env:stg_BUCKET_NAME}'
     prd: '${env:prd_BUCKET_NAME}'
+  OBJECT_TTL:
+    stg: '${env: stg_OBJECT_TTL}'
+    prd: '${env: prd_OBJECT_TTL}'
 plugins:
   - serverless-dotenv-plugin
   - serverless-s3-local
