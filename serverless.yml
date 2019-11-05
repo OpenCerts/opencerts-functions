@@ -6,7 +6,7 @@ provider:
   region: ap-southeast-1
   environment:
     BUCKET_NAME: '${self:custom.BUCKET_NAME.${self:provider.stage}}'
-    OBJECT_TTL: '${self:custom.OBJECT_TTL}.${self:provider.stage}'
+    OBJECT_TTL: '${self:custom.OBJECT_TTL.${self:provider.stage}}'
     SES_KEY_ID: '${self:custom.SES_KEY_ID.${self:provider.stage}}'
     SES_SECRET: '${self:custom.SES_SECRET.${self:provider.stage}}'
     SES_REGION: '${self:custom.SES_REGION.${self:provider.stage}}'
