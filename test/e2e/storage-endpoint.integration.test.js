@@ -49,7 +49,7 @@ describe("storage endpoint test", () => {
       .expect(200);
 
     await request
-      .get(`/${config.bucketName}/${queueId}`)
+      .get(`https://${config.bucketName}.s3.amazonaws.com/${queueId}`)
       .set("Content-Type", "application/json")
       .expect("Content-Type", /json/)
       .expect(403);
