@@ -25,7 +25,7 @@ const thatIsRetrievedDocument = {
 };
 
 describe("storage endpoint test", () => {
-  it("should create document when no placeholder object is there", async () => {
+  it("should create a new document when no placeholder object is there", async () => {
     await request
       .get("/storage/create")
       .set("Content-Type", "application/json")
@@ -41,21 +41,34 @@ describe("storage endpoint test", () => {
       });
   }, 5000);
 
-  it("should create document when placeholder object is there", async () => {
-    await request
-      .get("/storage/create")
-      .set("Content-Type", "application/json")
-      .set("Accept", "application/json")
-      .send({
-        document: ropstenDocument,
-        id: "123"
-      })
-      .expect("Content-Type", /json/)
-      .expect(200)
-      .expect(async res => {
-        await remove({ Bucket: config.bucketName, Key: "123" });
-        expect(res.body.id).toEqual("123");
-      });
+  it("should replace the placeholder object document with new data", async () => {
+    const placeholderObj = { foo: "bar" };
+    const params = {
+      Bucket: config.bucketName,
+      Key: "123",
+      Body: JSON.stringify({ placeholderObj })
+    };
+    try {
+      await put(params);
+      await request
+        .get("/storage/create")
+        .set("Content-Type", "application/json")
+        .set("Accept", "application/json")
+        .send({
+          document: ropstenDocument,
+          id: "123"
+        })
+        .expect("Content-Type", /json/)
+        .expect(200)
+        .expect(async res => {
+          await remove({ Bucket: config.bucketName, Key: "123" });
+          expect(res.body.id).toEqual("123");
+          expect(res.body).toEqual(thatIsUploadResponse);
+        });
+    } catch (e) {
+      await remove({ Bucket: config.bucketName, Key: "123" });
+      throw e;
+    }
   }, 5000);
 
   it("should retrieve the document created", async () => {
