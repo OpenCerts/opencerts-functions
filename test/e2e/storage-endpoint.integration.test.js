@@ -25,6 +25,11 @@ const thatIsRetrievedDocument = {
 };
 
 describe("storage endpoint test", () => {
+  let documentKey = "";
+  afterEach(async () => {
+    await remove({ Bucket: config.bucketName, Key: documentKey });
+  });
+
   it("should create a new document when no placeholder object is there", async () => {
     await request
       .get("/storage/create")
@@ -33,133 +38,101 @@ describe("storage endpoint test", () => {
       .send({
         document: ropstenDocument
       })
-      .expect("Content-Type", /json/)
-      .expect(200)
       .expect(async res => {
-        await remove({ Bucket: config.bucketName, Key: res.body.id });
+        documentKey = res.body.id;
         expect(res.body).toEqual(thatIsUploadResponse);
-      });
+      })
+      .expect("Content-Type", /json/)
+      .expect(200);
   }, 5000);
 
   it("should replace the placeholder object document with new data", async () => {
     const placeholderObj = { foo: "bar" };
+    documentKey = "123";
     const params = {
       Bucket: config.bucketName,
-      Key: "123",
+      Key: documentKey,
       Body: JSON.stringify({ placeholderObj })
     };
-    try {
-      await put(params);
-      await request
-        .get("/storage/create")
-        .set("Content-Type", "application/json")
-        .set("Accept", "application/json")
-        .send({
-          document: ropstenDocument,
-          id: "123"
-        })
-        .expect("Content-Type", /json/)
-        .expect(200)
-        .expect(async res => {
-          await remove({ Bucket: config.bucketName, Key: "123" });
-          expect(res.body.id).toEqual("123");
-          expect(res.body).toEqual(thatIsUploadResponse);
-        });
-    } catch (e) {
-      await remove({ Bucket: config.bucketName, Key: "123" });
-      throw e;
-    }
+    await put(params);
+    await request
+      .get("/storage/create")
+      .set("Content-Type", "application/json")
+      .set("Accept", "application/json")
+      .send({
+        document: ropstenDocument,
+        id: documentKey
+      })
+      .expect("Content-Type", /json/)
+      .expect(200)
+      .expect(async res => {
+        expect(res.body.id).toEqual(documentKey);
+        expect(res.body).toEqual(thatIsUploadResponse);
+      });
   }, 5000);
 
   it("should retrieve the document created", async () => {
-    try {
-      await request
-        .get("/storage/create")
-        .set("Content-Type", "application/json")
-        .set("Accept", "application/json")
-        .send({
-          document: ropstenDocument,
-          id: "123"
-        })
-        .expect("Content-Type", /json/)
-        .expect(200);
+    documentKey = "123";
+    await request
+      .get("/storage/create")
+      .set("Content-Type", "application/json")
+      .set("Accept", "application/json")
+      .send({
+        document: ropstenDocument,
+        id: documentKey
+      })
+      .expect("Content-Type", /json/)
+      .expect(200);
 
-      await request
-        .get("/storage/get/123")
-        .set("Content-Type", "application/json")
-        .expect("Content-Type", /json/)
-        .expect(200)
-        .expect(async res => {
-          await remove({ Bucket: config.bucketName, Key: "123" });
-          expect(res.body).toEqual(thatIsRetrievedDocument);
-        });
-    } catch (e) {
-      await remove({ Bucket: config.bucketName, Key: "123" });
-      throw e;
-    }
+    await request
+      .get(`/storage/get/${documentKey}`)
+      .set("Content-Type", "application/json")
+      .expect("Content-Type", /json/)
+      .expect(200)
+      .expect(async res => {
+        expect(res.body).toEqual(thatIsRetrievedDocument);
+      });
   }, 5000);
 
   it("should throw error forbidden when directly access the document", async () => {
     const document = { foo: "bar" };
+    documentKey = "123";
     const params = {
       Bucket: config.bucketName,
-      Key: "123",
+      Key: documentKey,
       Body: JSON.stringify({ document })
     };
 
-    try {
-      const uploaded = await put(params);
-      await supertest(`${uploaded.Location}`)
-        .get("/")
-        .set("Content-Type", "application/json")
-        .expect("Content-Type", /json/)
-        .expect(403);
-
-      await remove(params);
-    } catch (e) {
-      await remove(params);
-      throw e;
-    }
+    const uploaded = await put(params);
+    await supertest(`${uploaded.Location}`)
+      .get("/")
+      .set("Content-Type", "application/json")
+      .expect("Content-Type", /json/)
+      .expect(403);
   }, 5000);
 
   it("should create a placeholder object", async () => {
-    let queueId = "";
-    try {
-      await request
-        .get("/storage/queue")
-        .set("Content-Type", "application/json")
-        .expect("Content-Type", /json/)
-        .expect(200)
-        .expect(res => {
-          queueId = res.body.queueNumber;
-          expect(res.body).toEqual({
-            queueNumber: expect.any(String),
-            key: expect.any(String)
-          });
+    await request
+      .get("/storage/queue")
+      .set("Content-Type", "application/json")
+      .expect("Content-Type", /json/)
+      .expect(200)
+      .expect(res => {
+        documentKey = res.body.queueNumber;
+        expect(res.body).toEqual({
+          queueNumber: expect.any(String),
+          key: expect.any(String)
         });
-
-      await request
-        .get(`/storage/get/${queueId}`)
-        .set("Content-Type", "application/json")
-        .expect(400);
-
-      await supertest(`https://${config.bucketName}.s3.amazonaws.com`)
-        .get(`/${queueId}`)
-        .set("Content-Type", "application/json")
-        .expect(403);
-
-      const params = {
-        Bucket: config.bucketName,
-        Key: queueId
-      };
-
-      await remove(params);
-    } catch (e) {
-      await remove({
-        Bucket: config.bucketName,
-        Key: queueId
       });
-      throw e;
-    }
+
+    await request
+      .get(`/storage/get/${documentKey}`)
+      .set("Content-Type", "application/json")
+      .expect(400);
+
+    await supertest(`https://${config.bucketName}.s3.amazonaws.com`)
+      .get(`/${documentKey}`)
+      .set("Content-Type", "application/json")
+      .expect(403);
   }, 5000);
 });
