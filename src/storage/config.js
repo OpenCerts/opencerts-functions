@@ -10,7 +10,7 @@ const config = () =>
           region: "us-west-2",
           endpoint: new AWS.Endpoint("http://localhost:8000")
         },
-        bucketName: "dev-bucket",
+        bucketName: process.env.BUCKET_NAME,
         network: process.env.NETWORK || "ropsten"
       }
     : {
