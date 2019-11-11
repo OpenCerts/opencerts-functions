@@ -1,4 +1,6 @@
+require("dotenv").config();
 const supertest = require("supertest");
+const { generateEncryptionKey } = require("@govtechsg/opencerts-encryption");
 const { put, remove } = require("../../src/storage/s3");
 const config = require("../../src/storage/config");
 const ropstenDocument = require("../fixtures/certificate.json");
@@ -32,31 +34,33 @@ describe("storage endpoint test", () => {
 
   it("should create a new document when no placeholder object is there", async () => {
     await request
-      .get("/storage/create")
+      .post("/storage/create")
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .send({
         document: ropstenDocument
       })
-      .expect(async res => {
+      .expect(res => {
         documentKey = res.body.id;
         expect(res.body).toEqual(thatIsUploadResponse);
-      })
-      .expect("Content-Type", /json/)
-      .expect(200);
-  }, 5000);
+      });
+  }, 20000);
 
   it("should replace the placeholder object document with new data", async () => {
-    const placeholderObj = { foo: "bar" };
-    documentKey = "123";
+    documentKey = "89900152-664c-445a-a230-5909f5ec453d";
+    const placeholderObj = {
+      id: documentKey,
+      key: generateEncryptionKey(),
+      awaitingUpload: true
+    };
     const params = {
       Bucket: config.bucketName,
       Key: documentKey,
-      Body: JSON.stringify({ placeholderObj })
+      Body: JSON.stringify(placeholderObj)
     };
     await put(params);
     await request
-      .get("/storage/create")
+      .post("/storage/create")
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .send({
@@ -65,16 +69,29 @@ describe("storage endpoint test", () => {
       })
       .expect("Content-Type", /json/)
       .expect(200)
-      .expect(async res => {
+      .expect(res => {
         expect(res.body.id).toEqual(documentKey);
         expect(res.body).toEqual(thatIsUploadResponse);
       });
-  }, 5000);
+  }, 20000);
 
   it("should retrieve the document created", async () => {
-    documentKey = "123";
+    documentKey = "";
     await request
-      .get("/storage/create")
+      .get("/storage/queue")
+      .set("Content-Type", "application/json")
+      .expect("Content-Type", /json/)
+      .expect(200)
+      .expect(res => {
+        documentKey = res.body.queueNumber;
+        expect(res.body).toEqual({
+          queueNumber: expect.any(String),
+          key: expect.any(String)
+        });
+      });
+
+    await request
+      .post("/storage/create")
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .send({
@@ -89,27 +106,10 @@ describe("storage endpoint test", () => {
       .set("Content-Type", "application/json")
       .expect("Content-Type", /json/)
       .expect(200)
-      .expect(async res => {
+      .expect(res => {
         expect(res.body).toEqual(thatIsRetrievedDocument);
       });
-  }, 5000);
-
-  it("should throw error forbidden when directly access the document", async () => {
-    const document = { foo: "bar" };
-    documentKey = "123";
-    const params = {
-      Bucket: config.bucketName,
-      Key: documentKey,
-      Body: JSON.stringify({ document })
-    };
-
-    const uploaded = await put(params);
-    await supertest(`${uploaded.Location}`)
-      .get("/")
-      .set("Content-Type", "application/json")
-      .expect("Content-Type", /json/)
-      .expect(403);
-  }, 5000);
+  }, 20000);
 
   it("should create a placeholder object", async () => {
     await request
@@ -134,5 +134,21 @@ describe("storage endpoint test", () => {
       .get(`/${documentKey}`)
       .set("Content-Type", "application/json")
       .expect(403);
-  }, 5000);
+  }, 20000);
+
+  it("should throw error forbidden when directly access the document", async () => {
+    const document = { foo: "bar" };
+    documentKey = "123";
+    const params = {
+      Bucket: config.bucketName,
+      Key: documentKey,
+      Body: JSON.stringify({ document })
+    };
+
+    const uploaded = await put(params);
+    await supertest(`${uploaded.Location}`)
+      .get("")
+      .set("Content-Type", "application/json")
+      .expect(403);
+  }, 20000);
 });
