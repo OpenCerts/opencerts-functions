@@ -1,6 +1,5 @@
 require("dotenv").config();
 const supertest = require("supertest");
-const { generateEncryptionKey } = require("@govtechsg/opencerts-encryption");
 const { put, remove } = require("../../src/storage/s3");
 const config = require("../../src/storage/config");
 const ropstenDocument = require("../fixtures/certificate.json");
@@ -46,35 +45,6 @@ describe("storage endpoint test", () => {
       });
   }, 20000);
 
-  it("should replace the placeholder object document with new data", async () => {
-    documentKey = "89900152-664c-445a-a230-5909f5ec453d";
-    const placeholderObj = {
-      id: documentKey,
-      key: generateEncryptionKey(),
-      awaitingUpload: true
-    };
-    const params = {
-      Bucket: config.bucketName,
-      Key: documentKey,
-      Body: JSON.stringify(placeholderObj)
-    };
-    await put(params);
-    await request
-      .post("/storage/create")
-      .set("Content-Type", "application/json")
-      .set("Accept", "application/json")
-      .send({
-        document: ropstenDocument,
-        id: documentKey
-      })
-      .expect("Content-Type", /json/)
-      .expect(200)
-      .expect(res => {
-        expect(res.body.id).toEqual(documentKey);
-        expect(res.body).toEqual(thatIsUploadResponse);
-      });
-  }, 20000);
-
   it("should retrieve the document created", async () => {
     documentKey = "";
     await request
@@ -99,7 +69,11 @@ describe("storage endpoint test", () => {
         id: documentKey
       })
       .expect("Content-Type", /json/)
-      .expect(200);
+      .expect(200)
+      .expect(res => {
+        expect(res.body.id).toEqual(documentKey);
+        expect(res.body).toEqual(thatIsUploadResponse);
+      });
 
     await request
       .get(`/storage/get/${documentKey}`)
@@ -111,7 +85,7 @@ describe("storage endpoint test", () => {
       });
   }, 20000);
 
-  it("should create a placeholder object", async () => {
+  it("should faile to access placeholder object through api and public url", async () => {
     await request
       .get("/storage/queue")
       .set("Content-Type", "application/json")
