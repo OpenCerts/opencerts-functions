@@ -17,7 +17,7 @@ provider:
     -
       Effect: Allow
       Action: ['s3:putObject', 's3:upload', 's3:deleteObject', 's3:getObject']
-      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : '${self:custom.BUCKET_NAME.${self:provider.stage}}' } ] ]  }
+      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : 'DeployedBucket' } ] ]  }
 resources:
   Resources:
     DeployedBucket:
