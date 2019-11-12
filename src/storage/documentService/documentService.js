@@ -43,28 +43,46 @@ const getDecryptionKey = async id => {
   return document;
 };
 
-const uploadDocument = async (
+const uploadDocumentAtId = async (
   document,
   documentId,
   network = config.network
 ) => {
+  const placeHolderObj = await getDecryptionKey(documentId);
+  if (!(placeHolderObj.key && placeHolderObj.awaitingUpload)) {
+    // we get here when a file exists at location but is not a placeholder awaiting upload
+    throw new Error(`No placeholder file`);
+  }
+
   const verificationResults = await verify(document, network);
   if (!verificationResults.valid) {
     throw new Error("Document is not valid");
   }
 
-  const placeHolderObj = documentId
-    ? await getDecryptionKey(documentId)
-    : undefined;
   const { cipherText, iv, tag, key, type } = await encryptString(
     JSON.stringify(document),
-    placeHolderObj ? placeHolderObj.key : undefined
+    placeHolderObj.key
   );
 
-  const documentName =
-    placeHolderObj && placeHolderObj.awaitingUpload ? documentId : uuid();
+  const { id } = await putDocument({ cipherText, iv, tag }, documentId);
+  return {
+    id,
+    key,
+    type
+  };
+};
 
-  const { id } = await putDocument({ cipherText, iv, tag }, documentName);
+const uploadDocument = async (document, network = config.network) => {
+  const verificationResults = await verify(document, network);
+  if (!verificationResults.valid) {
+    throw new Error("Document is not valid");
+  }
+
+  const { cipherText, iv, tag, key, type } = await encryptString(
+    JSON.stringify(document)
+  );
+
+  const { id } = await putDocument({ cipherText, iv, tag }, uuid());
   return {
     id,
     key,
@@ -93,5 +111,6 @@ module.exports = {
   putDocument,
   getQueueNumber,
   uploadDocument,
+  uploadDocumentAtId,
   getDocument
 };

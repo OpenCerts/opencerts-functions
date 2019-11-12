@@ -1,1 +1,1 @@
-module.exports = require("./documentStore");
+module.exports = require("./documentService");

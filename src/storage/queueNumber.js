@@ -7,7 +7,7 @@ const handleQueueNumber = async () => {
     const { id, key } = await getQueueNumber();
     return {
       statusCode: 200,
-      body: JSON.stringify({ queueNumber: id, key })
+      body: JSON.stringify({ id, key })
     };
   } catch (e) {
     return {

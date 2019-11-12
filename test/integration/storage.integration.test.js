@@ -5,6 +5,7 @@ const { verify } = require("@govtechsg/oa-verify");
 const { decryptString } = require("@govtechsg/opencerts-encryption");
 const {
   uploadDocument,
+  uploadDocumentAtId,
   getDocument,
   getQueueNumber
 } = require("../../src/storage/documentService");
@@ -28,10 +29,35 @@ describe("uploadDocument", () => {
     expect(getResults).toMatchObject(thatIsRetrievedDocument);
   });
 
+  it("should throw error when document verification failed", async () => {
+    const document = { foo: "bar" };
+    verify.mockResolvedValueOnce({ valid: false });
+    const uploaded = uploadDocument(document);
+    expect(uploaded).rejects.toThrow("Document is not valid");
+  });
+});
+
+describe("uploadDocumentAtId", () => {
+  beforeEach(() => {
+    verify.mockResolvedValue({ valid: true, hash: { checksumMatch: true } });
+  });
+
+  it("should throw error when you try to upload to a uuid that is not queue number but exist in db", async () => {
+    const document = { foo: "bar" };
+    const { id: queueNumber } = await getQueueNumber();
+    const uploaded = await uploadDocumentAtId(document, queueNumber);
+    expect(uploaded).toMatchObject(thatIsUploadResponse);
+
+    const uploadedRepeat = uploadDocumentAtId(document, queueNumber);
+    await expect(uploadedRepeat).rejects.toThrow(
+      "The conditional request failed"
+    );
+  });
+
   it("should work with queue number", async () => {
     const { id: queueNumber } = await getQueueNumber();
     const document = { foo: "bar" };
-    const uploaded = await uploadDocument(document, queueNumber);
+    const uploaded = await uploadDocumentAtId(document, queueNumber);
     expect(uploaded).toMatchObject(thatIsUploadResponse);
     const getResults = await getDocument(uploaded.id);
     expect(getResults).toMatchObject(thatIsRetrievedDocument);
@@ -40,28 +66,9 @@ describe("uploadDocument", () => {
   it("should throw error when you try to upload to a uuid that is not queue number", async () => {
     const document = { foo: "bar" };
 
-    const uploaded = uploadDocument(document, uuid());
+    const uploaded = uploadDocumentAtId(document, uuid());
 
     await expect(uploaded).rejects.toThrow("The specified key does not exist.");
-  });
-
-  it("should throw error when you try to upload to a uuid that is not queue number but exist in db", async () => {
-    const document = { foo: "bar" };
-    const { id: queueNumber } = await getQueueNumber();
-    const uploaded = await uploadDocument(document, queueNumber);
-    expect(uploaded).toMatchObject(thatIsUploadResponse);
-
-    const uploadedRepeat = uploadDocument(document, queueNumber);
-    await expect(uploadedRepeat).rejects.toThrow(
-      "The conditional request failed"
-    );
-  });
-
-  it("should throw error when document verification failed", async () => {
-    const document = { foo: "bar" };
-    verify.mockResolvedValueOnce({ valid: false });
-    const uploaded = uploadDocument(document);
-    expect(uploaded).rejects.toThrow("Document is not valid");
   });
 
   it("should throw error when document verification failed with queue number", async () => {
@@ -71,7 +78,7 @@ describe("uploadDocument", () => {
       valid: false,
       hash: { checksumMatch: false }
     });
-    const uploaded = uploadDocument(document, queueNumber);
+    const uploaded = uploadDocumentAtId(document, queueNumber);
     expect(uploaded).rejects.toThrow("Document is not valid");
   });
 });
@@ -86,7 +93,7 @@ describe("getDocument", () => {
   it("should cleanup if cleanup flag is specified", async () => {
     const document = { foo: "bar" };
     const { id: queueNumber } = await getQueueNumber();
-    await uploadDocument(document, queueNumber);
+    await uploadDocumentAtId(document, queueNumber);
     const retrieve = await getDocument(queueNumber, { cleanup: true });
 
     expect(retrieve).toMatchObject(thatIsRetrievedDocument);
@@ -98,7 +105,7 @@ describe("getDocument", () => {
   it("should not cleanup if cleanup flag is off", async () => {
     const document = { foo: "bar" };
     const { id: queueNumber } = await getQueueNumber();
-    await uploadDocument(document, queueNumber);
+    await uploadDocumentAtId(document, queueNumber);
     const retrieve = await getDocument(queueNumber, { cleanup: false });
     expect(retrieve).toMatchObject(thatIsRetrievedDocument);
     const retrieveAfter = await getDocument(queueNumber, { cleanup: false });

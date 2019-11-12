@@ -38,11 +38,15 @@ functions:
     get:
       handler: src/storage/get.handler
       events:
-        - {http: {path: '/storage/get/{id}', method: get, request: {parameters: {paths: {id: true}}}, cors: true}}
+        - {http: {path: '/storage/{id}', method: get, request: {parameters: {paths: {id: true}}}, cors: true}}
+    createAtId:
+      handler: src/storage/createAtId.handler
+      events:
+        - {http: {path: '/storage/{id}', method: post, request: {parameters: {paths: {id: true}}}, cors: true}}
     create:
       handler: src/storage/create.handler
       events:
-        - {http: {path: /storage/create, method: post, cors: true}}
+        - {http: {path: /storage, method: post, cors: true}}
     getQueueNumber:
       handler: src/storage/queueNumber.handler
       events:

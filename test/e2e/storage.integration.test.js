@@ -5,7 +5,8 @@ const ropstenDocument = require("../fixtures/certificate.json");
 
 const {
   thatIsRetrievedDocument,
-  thatIsUploadResponse
+  thatIsUploadResponse,
+  thatIsAQueueNumber
 } = require("../utils/matchers");
 
 const API_ENDPOINT = "https://api-ropsten.opencerts.io";
@@ -14,12 +15,18 @@ const request = supertest(API_ENDPOINT);
 describe("storage endpoint test", () => {
   let documentKey = "";
   afterEach(async () => {
-    await remove({ Bucket: config.bucketName, Key: documentKey });
+    if (documentKey) {
+      await remove({ Bucket: config.bucketName, Key: documentKey });
+    }
   });
 
-  test.only("should create a new document when no placeholder object is there", async () => {
+  beforeEach(() => {
+    documentKey = "";
+  });
+
+  test("should create a new document when no placeholder object is there", async () => {
     await request
-      .post("/storage/create")
+      .post("/storage")
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .send({
@@ -29,25 +36,35 @@ describe("storage endpoint test", () => {
         documentKey = res.body.id;
         expect(res.body).toEqual(thatIsUploadResponse);
       });
-  }, 20000);
+  });
 
-  it("should retrieve the document created", async () => {
-    documentKey = "";
+  test("should fail when you try to create at a path that hasn't been initialised", async () => {
+    await request
+      .post("/storage/foo")
+      .set("Content-Type", "application/json")
+      .set("Accept", "application/json")
+      .send({
+        document: ropstenDocument
+      })
+      .expect(res => {
+        documentKey = res.body.id ? res.body.id : "";
+      })
+      .expect(400);
+  });
+
+  test("should retrieve the document created", async () => {
     await request
       .get("/storage/queue")
       .set("Content-Type", "application/json")
       .expect("Content-Type", /json/)
       .expect(200)
       .expect(res => {
-        documentKey = res.body.queueNumber;
-        expect(res.body).toEqual({
-          queueNumber: expect.any(String),
-          key: expect.any(String)
-        });
+        documentKey = res.body.id;
+        expect(res.body).toEqual(thatIsAQueueNumber);
       });
 
     await request
-      .post("/storage/create")
+      .post(`/storage/${documentKey}`)
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .send({
@@ -62,31 +79,28 @@ describe("storage endpoint test", () => {
       });
 
     await request
-      .get(`/storage/get/${documentKey}`)
+      .get(`/storage/${documentKey}`)
       .set("Content-Type", "application/json")
       .expect("Content-Type", /json/)
       .expect(200)
       .expect(res => {
         expect(res.body).toEqual(thatIsRetrievedDocument);
       });
-  }, 20000);
+  });
 
-  it("should faile to access placeholder object through api and public url", async () => {
+  test("should fail to access placeholder object through api and public url", async () => {
     await request
       .get("/storage/queue")
       .set("Content-Type", "application/json")
       .expect("Content-Type", /json/)
       .expect(200)
       .expect(res => {
-        documentKey = res.body.queueNumber;
-        expect(res.body).toEqual({
-          queueNumber: expect.any(String),
-          key: expect.any(String)
-        });
+        documentKey = res.body.id;
+        expect(res.body).toEqual(thatIsAQueueNumber);
       });
 
     await request
-      .get(`/storage/get/${documentKey}`)
+      .get(`/storage/${documentKey}`)
       .set("Content-Type", "application/json")
       .expect(400);
 
@@ -94,9 +108,9 @@ describe("storage endpoint test", () => {
       .get(`/${documentKey}`)
       .set("Content-Type", "application/json")
       .expect(403);
-  }, 20000);
+  });
 
-  it("should throw error forbidden when directly access the document", async () => {
+  test("should throw error forbidden when directly access the document", async () => {
     const document = { foo: "bar" };
     documentKey = "123";
     const params = {
@@ -110,5 +124,5 @@ describe("storage endpoint test", () => {
       .get("")
       .set("Content-Type", "application/json")
       .expect(403);
-  }, 20000);
+  });
 });
