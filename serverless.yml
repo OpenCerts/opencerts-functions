@@ -78,7 +78,7 @@ custom:
     stg: '${env:stg_EMAIL_API_KEYS}'
     prd: '${env:prd_EMAIL_API_KEYS}'
   BUCKET_NAME:
-    stg: '${env:stg_BUCKET_NAME}'
+    stg: '${env:stg_BUCKET_NAME, env:BUCKET_NAME}'
     prd: '${env:prd_BUCKET_NAME}'
   OBJECT_TTL:
     stg: '${env: stg_OBJECT_TTL}'

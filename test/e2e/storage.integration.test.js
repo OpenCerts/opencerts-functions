@@ -1,150 +1,114 @@
-jest.mock("@govtechsg/oa-verify"); // mocked because we'll test this part in e2e
+const supertest = require("supertest");
+const { put, remove } = require("../../src/storage/s3");
+const config = require("../../src/storage/config");
+const ropstenDocument = require("../fixtures/certificate.json");
 
-const uuid = require("uuid/v4");
-const { verify } = require("@govtechsg/oa-verify");
-const { decryptString } = require("@govtechsg/opencerts-encryption");
 const {
-  uploadDocument,
-  getDocument,
-  getQueueNumber
-} = require("../../src/storage/documentService");
+  thatIsRetrievedDocument,
+  thatIsUploadResponse
+} = require("../utils/matchers");
 
-const uuidV4Regex = new RegExp(
-  /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i
-);
+const API_ENDPOINT = "https://api-ropsten.opencerts.io";
+const request = supertest(API_ENDPOINT);
 
-const thatIsUploadResponse = {
-  id: expect.stringMatching(uuidV4Regex),
-  key: expect.any(String),
-  type: expect.stringMatching("OPEN-ATTESTATION-TYPE-1")
-};
-
-const thatIsRetrievedDocument = {
-  document: expect.objectContaining({
-    cipherText: expect.any(String),
-    iv: expect.any(String),
-    tag: expect.any(String)
-  })
-};
-
-describe("uploadDocument", () => {
-  beforeEach(() => {
-    verify.mockResolvedValue({ valid: true, hash: { checksumMatch: true } });
+describe("storage endpoint test", () => {
+  let documentKey = "";
+  afterEach(async () => {
+    await remove({ Bucket: config.bucketName, Key: documentKey });
   });
 
-  it("should work without queue number", async () => {
-    const document = { foo: "bar" };
-    const uploaded = await uploadDocument(document);
-    expect(uploaded).toMatchObject(thatIsUploadResponse);
-    const getResults = await getDocument(uploaded.id);
-    expect(getResults).toMatchObject(thatIsRetrievedDocument);
-  });
-
-  it("should work with queue number", async () => {
-    const { id: queueNumber } = await getQueueNumber();
-    const document = { foo: "bar" };
-    const uploaded = await uploadDocument(document, queueNumber);
-    expect(uploaded).toMatchObject(thatIsUploadResponse);
-    const getResults = await getDocument(uploaded.id);
-    expect(getResults).toMatchObject(thatIsRetrievedDocument);
-  });
-
-  it("should throw error when you try to upload to a uuid that is not queue number", async () => {
-    const document = { foo: "bar" };
-
-    const uploaded = uploadDocument(document, uuid());
-
-    await expect(uploaded).rejects.toThrow("The specified key does not exist.");
-  });
-
-  it("should throw error when you try to upload to a uuid that is not queue number but exist in db", async () => {
-    const document = { foo: "bar" };
-    const { id: queueNumber } = await getQueueNumber();
-    const uploaded = await uploadDocument(document, queueNumber);
-    expect(uploaded).toMatchObject(thatIsUploadResponse);
-
-    const uploadedRepeat = uploadDocument(document, queueNumber);
-    await expect(uploadedRepeat).rejects.toThrow(
-      "The conditional request failed"
-    );
-  });
-
-  it("should throw error when document verification failed", async () => {
-    const document = { foo: "bar" };
-    verify.mockResolvedValueOnce({ valid: false });
-    const uploaded = uploadDocument(document);
-    expect(uploaded).rejects.toThrow("Document is not valid");
-  });
-
-  it("should throw error when document verification failed with queue number", async () => {
-    const document = { foo: "bar" };
-    const { id: queueNumber } = await getQueueNumber();
-    verify.mockResolvedValueOnce({
-      valid: false,
-      hash: { checksumMatch: false }
-    });
-    const uploaded = uploadDocument(document, queueNumber);
-    expect(uploaded).rejects.toThrow("Document is not valid");
-  });
-});
-
-describe("getDocument", () => {
-  it("should throw error when you try to get a document that is a queue number", async () => {
-    const { id: queueNumber } = await getQueueNumber();
-
-    await expect(getDocument(queueNumber)).rejects.toThrow("No Document Found");
-  });
-
-  it("should cleanup if cleanup flag is specified", async () => {
-    const document = { foo: "bar" };
-    const { id: queueNumber } = await getQueueNumber();
-    await uploadDocument(document, queueNumber);
-    const retrieve = await getDocument(queueNumber, { cleanup: true });
-
-    expect(retrieve).toMatchObject(thatIsRetrievedDocument);
-    const retrieveAfterCleanup = getDocument(queueNumber, { cleanup: true });
-    await expect(retrieveAfterCleanup).rejects.toThrow(
-      "The specified key does not exist."
-    );
-  });
-  it("should not cleanup if cleanup flag is off", async () => {
-    const document = { foo: "bar" };
-    const { id: queueNumber } = await getQueueNumber();
-    await uploadDocument(document, queueNumber);
-    const retrieve = await getDocument(queueNumber, { cleanup: false });
-    expect(retrieve).toMatchObject(thatIsRetrievedDocument);
-    const retrieveAfter = await getDocument(queueNumber, { cleanup: false });
-    expect(retrieveAfter).toMatchObject(thatIsRetrievedDocument);
-  });
-});
-
-describe("getQueueNumber", () => {
-  it("should return a plceholder object", async () => {
-    const queueNumber = await getQueueNumber();
-    expect(queueNumber).toMatchObject({
-      key: expect.any(String),
-      id: expect.stringMatching(uuidV4Regex)
-    });
-  });
-});
-
-describe("documentService", () => {
-  it("should store and retrieve and decrypt the document", async () => {
-    const document = { foo: "bar" };
-    const uploaded = await uploadDocument(document);
-    const retrieve = await getDocument(uploaded.id, { cleanup: false });
-    expect(retrieve).toMatchObject(thatIsRetrievedDocument);
-
-    const decryptedDoc = JSON.parse(
-      decryptString({
-        tag: retrieve.document.tag,
-        cipherText: retrieve.document.cipherText,
-        iv: retrieve.document.iv,
-        key: uploaded.key,
-        type: "OPEN-ATTESTATION-TYPE-1"
+  test.only("should create a new document when no placeholder object is there", async () => {
+    await request
+      .post("/storage/create")
+      .set("Content-Type", "application/json")
+      .set("Accept", "application/json")
+      .send({
+        document: ropstenDocument
       })
-    );
+      .expect(res => {
+        documentKey = res.body.id;
+        expect(res.body).toEqual(thatIsUploadResponse);
+      });
+  }, 20000);
 
-    expect(decryptedDoc).toMatchObject(document);
-  });
+  it("should retrieve the document created", async () => {
+    documentKey = "";
+    await request
+      .get("/storage/queue")
+      .set("Content-Type", "application/json")
+      .expect("Content-Type", /json/)
+      .expect(200)
+      .expect(res => {
+        documentKey = res.body.queueNumber;
+        expect(res.body).toEqual({
+          queueNumber: expect.any(String),
+          key: expect.any(String)
+        });
+      });
+
+    await request
+      .post("/storage/create")
+      .set("Content-Type", "application/json")
+      .set("Accept", "application/json")
+      .send({
+        document: ropstenDocument,
+        id: documentKey
+      })
+      .expect("Content-Type", /json/)
+      .expect(200)
+      .expect(res => {
+        expect(res.body.id).toEqual(documentKey);
+        expect(res.body).toEqual(thatIsUploadResponse);
+      });
+
+    await request
+      .get(`/storage/get/${documentKey}`)
+      .set("Content-Type", "application/json")
+      .expect("Content-Type", /json/)
+      .expect(200)
+      .expect(res => {
+        expect(res.body).toEqual(thatIsRetrievedDocument);
+      });
+  }, 20000);
+
+  it("should faile to access placeholder object through api and public url", async () => {
+    await request
+      .get("/storage/queue")
+      .set("Content-Type", "application/json")
+      .expect("Content-Type", /json/)
+      .expect(200)
+      .expect(res => {
+        documentKey = res.body.queueNumber;
+        expect(res.body).toEqual({
+          queueNumber: expect.any(String),
+          key: expect.any(String)
+        });
+      });
+
+    await request
+      .get(`/storage/get/${documentKey}`)
+      .set("Content-Type", "application/json")
+      .expect(400);
+
+    await supertest(`https://${config.bucketName}.s3.amazonaws.com`)
+      .get(`/${documentKey}`)
+      .set("Content-Type", "application/json")
+      .expect(403);
+  }, 20000);
+
+  it("should throw error forbidden when directly access the document", async () => {
+    const document = { foo: "bar" };
+    documentKey = "123";
+    const params = {
+      Bucket: config.bucketName,
+      Key: documentKey,
+      Body: JSON.stringify({ document })
+    };
+
+    const uploaded = await put(params);
+    await supertest(`${uploaded.Location}`)
+      .get("")
+      .set("Content-Type", "application/json")
+      .expect(403);
+  }, 20000);
 });
