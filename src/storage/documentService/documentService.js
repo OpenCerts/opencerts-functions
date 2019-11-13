@@ -1,42 +1,26 @@
-const { verify } = require("@govtechsg/oa-verify");
 const uuid = require("uuid/v4");
+const { verify } = require("@govtechsg/oa-verify");
 const {
   encryptString,
   generateEncryptionKey
 } = require("@govtechsg/opencerts-encryption");
+
 const config = require("../config");
-const { put, get, remove } = require("../dynamoDb");
+const { put, get, remove } = require("../s3");
 
-const DEFAULT_TTL = 60 * 60; // 1 Hour
-const MAX_TTL = 60 * 60 * 24 * 30; // 30 Days
-
-const putDocument = async (
-  document,
-  id,
-  ttl = DEFAULT_TTL,
-  conditionalParams
-) => {
-  // TTL is handled by dynamoDb natively, this timestamp has to be UTC unixtime in seconds
-  const created = Math.floor(Date.now() / 1000);
+const putDocument = async (document, id) => {
   const params = {
-    TableName: config.dynamodb.storageTableName,
-    Item: {
-      id,
-      document,
-      created,
-      ttl: created + ttl
-    },
-    ...conditionalParams
+    Bucket: config.bucketName,
+    Key: id,
+    Body: JSON.stringify({ document })
   };
-  return put(params).then(() => params.Item);
+  return put(params).then(() => ({ id: params.Key }));
 };
 
 const getDocument = async (id, { cleanup } = { cleanup: false }) => {
   const params = {
-    TableName: config.dynamodb.storageTableName,
-    Key: {
-      id
-    }
+    Bucket: config.bucketName,
+    Key: id
   };
   const document = await get(params);
   // we throw this error because if awaitingUpload exists on an object, it also has a decryption key in it and we don't want to return that, ever
@@ -48,56 +32,59 @@ const getDocument = async (id, { cleanup } = { cleanup: false }) => {
   }
   return document;
 };
-// We define this function separately to getDocument as we don't want a future dev to accidentally return a decryption key by using the wrong function
+
 const getDecryptionKey = async id => {
   const params = {
-    TableName: config.dynamodb.storageTableName,
-    Key: {
-      id
-    }
+    Bucket: config.bucketName,
+    Key: id
   };
   const document = await get(params);
+  if (!document.key) throw new Error("The conditional request failed");
   return document;
 };
 
-const validateTtl = ttl => {
-  if (typeof ttl !== "number" || ttl < 0)
-    throw new Error("TTL must be a positive number of seconds");
-  if (ttl > MAX_TTL) throw new Error("TTL exceeds maximum of 30 days");
-  return true;
-};
-
-const uploadDocument = async (
+const uploadDocumentAtId = async (
   document,
   documentId,
-  ttl = DEFAULT_TTL,
   network = config.network
 ) => {
+  const placeHolderObj = await getDecryptionKey(documentId);
+  if (!(placeHolderObj.key && placeHolderObj.awaitingUpload)) {
+    // we get here when a file exists at location but is not a placeholder awaiting upload
+    throw new Error(`No placeholder file`);
+  }
+
   const verificationResults = await verify(document, network);
   if (!verificationResults.valid) {
     throw new Error("Document is not valid");
   }
 
-  validateTtl(ttl);
-
-  const placeHolderObj = documentId
-    ? await getDecryptionKey(documentId)
-    : undefined;
   const { cipherText, iv, tag, key, type } = await encryptString(
     JSON.stringify(document),
-    placeHolderObj ? placeHolderObj.key : undefined
+    placeHolderObj.key
   );
 
-  const { id, ttl: recordedTtl } = documentId
-    ? await putDocument({ cipherText, iv, tag }, documentId, ttl, {
-        ConditionExpression: "awaitingUpload = :aTrueValue",
-        ExpressionAttributeValues: { ":aTrueValue": true }
-      }) // This expression throws "The conditional request failed" if uuid already exists
-    : await putDocument({ cipherText, iv, tag }, uuid(), ttl);
-
+  const { id } = await putDocument({ cipherText, iv, tag }, documentId);
   return {
     id,
-    ttl: recordedTtl,
+    key,
+    type
+  };
+};
+
+const uploadDocument = async (document, network = config.network) => {
+  const verificationResults = await verify(document, network);
+  if (!verificationResults.valid) {
+    throw new Error("Document is not valid");
+  }
+
+  const { cipherText, iv, tag, key, type } = await encryptString(
+    JSON.stringify(document)
+  );
+
+  const { id } = await putDocument({ cipherText, iv, tag }, uuid());
+  return {
+    id,
     key,
     type
   };
@@ -105,23 +92,25 @@ const uploadDocument = async (
 
 const getQueueNumber = async () => {
   const created = Math.floor(Date.now() / 1000);
-  const params = {
-    TableName: config.dynamodb.storageTableName,
-    Item: {
-      id: uuid(),
-      key: generateEncryptionKey(),
-      created,
-      awaitingUpload: true,
-      ttl: created + DEFAULT_TTL
-    }
+  const id = uuid();
+  const tempData = {
+    id,
+    key: generateEncryptionKey(),
+    awaitingUpload: true,
+    created
   };
-  return put(params).then(() => params.Item);
+  const params = {
+    Bucket: config.bucketName,
+    Body: JSON.stringify(tempData),
+    Key: id
+  };
+  return put(params).then(() => ({ key: tempData.key, id }));
 };
 
 module.exports = {
   putDocument,
-  DEFAULT_TTL,
+  getQueueNumber,
   uploadDocument,
-  getDocument,
-  getQueueNumber
+  uploadDocumentAtId,
+  getDocument
 };

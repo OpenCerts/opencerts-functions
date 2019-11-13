@@ -1,28 +1,24 @@
+const AWS = require("aws-sdk");
+
 const config = () =>
   process.env.IS_OFFLINE
     ? {
-        dynamodb: {
-          accessKeyId: "localAccessKeyID",
-          secretAccessKey: "localAccessKey",
+        s3: {
+          s3ForcePathStyle: true,
+          accessKeyId: "S3RVER",
+          secretAccessKey: "S3RVER",
           region: "us-west-2",
-          storageTableName: "dlt-oa-doc-storage-stg"
+          endpoint: new AWS.Endpoint("http://localhost:8000")
         },
-        network:
-          process.env.NETWORK === "undefined"
-            ? "homestead"
-            : process.env.NETWORK
+        bucketName: process.env.BUCKET_NAME,
+        network: process.env.NETWORK || "ropsten"
       }
     : {
-        dynamodb: {
-          accessKeyId: process.env.SES_KEY_ID,
-          secretAccessKey: process.env.SES_SECRET,
-          region: process.env.SES_REGION || "us-west-2",
-          storageTableName: process.env.OA_DOC_STORAGE_TABLE
+        s3: {
+          region: process.env.SES_REGION || "us-west-2"
         },
-        network:
-          process.env.NETWORK === "undefined"
-            ? "homestead"
-            : process.env.NETWORK
+        bucketName: process.env.BUCKET_NAME,
+        network: process.env.NETWORK || "homestead"
       };
 
 module.exports = config();

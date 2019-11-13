@@ -7,6 +7,9 @@ const API_ENDPOINT = "http://localhost:3000";
 const request = supertest(API_ENDPOINT);
 
 describe("verify", () => {
+  beforeEach(() => {
+    jest.setTimeout(5000);
+  });
   it("should works for valid Ropsten document", async () => {
     await request
       .post("/verify")
@@ -20,7 +23,7 @@ describe("verify", () => {
       .expect(res => {
         expect(res.body).toEqual(successfulResponse({ network: "ropsten" }));
       });
-  }, 5000);
+  });
 
   it("should not works for invalid document", async () => {
     await request
@@ -35,5 +38,5 @@ describe("verify", () => {
       .expect(res => {
         expect(res.body).toEqual(unissuedResponse({ network: "mainnet" }));
       });
-  }, 5000);
+  });
 });

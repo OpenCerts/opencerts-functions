@@ -1,7 +1,7 @@
 const middy = require("middy");
 const { get } = require("lodash");
 const { cors } = require("middy/middlewares");
-const verify = require("@govtechsg/oa-verify");
+const { verify } = require("@govtechsg/oa-verify");
 
 const recaptcha = require("./recaptcha");
 const certificateMailer = require("./mailer/mailerWithSESTransporter");

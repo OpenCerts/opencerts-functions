@@ -4,9 +4,8 @@ const { uploadDocument } = require("./documentService");
 
 const handleCreate = async event => {
   try {
-    const { document, id, ttl } = JSON.parse(event.body);
-    const time = ttl ? Number(ttl) : 60 * 60;
-    const receipt = await uploadDocument(document, id, time);
+    const { document } = JSON.parse(event.body);
+    const receipt = await uploadDocument(document);
     return {
       statusCode: 200,
       body: JSON.stringify(receipt)

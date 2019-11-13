@@ -7,13 +7,14 @@
     "dev": "sls offline start",
     "deploy": "sls deploy",
     "depcheck": "depcheck . --ignores=\"serverless-*\"",
-    "dynamodb-local-setup": "sls dynamodb install",
+    "s3-local-setup": "sls plugin install --name serverless-s3-local",
     "sls-config-check": "sls print",
     "test": "jest --testPathPattern=src",
     "test-watch": "jest --watch",
     "e2etest": "jest --testPathPattern=test/e2e",
     "docker-compose:test": "docker-compose -f docker-compose.test.yml",
     "integration:local": "IS_OFFLINE=true jest --testPathPattern=test/integration",
+    "e2e:local": "IS_OFFLINE=true jest --testPathPattern=test/e2e",
     "lint": "eslint . --ext .js --max-warnings 0",
     "lint:fix": "eslint . --ext .js --fix"
   },
@@ -45,8 +46,8 @@
     "eslint-plugin-prettier": "^2.6.2",
     "jest": "^24.7.1",
     "prettier": "^1.14.2",
-    "serverless-dynamodb-local": "^0.2.37",
     "serverless-offline": "^3.25.11",
+    "serverless-s3-local": "^0.5.2",
     "supertest": "^4.0.2"
   }
 }
