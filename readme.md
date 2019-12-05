@@ -41,9 +41,29 @@ curl --header "Content-Type: application/json" \
   https://api.opencerts.io/email
 ```
 
-## Storage (TBD)
+## Storage
 
 This function is currently being developed to transfer a OpenAttestation document via QR. There are two parts of the function to upload and then download the document. 
+
+Example (Store Document):
+
+```
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"document": <DOCUMENT-OBJECT>}' \
+  https://api.opencerts.io/storage
+```
+
+Example (Store Document):
+
+```
+curl --request GET \
+  https://api.opencerts.io/storage/<DOCUMENT-UUID>
+```
+
+## Deterministic Storage (TBD)
+
+This function is used to reserve a document URL prior to generation of the document. This allow the url of the stored document to be saved onto the document. 
 
 # Development
 
