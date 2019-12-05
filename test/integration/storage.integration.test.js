@@ -2,7 +2,7 @@ jest.mock("@govtechsg/oa-verify"); // mocked because we'll test this part in e2e
 
 const uuid = require("uuid/v4");
 const { verify } = require("@govtechsg/oa-verify");
-const { decryptString } = require("@govtechsg/opencerts-encryption");
+const { decryptString } = require("@govtechsg/oa-encryption");
 const {
   uploadDocument,
   uploadDocumentAtId,

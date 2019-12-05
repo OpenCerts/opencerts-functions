@@ -3,7 +3,7 @@ const { verify } = require("@govtechsg/oa-verify");
 const {
   encryptString,
   generateEncryptionKey
-} = require("@govtechsg/opencerts-encryption");
+} = require("@govtechsg/oa-encryption");
 
 const config = require("../config");
 const { put, get, remove } = require("../s3");
@@ -64,7 +64,7 @@ const uploadDocumentAtId = async (
     placeHolderObj.key
   );
 
-  const { id } = await putDocument({ cipherText, iv, tag }, documentId);
+  const { id } = await putDocument({ cipherText, iv, tag, type }, documentId);
   return {
     id,
     key,
@@ -82,7 +82,7 @@ const uploadDocument = async (document, network = config.network) => {
     JSON.stringify(document)
   );
 
-  const { id } = await putDocument({ cipherText, iv, tag }, uuid());
+  const { id } = await putDocument({ cipherText, iv, tag, type }, uuid());
   return {
     id,
     key,
