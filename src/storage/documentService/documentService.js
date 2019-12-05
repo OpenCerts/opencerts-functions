@@ -3,7 +3,7 @@ const { verify } = require("@govtechsg/oa-verify");
 const {
   encryptString,
   generateEncryptionKey
-} = require("@govtechsg/opencerts-encryption");
+} = require("@govtechsg/oa-encryption");
 
 const config = require("../config");
 const { put, get, remove } = require("../s3");
