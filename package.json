@@ -22,15 +22,15 @@
   "author": "Raymond Yeh <yehjxraymond@gmail.com> (http://geek.sg)",
   "license": "ISC",
   "dependencies": {
-    "@govtechsg/oa-encryption": "^1.2.0",
-    "@govtechsg/oa-verify": "^2.0.1",
-    "@govtechsg/open-attestation": "^1.1.30",
-    "aws-sdk": "^2.447.0",
+    "@govtechsg/oa-encryption": "^1.3.0",
+    "@govtechsg/oa-verify": "^2.1.0",
+    "@govtechsg/open-attestation": "^1.1.42",
+    "aws-sdk": "^2.590.0",
     "lodash": "^4.17.13",
     "middy": "^0.24.0",
     "node-fetch": "^2.2.0",
     "nodemailer": "^4.6.8",
-    "serverless": "^1.40.0",
+    "serverless": "^1.59.3",
     "serverless-dotenv-plugin": "^1.2.0",
     "serverless-http": "^1.6.0",
     "uuid": "^3.3.2"
@@ -41,13 +41,13 @@
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-config-prettier": "^3.0.1",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-jest": "^22.4.1",
+    "eslint-plugin-import": "^2.19.1",
+    "eslint-plugin-jest": "^22.21.0",
     "eslint-plugin-prettier": "^2.6.2",
     "jest": "^24.7.1",
-    "prettier": "^1.14.2",
+    "prettier": "^1.19.1",
     "serverless-offline": "^3.25.11",
-    "serverless-s3-local": "^0.5.2",
+    "serverless-s3-local": "^0.5.4",
     "supertest": "^4.0.2"
   }
 }
