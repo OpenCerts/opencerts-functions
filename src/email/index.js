@@ -1,7 +1,8 @@
 const middy = require("middy");
 const { get } = require("lodash");
 const { cors } = require("middy/middlewares");
-const { verify } = require("@govtechsg/oa-verify");
+const { isValid } = require("@govtechsg/oa-verify");
+const { verify } = require("../verify/verify");
 
 const recaptcha = require("./recaptcha");
 const certificateMailer = require("./mailer/mailerWithSESTransporter");
@@ -41,8 +42,8 @@ const handleEmail = async (event, _context, callback) => {
     }
 
     // Verify Certificate
-    const verificationResults = await verify(data, config.network);
-    if (!verificationResults || !verificationResults.valid) {
+    const fragments = await verify(data, { network: config.network });
+    if (!isValid(fragments)) {
       throw new Error("Invalid certificate");
     }
 

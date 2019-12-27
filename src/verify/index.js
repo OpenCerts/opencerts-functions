@@ -1,12 +1,13 @@
 const middy = require("middy");
 const { cors } = require("middy/middlewares");
-const { verify, isValid } = require("@govtechsg/oa-verify");
+const { isValid } = require("@govtechsg/oa-verify");
 const config = require("./config");
+const { verify } = require("./verify");
 
 const handleVerify = async (event, _context, callback) => {
   const { document } = JSON.parse(event.body);
   try {
-    const fragments = await verify(document, config.network);
+    const fragments = await verify(document, { network: config.network });
     callback(null, {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },

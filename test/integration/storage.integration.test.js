@@ -1,8 +1,8 @@
-jest.mock("@govtechsg/oa-verify"); // mocked because we'll test this part in e2e
+jest.mock("../../src/verify/verify"); // mocked because we'll test this part in e2e
 
 const uuid = require("uuid/v4");
-const { verify } = require("@govtechsg/oa-verify");
 const { decryptString } = require("@govtechsg/oa-encryption");
+const { verify } = require("../../src/verify/verify");
 const {
   uploadDocument,
   uploadDocumentAtId,
@@ -16,9 +16,14 @@ const {
   thatIsAQueueNumber
 } = require("../utils/matchers");
 
+// TODO refactor those "integration" tests to NOT MOCK
 describe("uploadDocument", () => {
   beforeEach(() => {
-    verify.mockResolvedValue({ valid: true, hash: { checksumMatch: true } });
+    verify.mockResolvedValue([
+      { type: "DOCUMENT_STATUS", status: "VALID" },
+      { type: "DOCUMENT_INTEGRITY", status: "VALID" },
+      { type: "ISSUER_IDENTITY", status: "VALID" }
+    ]);
   });
 
   it("should work without queue number", async () => {
@@ -31,7 +36,11 @@ describe("uploadDocument", () => {
 
   it("should throw error when document verification failed", async () => {
     const document = { foo: "bar" };
-    verify.mockResolvedValueOnce({ valid: false });
+    verify.mockResolvedValueOnce([
+      { type: "DOCUMENT_STATUS", status: "INVALID" },
+      { type: "DOCUMENT_INTEGRITY", status: "VALID" },
+      { type: "ISSUER_IDENTITY", status: "VALID" }
+    ]);
     const uploaded = uploadDocument(document);
     expect(uploaded).rejects.toThrow("Document is not valid");
   });
@@ -39,7 +48,11 @@ describe("uploadDocument", () => {
 
 describe("uploadDocumentAtId", () => {
   beforeEach(() => {
-    verify.mockResolvedValue({ valid: true, hash: { checksumMatch: true } });
+    verify.mockResolvedValue([
+      { type: "DOCUMENT_STATUS", status: "VALID" },
+      { type: "DOCUMENT_INTEGRITY", status: "VALID" },
+      { type: "ISSUER_IDENTITY", status: "VALID" }
+    ]);
   });
 
   it("should throw error when you try to upload to a uuid that is not queue number but exist in db", async () => {
@@ -74,10 +87,11 @@ describe("uploadDocumentAtId", () => {
   it("should throw error when document verification failed with queue number", async () => {
     const document = { foo: "bar" };
     const { id: queueNumber } = await getQueueNumber();
-    verify.mockResolvedValueOnce({
-      valid: false,
-      hash: { checksumMatch: false }
-    });
+    verify.mockResolvedValueOnce([
+      { type: "DOCUMENT_STATUS", status: "INVALID" },
+      { type: "DOCUMENT_INTEGRITY", status: "VALID" },
+      { type: "ISSUER_IDENTITY", status: "VALID" }
+    ]);
     const uploaded = uploadDocumentAtId(document, queueNumber);
     expect(uploaded).rejects.toThrow("Document is not valid");
   });
@@ -86,7 +100,6 @@ describe("uploadDocumentAtId", () => {
 describe("getDocument", () => {
   it("should throw error when you try to get a document that is a queue number", async () => {
     const { id: queueNumber } = await getQueueNumber();
-
     await expect(getDocument(queueNumber)).rejects.toThrow("No Document Found");
   });
 
