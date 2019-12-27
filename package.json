@@ -23,7 +23,7 @@
   "license": "ISC",
   "dependencies": {
     "@govtechsg/oa-encryption": "^1.3.0",
-    "@govtechsg/oa-verify": "^2.1.0",
+    "@govtechsg/oa-verify": "^3.0.0",
     "@govtechsg/open-attestation": "^1.1.42",
     "aws-sdk": "^2.590.0",
     "lodash": "^4.17.13",
