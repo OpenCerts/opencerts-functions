@@ -1,9 +1,10 @@
 const uuid = require("uuid/v4");
-const { verify } = require("@govtechsg/oa-verify");
+const { isValid } = require("@govtechsg/oa-verify");
 const {
   encryptString,
   generateEncryptionKey
 } = require("@govtechsg/oa-encryption");
+const { verify } = require("../../verify/verify");
 
 const config = require("../config");
 const { put, get, remove } = require("../s3");
@@ -54,8 +55,8 @@ const uploadDocumentAtId = async (
     throw new Error(`No placeholder file`);
   }
 
-  const verificationResults = await verify(document, network);
-  if (!verificationResults.valid) {
+  const fragments = await verify(document, { network });
+  if (!isValid(fragments)) {
     throw new Error("Document is not valid");
   }
 
@@ -73,8 +74,8 @@ const uploadDocumentAtId = async (
 };
 
 const uploadDocument = async (document, network = config.network) => {
-  const verificationResults = await verify(document, network);
-  if (!verificationResults.valid) {
+  const fragments = await verify(document, { network });
+  if (!isValid(fragments)) {
     throw new Error("Document is not valid");
   }
 

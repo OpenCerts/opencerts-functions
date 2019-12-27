@@ -33,16 +33,13 @@ describe("verify", () => {
                 details: [
                   {
                     address: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495",
-                    error:
-                      'contract not deployed (contractAddress="0xc36484efa1544c32ffed2e80a1ea9f0dfc517495", operation="getDeployed", version=4.0.41)',
-                    issued: false
+                    issued: true
                   }
                 ],
-                issuedOnAll: false
+                issuedOnAll: true
               },
-              message: "Certificate has not been issued",
               name: "OpenAttestationEthereumDocumentStoreIssued",
-              status: "INVALID",
+              status: "VALID",
               type: "DOCUMENT_STATUS"
             },
             {
@@ -57,16 +54,13 @@ describe("verify", () => {
                 details: [
                   {
                     address: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495",
-                    error:
-                      'contract not deployed (contractAddress="0xc36484efa1544c32ffed2e80a1ea9f0dfc517495", operation="getDeployed", version=4.0.41)',
-                    revoked: true
+                    revoked: false
                   }
                 ],
-                revokedOnAny: true
+                revokedOnAny: false
               },
-              message: "Certificate has been revoked",
               name: "OpenAttestationEthereumDocumentStoreRevoked",
-              status: "INVALID",
+              status: "VALID",
               type: "DOCUMENT_STATUS"
             },
             {
@@ -75,13 +69,18 @@ describe("verify", () => {
               name: "OpenAttestationDnsTxt",
               status: "SKIPPED",
               type: "ISSUER_IDENTITY"
+            },
+            {
+              name: "OpencertsRegistryVerifier",
+              status: "VALID",
+              type: "ISSUER_IDENTITY"
             }
           ],
           summary: {
-            all: false,
+            all: true,
             documentIntegrity: true,
-            documentStatus: false,
-            issuerIdentity: false
+            documentStatus: true,
+            issuerIdentity: true
           }
         });
       });
@@ -111,13 +110,16 @@ describe("verify", () => {
                 details: [
                   {
                     address: "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
-                    issued: true
+                    error:
+                      'call exception (address="0x007d40224f6562461633ccfbaffd359ebb2fc9ba", method="isIssued(bytes32)", args=["0x1a040999254caaf7a33cba67ec6a9b862da1dacf8a0d1e3bb76347060fc615d6"], version=4.0.41)',
+                    issued: false
                   }
                 ],
-                issuedOnAll: true
+                issuedOnAll: false
               },
+              message: "Certificate has not been issued",
               name: "OpenAttestationEthereumDocumentStoreIssued",
-              status: "VALID",
+              status: "INVALID",
               type: "DOCUMENT_STATUS"
             },
             {
@@ -147,13 +149,18 @@ describe("verify", () => {
               name: "OpenAttestationDnsTxt",
               status: "SKIPPED",
               type: "ISSUER_IDENTITY"
+            },
+            {
+              name: "OpencertsRegistryVerifier",
+              status: "VALID",
+              type: "ISSUER_IDENTITY"
             }
           ],
           summary: {
             all: false,
             documentIntegrity: true,
-            documentStatus: true,
-            issuerIdentity: false
+            documentStatus: false,
+            issuerIdentity: true
           }
         });
       });
