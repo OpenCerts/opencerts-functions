@@ -1,8 +1,7 @@
 const middy = require("middy");
 const { cors } = require("middy/middlewares");
-const { isValid } = require("@govtechsg/oa-verify");
+const { verify, isValid } = require("@govtechsg/opencerts-verify");
 const config = require("./config");
-const { verify } = require("./verify");
 
 const handleVerify = async (event, _context, callback) => {
   const { document } = JSON.parse(event.body);

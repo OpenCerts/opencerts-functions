@@ -71,6 +71,14 @@ describe("verify", () => {
               type: "ISSUER_IDENTITY"
             },
             {
+              data: [
+                {
+                  displayCard: false,
+                  name: "ROPSTEN: Ngee Ann Polytechnic",
+                  status: "VALID",
+                  value: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495"
+                }
+              ],
               name: "OpencertsRegistryVerifier",
               status: "VALID",
               type: "ISSUER_IDENTITY"
@@ -151,6 +159,19 @@ describe("verify", () => {
               type: "ISSUER_IDENTITY"
             },
             {
+              data: [
+                {
+                  displayCard: true,
+                  email: "info@tech.gov.sg",
+                  id: "govtech-registry",
+                  logo: "/static/images/GOVTECH_logo.png",
+                  name: "Government Technology Agency of Singapore (GovTech)",
+                  phone: "+65 6211 2100",
+                  status: "VALID",
+                  value: "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
+                  website: "https://www.tech.gov.sg"
+                }
+              ],
               name: "OpencertsRegistryVerifier",
               status: "VALID",
               type: "ISSUER_IDENTITY"
