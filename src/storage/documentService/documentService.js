@@ -1,10 +1,9 @@
 const uuid = require("uuid/v4");
-const { isValid } = require("@govtechsg/oa-verify");
+const { verify, isValid } = require("@govtechsg/opencerts-verify");
 const {
   encryptString,
   generateEncryptionKey
 } = require("@govtechsg/oa-encryption");
-const { verify } = require("../../verify/verify");
 
 const config = require("../config");
 const { put, get, remove } = require("../s3");

@@ -1,8 +1,8 @@
-jest.mock("../../src/verify/verify"); // mocked because we'll test this part in e2e
+jest.mock("@govtechsg/opencerts-verify"); // mocked because we'll test this part in e2e
 
 const uuid = require("uuid/v4");
 const { decryptString } = require("@govtechsg/oa-encryption");
-const { verify } = require("../../src/verify/verify");
+const { isValid } = require("@govtechsg/opencerts-verify");
 const {
   uploadDocument,
   uploadDocumentAtId,
@@ -17,16 +17,12 @@ const {
 } = require("../utils/matchers");
 
 // TODO refactor those "integration" tests to NOT MOCK
-describe("uploadDocument", () => {
-  beforeEach(() => {
-    verify.mockResolvedValue([
-      { type: "DOCUMENT_STATUS", status: "VALID" },
-      { type: "DOCUMENT_INTEGRITY", status: "VALID" },
-      { type: "ISSUER_IDENTITY", status: "VALID" }
-    ]);
+describe.only("uploadDocument", () => {
+  afterEach(() => {
+    isValid.mockClear();
   });
-
   it("should work without queue number", async () => {
+    isValid.mockReturnValueOnce(true);
     const document = { foo: "bar" };
     const uploaded = await uploadDocument(document);
     expect(uploaded).toMatchObject(thatIsUploadResponse);
@@ -36,26 +32,19 @@ describe("uploadDocument", () => {
 
   it("should throw error when document verification failed", async () => {
     const document = { foo: "bar" };
-    verify.mockResolvedValueOnce([
-      { type: "DOCUMENT_STATUS", status: "INVALID" },
-      { type: "DOCUMENT_INTEGRITY", status: "VALID" },
-      { type: "ISSUER_IDENTITY", status: "VALID" }
-    ]);
+    isValid.mockReturnValueOnce(false);
     const uploaded = uploadDocument(document);
-    expect(uploaded).rejects.toThrow("Document is not valid");
+    await expect(uploaded).rejects.toThrow("Document is not valid");
   });
 });
 
-describe("uploadDocumentAtId", () => {
-  beforeEach(() => {
-    verify.mockResolvedValue([
-      { type: "DOCUMENT_STATUS", status: "VALID" },
-      { type: "DOCUMENT_INTEGRITY", status: "VALID" },
-      { type: "ISSUER_IDENTITY", status: "VALID" }
-    ]);
+describe.only("uploadDocumentAtId", () => {
+  afterEach(() => {
+    isValid.mockClear();
   });
 
   it("should throw error when you try to upload to a uuid that is not queue number but exist in db", async () => {
+    isValid.mockReturnValueOnce(true);
     const document = { foo: "bar" };
     const { id: queueNumber } = await getQueueNumber();
     const uploaded = await uploadDocumentAtId(document, queueNumber);
@@ -68,6 +57,7 @@ describe("uploadDocumentAtId", () => {
   });
 
   it("should work with queue number", async () => {
+    isValid.mockReturnValueOnce(true);
     const { id: queueNumber } = await getQueueNumber();
     const document = { foo: "bar" };
     const uploaded = await uploadDocumentAtId(document, queueNumber);
@@ -87,23 +77,23 @@ describe("uploadDocumentAtId", () => {
   it("should throw error when document verification failed with queue number", async () => {
     const document = { foo: "bar" };
     const { id: queueNumber } = await getQueueNumber();
-    verify.mockResolvedValueOnce([
-      { type: "DOCUMENT_STATUS", status: "INVALID" },
-      { type: "DOCUMENT_INTEGRITY", status: "VALID" },
-      { type: "ISSUER_IDENTITY", status: "VALID" }
-    ]);
+    isValid.mockReturnValueOnce(false);
     const uploaded = uploadDocumentAtId(document, queueNumber);
-    expect(uploaded).rejects.toThrow("Document is not valid");
+    await expect(uploaded).rejects.toThrow("Document is not valid");
   });
 });
 
-describe("getDocument", () => {
+describe.only("getDocument", () => {
+  afterEach(() => {
+    isValid.mockClear();
+  });
   it("should throw error when you try to get a document that is a queue number", async () => {
     const { id: queueNumber } = await getQueueNumber();
     await expect(getDocument(queueNumber)).rejects.toThrow("No Document Found");
   });
 
   it("should cleanup if cleanup flag is specified", async () => {
+    isValid.mockReturnValueOnce(true);
     const document = { foo: "bar" };
     const { id: queueNumber } = await getQueueNumber();
     await uploadDocumentAtId(document, queueNumber);
@@ -116,6 +106,7 @@ describe("getDocument", () => {
     );
   });
   it("should not cleanup if cleanup flag is off", async () => {
+    isValid.mockReturnValueOnce(true);
     const document = { foo: "bar" };
     const { id: queueNumber } = await getQueueNumber();
     await uploadDocumentAtId(document, queueNumber);
@@ -126,16 +117,20 @@ describe("getDocument", () => {
   });
 });
 
-describe("getQueueNumber", () => {
+describe.only("getQueueNumber", () => {
   it("should return a placeholder object", async () => {
     const queueNumber = await getQueueNumber();
     expect(queueNumber).toMatchObject(thatIsAQueueNumber);
   });
 });
 
-describe("documentService", () => {
+describe.only("documentService", () => {
+  afterEach(() => {
+    isValid.mockClear();
+  });
   it("should store and retrieve and decrypt the document", async () => {
     const document = { foo: "bar" };
+    isValid.mockReturnValueOnce(true);
     const uploaded = await uploadDocument(document);
     const retrieve = await getDocument(uploaded.id, { cleanup: false });
     expect(retrieve).toMatchObject(thatIsRetrievedDocument);
