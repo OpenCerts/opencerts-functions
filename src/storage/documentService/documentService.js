@@ -69,7 +69,9 @@ const uploadDocumentAtId = async (document, documentId, relativeTtl) => {
   );
 
   const { id } = await putDocument(
-    { cipherText, iv, tag, type, ttl: calculateAbsoluteTtl(relativeTtl) },
+    relativeTtl
+      ? { cipherText, iv, tag, type, ttl: calculateAbsoluteTtl(relativeTtl) }
+      : { cipherText, iv, tag, type },
     documentId
   );
   return {

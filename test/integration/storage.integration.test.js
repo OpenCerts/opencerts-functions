@@ -17,7 +17,7 @@ const {
 } = require("../utils/matchers");
 
 // TODO refactor those "integration" tests to NOT MOCK
-describe.only("uploadDocument", () => {
+describe("uploadDocument", () => {
   afterEach(() => {
     isValid.mockClear();
   });
@@ -36,9 +36,13 @@ describe.only("uploadDocument", () => {
     const uploaded = uploadDocument(document);
     await expect(uploaded).rejects.toThrow("Document is not valid");
   });
+
+  it("should allow user to specify ttl", () => {
+    throw new Error("Not implemented yet");
+  });
 });
 
-describe.only("uploadDocumentAtId", () => {
+describe("uploadDocumentAtId", () => {
   afterEach(() => {
     isValid.mockClear();
   });
@@ -81,9 +85,13 @@ describe.only("uploadDocumentAtId", () => {
     const uploaded = uploadDocumentAtId(document, queueNumber);
     await expect(uploaded).rejects.toThrow("Document is not valid");
   });
+
+  it("should allow user to specify ttl", () => {
+    throw new Error("Not implemented yet");
+  });
 });
 
-describe.only("getDocument", () => {
+describe("getDocument", () => {
   afterEach(() => {
     isValid.mockClear();
   });
@@ -117,14 +125,14 @@ describe.only("getDocument", () => {
   });
 });
 
-describe.only("getQueueNumber", () => {
+describe("getQueueNumber", () => {
   it("should return a placeholder object", async () => {
     const queueNumber = await getQueueNumber();
     expect(queueNumber).toMatchObject(thatIsAQueueNumber);
   });
 });
 
-describe.only("documentService", () => {
+describe("documentService", () => {
   afterEach(() => {
     isValid.mockClear();
   });
