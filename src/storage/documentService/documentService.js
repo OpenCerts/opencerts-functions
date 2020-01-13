@@ -43,6 +43,8 @@ const getDecryptionKey = async id => {
   return document;
 };
 
+const calculateAbsoluteTtl = relativeTtl => Date.now() + relativeTtl;
+
 const uploadDocumentAtId = async (
   document,
   documentId,
@@ -72,8 +74,8 @@ const uploadDocumentAtId = async (
   };
 };
 
-const uploadDocument = async (document, network = config.network) => {
-  const fragments = await verify(document, { network });
+const uploadDocument = async (document, relativeTtl) => {
+  const fragments = await verify(document, { network: config.network });
   if (!isValid(fragments)) {
     throw new Error("Document is not valid");
   }
@@ -82,7 +84,10 @@ const uploadDocument = async (document, network = config.network) => {
     JSON.stringify(document)
   );
 
-  const { id } = await putDocument({ cipherText, iv, tag, type }, uuid());
+  const { id } = await putDocument(
+    { cipherText, iv, tag, type, ttl: calculateAbsoluteTtl(relativeTtl) },
+    uuid()
+  );
   return {
     id,
     key,
@@ -112,5 +117,6 @@ module.exports = {
   getQueueNumber,
   uploadDocument,
   uploadDocumentAtId,
-  getDocument
+  getDocument,
+  calculateAbsoluteTtl
 };
