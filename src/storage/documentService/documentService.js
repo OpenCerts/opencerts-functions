@@ -24,7 +24,11 @@ const getDocument = async (id, { cleanup } = { cleanup: false }) => {
   };
   const document = await get(params);
   // we throw this error because if awaitingUpload exists on an object, it also has a decryption key in it and we don't want to return that, ever
-  if (document.awaitingUpload) {
+  if (
+    !document ||
+    document.awaitingUpload ||
+    document.document.ttl < Date.now()
+  ) {
     throw new Error("No Document Found");
   }
   if (cleanup) {
