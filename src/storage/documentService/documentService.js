@@ -8,6 +8,8 @@ const {
 const config = require("../config");
 const { put, get, remove } = require("../s3");
 
+const DEFAULT_TTL = 30 * 24 * 60 * 60 * 1000;
+
 const putDocument = async (document, id) => {
   const params = {
     Bucket: config.bucketName,
@@ -49,18 +51,14 @@ const getDecryptionKey = async id => {
 
 const calculateAbsoluteTtl = relativeTtl => Date.now() + relativeTtl;
 
-const uploadDocumentAtId = async (
-  document,
-  documentId,
-  network = config.network
-) => {
+const uploadDocumentAtId = async (document, documentId, relativeTtl) => {
   const placeHolderObj = await getDecryptionKey(documentId);
   if (!(placeHolderObj.key && placeHolderObj.awaitingUpload)) {
     // we get here when a file exists at location but is not a placeholder awaiting upload
     throw new Error(`No placeholder file`);
   }
 
-  const fragments = await verify(document, { network });
+  const fragments = await verify(document, { network: config.network });
   if (!isValid(fragments)) {
     throw new Error("Document is not valid");
   }
@@ -70,7 +68,10 @@ const uploadDocumentAtId = async (
     placeHolderObj.key
   );
 
-  const { id } = await putDocument({ cipherText, iv, tag, type }, documentId);
+  const { id } = await putDocument(
+    { cipherText, iv, tag, type, ttl: calculateAbsoluteTtl(relativeTtl) },
+    documentId
+  );
   return {
     id,
     key,
@@ -78,7 +79,7 @@ const uploadDocumentAtId = async (
   };
 };
 
-const uploadDocument = async (document, relativeTtl) => {
+const uploadDocument = async (document, relativeTtl = DEFAULT_TTL) => {
   const fragments = await verify(document, { network: config.network });
   if (!isValid(fragments)) {
     throw new Error("Document is not valid");
