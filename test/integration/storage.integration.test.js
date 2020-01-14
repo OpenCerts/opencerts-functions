@@ -7,7 +7,8 @@ const {
   uploadDocument,
   uploadDocumentAtId,
   getDocument,
-  getQueueNumber
+  getQueueNumber,
+  DEFAULT_TTL
 } = require("../../src/storage/documentService");
 
 const {
@@ -15,6 +16,8 @@ const {
   thatIsUploadResponse,
   thatIsAQueueNumber
 } = require("../utils/matchers");
+
+const TIME_SKEW_ALLOWANCE = 5000;
 
 // TODO refactor those "integration" tests to NOT MOCK
 describe("uploadDocument", () => {
@@ -37,8 +40,28 @@ describe("uploadDocument", () => {
     await expect(uploaded).rejects.toThrow("Document is not valid");
   });
 
-  it("should allow user to specify ttl", () => {
-    throw new Error("Not implemented yet");
+  it("should allow user to specify ttl", async () => {
+    isValid.mockReturnValueOnce(true);
+    const document = { foo: "bar" };
+    const uploaded = await uploadDocument(document, 20000);
+    expect(uploaded).toMatchObject(thatIsUploadResponse);
+    const getResults = await getDocument(uploaded.id);
+    expect(
+      getResults.document.ttl < Date.now() + 20000 + TIME_SKEW_ALLOWANCE
+    ).toBe(true);
+    expect(getResults).toMatchObject(thatIsRetrievedDocument);
+  });
+
+  it("should default ttl value to DEFAULT_TTL ", async () => {
+    isValid.mockReturnValueOnce(true);
+    const document = { foo: "bar" };
+    const uploaded = await uploadDocument(document);
+    expect(uploaded).toMatchObject(thatIsUploadResponse);
+    const getResults = await getDocument(uploaded.id);
+    expect(
+      getResults.document.ttl < Date.now() + DEFAULT_TTL + TIME_SKEW_ALLOWANCE
+    ).toBe(true);
+    expect(getResults).toMatchObject(thatIsRetrievedDocument);
   });
 });
 
@@ -86,8 +109,28 @@ describe("uploadDocumentAtId", () => {
     await expect(uploaded).rejects.toThrow("Document is not valid");
   });
 
-  it("should allow user to specify ttl", () => {
-    throw new Error("Not implemented yet");
+  it("should allow user to specify ttl", async () => {
+    isValid.mockReturnValueOnce(true);
+    const { id: queueNumber } = await getQueueNumber();
+    const document = { foo: "bar" };
+    const uploaded = await uploadDocumentAtId(document, queueNumber, 20000);
+    expect(uploaded).toMatchObject(thatIsUploadResponse);
+    const getResults = await getDocument(uploaded.id);
+    expect(
+      getResults.document.ttl < Date.now() + 20000 + TIME_SKEW_ALLOWANCE
+    ).toBe(true);
+    expect(getResults).toMatchObject(thatIsRetrievedDocument);
+  });
+
+  it("should not have default ttl value", async () => {
+    isValid.mockReturnValueOnce(true);
+    const { id: queueNumber } = await getQueueNumber();
+    const document = { foo: "bar" };
+    const uploaded = await uploadDocumentAtId(document, queueNumber);
+    expect(uploaded).toMatchObject(thatIsUploadResponse);
+    const getResults = await getDocument(uploaded.id);
+    expect(getResults.document.ttl).toBeUndefined();
+    expect(getResults).toMatchObject(thatIsRetrievedDocument);
   });
 });
 

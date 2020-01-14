@@ -125,5 +125,6 @@ module.exports = {
   uploadDocument,
   uploadDocumentAtId,
   getDocument,
-  calculateAbsoluteTtl
+  calculateAbsoluteTtl,
+  DEFAULT_TTL
 };
