@@ -9,6 +9,7 @@ const config = require("../config");
 const { put, get, remove } = require("../s3");
 
 const DEFAULT_TTL = 30 * 24 * 60 * 60 * 1000;
+const MAX_TTL = 90 * 24 * 60 * 60 * 1000;
 
 const putDocument = async (document, id) => {
   const params = {
@@ -58,6 +59,10 @@ const uploadDocumentAtId = async (document, documentId, relativeTtl) => {
     throw new Error(`No placeholder file`);
   }
 
+  if (relativeTtl && relativeTtl > MAX_TTL) {
+    throw new Error("Ttl cannot exceed 90 days");
+  }
+
   const fragments = await verify(document, { network: config.network });
   if (!isValid(fragments)) {
     throw new Error("Document is not valid");
@@ -85,6 +90,10 @@ const uploadDocument = async (document, relativeTtl = DEFAULT_TTL) => {
   const fragments = await verify(document, { network: config.network });
   if (!isValid(fragments)) {
     throw new Error("Document is not valid");
+  }
+
+  if (relativeTtl > MAX_TTL) {
+    throw new Error("Ttl cannot exceed 90 days");
   }
 
   const { cipherText, iv, tag, key, type } = await encryptString(
@@ -126,5 +135,6 @@ module.exports = {
   uploadDocumentAtId,
   getDocument,
   calculateAbsoluteTtl,
-  DEFAULT_TTL
+  DEFAULT_TTL,
+  MAX_TTL
 };

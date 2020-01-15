@@ -8,7 +8,8 @@ const {
   uploadDocumentAtId,
   getDocument,
   getQueueNumber,
-  DEFAULT_TTL
+  DEFAULT_TTL,
+  MAX_TTL
 } = require("../../src/storage/documentService");
 
 const {
@@ -62,6 +63,13 @@ describe("uploadDocument", () => {
       getResults.document.ttl < Date.now() + DEFAULT_TTL + TIME_SKEW_ALLOWANCE
     ).toBe(true);
     expect(getResults).toMatchObject(thatIsRetrievedDocument);
+  });
+
+  it("should throw error when ttl value > MAX_TLL", async () => {
+    isValid.mockReturnValueOnce(true);
+    const document = { foo: "bar" };
+    const uploaded = uploadDocument(document, MAX_TTL + 1);
+    await expect(uploaded).rejects.toThrow("Ttl cannot exceed 90 days");
   });
 });
 
@@ -131,6 +139,14 @@ describe("uploadDocumentAtId", () => {
     const getResults = await getDocument(uploaded.id);
     expect(getResults.document.ttl).toBeUndefined();
     expect(getResults).toMatchObject(thatIsRetrievedDocument);
+  });
+
+  it("should throw error when ttl value > MAX_TLL", async () => {
+    isValid.mockReturnValueOnce(true);
+    const document = { foo: "bar" };
+    const { id: queueNumber } = await getQueueNumber();
+    const uploaded = uploadDocumentAtId(document, queueNumber, MAX_TTL + 1);
+    await expect(uploaded).rejects.toThrow("Ttl cannot exceed 90 days");
   });
 });
 
