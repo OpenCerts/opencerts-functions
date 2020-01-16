@@ -8,12 +8,13 @@ const {
   uploadDocumentAtId,
   getDocument,
   getQueueNumber,
-  DEFAULT_TTL,
-  MAX_TTL
+  DEFAULT_TTL_IN_MICROSECONDS,
+  MAX_TTL_IN_MICROSECONDS
 } = require("../../src/storage/documentService");
 
 const {
   thatIsRetrievedDocument,
+  thatIsRetrievedDocumentWithTtl,
   thatIsUploadResponse,
   thatIsAQueueNumber
 } = require("../utils/matchers");
@@ -31,7 +32,7 @@ describe("uploadDocument", () => {
     const uploaded = await uploadDocument(document);
     expect(uploaded).toMatchObject(thatIsUploadResponse);
     const getResults = await getDocument(uploaded.id);
-    expect(getResults).toMatchObject(thatIsRetrievedDocument);
+    expect(getResults).toMatchObject(thatIsRetrievedDocumentWithTtl);
   });
 
   it("should throw error when document verification failed", async () => {
@@ -47,28 +48,28 @@ describe("uploadDocument", () => {
     const uploaded = await uploadDocument(document, 20000);
     expect(uploaded).toMatchObject(thatIsUploadResponse);
     const getResults = await getDocument(uploaded.id);
-    expect(
-      getResults.document.ttl < Date.now() + 20000 + TIME_SKEW_ALLOWANCE
-    ).toBe(true);
-    expect(getResults).toMatchObject(thatIsRetrievedDocument);
+    expect(getResults.document.ttl).toBeLessThan(
+      Date.now() + 20000 + TIME_SKEW_ALLOWANCE
+    );
+    expect(getResults).toMatchObject(thatIsRetrievedDocumentWithTtl);
   });
 
-  it("should default ttl value to DEFAULT_TTL ", async () => {
+  it("should default ttl value to DEFAULT_TTL_IN_MICROSECONDS ", async () => {
     isValid.mockReturnValueOnce(true);
     const document = { foo: "bar" };
     const uploaded = await uploadDocument(document);
     expect(uploaded).toMatchObject(thatIsUploadResponse);
     const getResults = await getDocument(uploaded.id);
-    expect(
-      getResults.document.ttl < Date.now() + DEFAULT_TTL + TIME_SKEW_ALLOWANCE
-    ).toBe(true);
-    expect(getResults).toMatchObject(thatIsRetrievedDocument);
+    expect(getResults.document.ttl).toBeLessThan(
+      Date.now() + DEFAULT_TTL_IN_MICROSECONDS + TIME_SKEW_ALLOWANCE
+    );
+    expect(getResults).toMatchObject(thatIsRetrievedDocumentWithTtl);
   });
 
-  it("should throw error when ttl value > MAX_TLL", async () => {
+  it("should throw error when ttl value > MAX_TTL_IN_MICROSECONDS", async () => {
     isValid.mockReturnValueOnce(true);
     const document = { foo: "bar" };
-    const uploaded = uploadDocument(document, MAX_TTL + 1);
+    const uploaded = uploadDocument(document, MAX_TTL_IN_MICROSECONDS + 1);
     await expect(uploaded).rejects.toThrow("Ttl cannot exceed 90 days");
   });
 });
@@ -124,28 +125,34 @@ describe("uploadDocumentAtId", () => {
     const uploaded = await uploadDocumentAtId(document, queueNumber, 20000);
     expect(uploaded).toMatchObject(thatIsUploadResponse);
     const getResults = await getDocument(uploaded.id);
-    expect(
-      getResults.document.ttl < Date.now() + 20000 + TIME_SKEW_ALLOWANCE
-    ).toBe(true);
-    expect(getResults).toMatchObject(thatIsRetrievedDocument);
+    expect(getResults.document.ttl).toBeLessThan(
+      Date.now() + 20000 + TIME_SKEW_ALLOWANCE
+    );
+    expect(getResults).toMatchObject(thatIsRetrievedDocumentWithTtl);
   });
 
-  it("should not have default ttl value", async () => {
+  it("should default ttl value to DEFAULT_TTL_IN_MICROSECONDS ", async () => {
     isValid.mockReturnValueOnce(true);
     const { id: queueNumber } = await getQueueNumber();
     const document = { foo: "bar" };
     const uploaded = await uploadDocumentAtId(document, queueNumber);
     expect(uploaded).toMatchObject(thatIsUploadResponse);
     const getResults = await getDocument(uploaded.id);
-    expect(getResults.document.ttl).toBeUndefined();
-    expect(getResults).toMatchObject(thatIsRetrievedDocument);
+    expect(getResults.document.ttl).toBeLessThan(
+      Date.now() + DEFAULT_TTL_IN_MICROSECONDS + TIME_SKEW_ALLOWANCE
+    );
+    expect(getResults).toMatchObject(thatIsRetrievedDocumentWithTtl);
   });
 
-  it("should throw error when ttl value > MAX_TLL", async () => {
+  it("should throw error when ttl value > MAX_TTL_IN_MICROSECONDS", async () => {
     isValid.mockReturnValueOnce(true);
     const document = { foo: "bar" };
     const { id: queueNumber } = await getQueueNumber();
-    const uploaded = uploadDocumentAtId(document, queueNumber, MAX_TTL + 1);
+    const uploaded = uploadDocumentAtId(
+      document,
+      queueNumber,
+      MAX_TTL_IN_MICROSECONDS + 1
+    );
     await expect(uploaded).rejects.toThrow("Ttl cannot exceed 90 days");
   });
 });

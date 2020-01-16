@@ -8,8 +8,8 @@ const {
 const config = require("../config");
 const { put, get, remove } = require("../s3");
 
-const DEFAULT_TTL = 30 * 24 * 60 * 60 * 1000;
-const MAX_TTL = 90 * 24 * 60 * 60 * 1000;
+const DEFAULT_TTL_IN_MICROSECONDS = 30 * 24 * 60 * 60 * 1000; // 30 Days
+const MAX_TTL_IN_MICROSECONDS = 90 * 24 * 60 * 60 * 1000; // 90 Days
 
 const putDocument = async (document, id) => {
   const params = {
@@ -30,7 +30,7 @@ const getDocument = async (id, { cleanup } = { cleanup: false }) => {
   if (
     !document ||
     document.awaitingUpload ||
-    document.document.ttl < Date.now()
+    document.document.ttl < Date.now() // if the document has expired, tell the user that it doesn't exist
   ) {
     throw new Error("No Document Found");
   }
@@ -50,16 +50,21 @@ const getDecryptionKey = async id => {
   return document;
 };
 
-const calculateAbsoluteTtl = relativeTtl => Date.now() + relativeTtl;
+const calculateAbsoluteTtl = ttlInMicroseconds =>
+  Date.now() + ttlInMicroseconds;
 
-const uploadDocumentAtId = async (document, documentId, relativeTtl) => {
+const uploadDocumentAtId = async (
+  document,
+  documentId,
+  ttlInMicroseconds = DEFAULT_TTL_IN_MICROSECONDS
+) => {
   const placeHolderObj = await getDecryptionKey(documentId);
   if (!(placeHolderObj.key && placeHolderObj.awaitingUpload)) {
     // we get here when a file exists at location but is not a placeholder awaiting upload
     throw new Error(`No placeholder file`);
   }
 
-  if (relativeTtl && relativeTtl > MAX_TTL) {
+  if (ttlInMicroseconds > MAX_TTL_IN_MICROSECONDS) {
     throw new Error("Ttl cannot exceed 90 days");
   }
 
@@ -74,9 +79,7 @@ const uploadDocumentAtId = async (document, documentId, relativeTtl) => {
   );
 
   const { id } = await putDocument(
-    relativeTtl
-      ? { cipherText, iv, tag, type, ttl: calculateAbsoluteTtl(relativeTtl) }
-      : { cipherText, iv, tag, type },
+    { cipherText, iv, tag, type, ttl: calculateAbsoluteTtl(ttlInMicroseconds) },
     documentId
   );
   return {
@@ -86,13 +89,16 @@ const uploadDocumentAtId = async (document, documentId, relativeTtl) => {
   };
 };
 
-const uploadDocument = async (document, relativeTtl = DEFAULT_TTL) => {
+const uploadDocument = async (
+  document,
+  ttlInMicroseconds = DEFAULT_TTL_IN_MICROSECONDS
+) => {
   const fragments = await verify(document, { network: config.network });
   if (!isValid(fragments)) {
     throw new Error("Document is not valid");
   }
 
-  if (relativeTtl > MAX_TTL) {
+  if (ttlInMicroseconds > MAX_TTL_IN_MICROSECONDS) {
     throw new Error("Ttl cannot exceed 90 days");
   }
 
@@ -101,7 +107,7 @@ const uploadDocument = async (document, relativeTtl = DEFAULT_TTL) => {
   );
 
   const { id } = await putDocument(
-    { cipherText, iv, tag, type, ttl: calculateAbsoluteTtl(relativeTtl) },
+    { cipherText, iv, tag, type, ttl: calculateAbsoluteTtl(ttlInMicroseconds) },
     uuid()
   );
   return {
@@ -135,6 +141,6 @@ module.exports = {
   uploadDocumentAtId,
   getDocument,
   calculateAbsoluteTtl,
-  DEFAULT_TTL,
-  MAX_TTL
+  DEFAULT_TTL_IN_MICROSECONDS,
+  MAX_TTL_IN_MICROSECONDS
 };
