@@ -50,7 +50,7 @@ const getDecryptionKey = async id => {
   return document;
 };
 
-const calculateAbsoluteTtl = ttlInMicroseconds =>
+const calculateExpiryTimestamp = ttlInMicroseconds =>
   Date.now() + ttlInMicroseconds;
 
 const uploadDocumentAtId = async (
@@ -79,7 +79,13 @@ const uploadDocumentAtId = async (
   );
 
   const { id } = await putDocument(
-    { cipherText, iv, tag, type, ttl: calculateAbsoluteTtl(ttlInMicroseconds) },
+    {
+      cipherText,
+      iv,
+      tag,
+      type,
+      ttl: calculateExpiryTimestamp(ttlInMicroseconds)
+    },
     documentId
   );
   return {
@@ -107,7 +113,13 @@ const uploadDocument = async (
   );
 
   const { id } = await putDocument(
-    { cipherText, iv, tag, type, ttl: calculateAbsoluteTtl(ttlInMicroseconds) },
+    {
+      cipherText,
+      iv,
+      tag,
+      type,
+      ttl: calculateExpiryTimestamp(ttlInMicroseconds)
+    },
     uuid()
   );
   return {
@@ -140,7 +152,7 @@ module.exports = {
   uploadDocument,
   uploadDocumentAtId,
   getDocument,
-  calculateAbsoluteTtl,
+  calculateExpiryTimestamp,
   DEFAULT_TTL_IN_MICROSECONDS,
   MAX_TTL_IN_MICROSECONDS
 };
