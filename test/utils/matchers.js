@@ -16,6 +16,15 @@ const thatIsRetrievedDocument = {
   })
 };
 
+const thatIsRetrievedDocumentWithTtl = {
+  document: expect.objectContaining({
+    cipherText: expect.any(String),
+    iv: expect.any(String),
+    tag: expect.any(String),
+    ttl: expect.any(Number)
+  })
+};
+
 const thatIsAQueueNumber = {
   key: expect.any(String),
   id: expect.stringMatching(uuidV4Regex)
@@ -23,6 +32,7 @@ const thatIsAQueueNumber = {
 
 module.exports = {
   thatIsRetrievedDocument,
+  thatIsRetrievedDocumentWithTtl,
   thatIsUploadResponse,
   thatIsAQueueNumber
 };

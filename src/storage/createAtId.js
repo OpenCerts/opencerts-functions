@@ -4,9 +4,9 @@ const { uploadDocumentAtId } = require("./documentService");
 
 const handleCreateAtId = async event => {
   try {
-    const { document } = JSON.parse(event.body);
+    const { document, ttl } = JSON.parse(event.body);
     const { id } = event.pathParameters;
-    const receipt = await uploadDocumentAtId(document, id);
+    const receipt = await uploadDocumentAtId(document, id, ttl);
     return {
       statusCode: 200,
       body: JSON.stringify(receipt)

@@ -8,6 +8,9 @@ const {
 const config = require("../config");
 const { put, get, remove } = require("../s3");
 
+const DEFAULT_TTL_IN_MICROSECONDS = 30 * 24 * 60 * 60 * 1000; // 30 Days
+const MAX_TTL_IN_MICROSECONDS = 90 * 24 * 60 * 60 * 1000; // 90 Days
+
 const putDocument = async (document, id) => {
   const params = {
     Bucket: config.bucketName,
@@ -24,7 +27,11 @@ const getDocument = async (id, { cleanup } = { cleanup: false }) => {
   };
   const document = await get(params);
   // we throw this error because if awaitingUpload exists on an object, it also has a decryption key in it and we don't want to return that, ever
-  if (document.awaitingUpload) {
+  if (
+    !document ||
+    document.awaitingUpload ||
+    document.document.ttl < Date.now() // if the document has expired, tell the user that it doesn't exist
+  ) {
     throw new Error("No Document Found");
   }
   if (cleanup) {
@@ -43,10 +50,13 @@ const getDecryptionKey = async id => {
   return document;
 };
 
+const calculateExpiryTimestamp = ttlInMicroseconds =>
+  Date.now() + ttlInMicroseconds;
+
 const uploadDocumentAtId = async (
   document,
   documentId,
-  network = config.network
+  ttlInMicroseconds = DEFAULT_TTL_IN_MICROSECONDS
 ) => {
   const placeHolderObj = await getDecryptionKey(documentId);
   if (!(placeHolderObj.key && placeHolderObj.awaitingUpload)) {
@@ -54,7 +64,11 @@ const uploadDocumentAtId = async (
     throw new Error(`No placeholder file`);
   }
 
-  const fragments = await verify(document, { network });
+  if (ttlInMicroseconds > MAX_TTL_IN_MICROSECONDS) {
+    throw new Error("Ttl cannot exceed 90 days");
+  }
+
+  const fragments = await verify(document, { network: config.network });
   if (!isValid(fragments)) {
     throw new Error("Document is not valid");
   }
@@ -64,7 +78,16 @@ const uploadDocumentAtId = async (
     placeHolderObj.key
   );
 
-  const { id } = await putDocument({ cipherText, iv, tag, type }, documentId);
+  const { id } = await putDocument(
+    {
+      cipherText,
+      iv,
+      tag,
+      type,
+      ttl: calculateExpiryTimestamp(ttlInMicroseconds)
+    },
+    documentId
+  );
   return {
     id,
     key,
@@ -72,17 +95,33 @@ const uploadDocumentAtId = async (
   };
 };
 
-const uploadDocument = async (document, network = config.network) => {
-  const fragments = await verify(document, { network });
+const uploadDocument = async (
+  document,
+  ttlInMicroseconds = DEFAULT_TTL_IN_MICROSECONDS
+) => {
+  const fragments = await verify(document, { network: config.network });
   if (!isValid(fragments)) {
     throw new Error("Document is not valid");
+  }
+
+  if (ttlInMicroseconds > MAX_TTL_IN_MICROSECONDS) {
+    throw new Error("Ttl cannot exceed 90 days");
   }
 
   const { cipherText, iv, tag, key, type } = await encryptString(
     JSON.stringify(document)
   );
 
-  const { id } = await putDocument({ cipherText, iv, tag, type }, uuid());
+  const { id } = await putDocument(
+    {
+      cipherText,
+      iv,
+      tag,
+      type,
+      ttl: calculateExpiryTimestamp(ttlInMicroseconds)
+    },
+    uuid()
+  );
   return {
     id,
     key,
@@ -112,5 +151,8 @@ module.exports = {
   getQueueNumber,
   uploadDocument,
   uploadDocumentAtId,
-  getDocument
+  getDocument,
+  calculateExpiryTimestamp,
+  DEFAULT_TTL_IN_MICROSECONDS,
+  MAX_TTL_IN_MICROSECONDS
 };

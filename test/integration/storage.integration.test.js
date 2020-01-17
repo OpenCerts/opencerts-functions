@@ -7,17 +7,22 @@ const {
   uploadDocument,
   uploadDocumentAtId,
   getDocument,
-  getQueueNumber
+  getQueueNumber,
+  DEFAULT_TTL_IN_MICROSECONDS,
+  MAX_TTL_IN_MICROSECONDS
 } = require("../../src/storage/documentService");
 
 const {
   thatIsRetrievedDocument,
+  thatIsRetrievedDocumentWithTtl,
   thatIsUploadResponse,
   thatIsAQueueNumber
 } = require("../utils/matchers");
 
+const TIME_SKEW_ALLOWANCE = 5000;
+
 // TODO refactor those "integration" tests to NOT MOCK
-describe.only("uploadDocument", () => {
+describe("uploadDocument", () => {
   afterEach(() => {
     isValid.mockClear();
   });
@@ -27,7 +32,7 @@ describe.only("uploadDocument", () => {
     const uploaded = await uploadDocument(document);
     expect(uploaded).toMatchObject(thatIsUploadResponse);
     const getResults = await getDocument(uploaded.id);
-    expect(getResults).toMatchObject(thatIsRetrievedDocument);
+    expect(getResults).toMatchObject(thatIsRetrievedDocumentWithTtl);
   });
 
   it("should throw error when document verification failed", async () => {
@@ -36,9 +41,40 @@ describe.only("uploadDocument", () => {
     const uploaded = uploadDocument(document);
     await expect(uploaded).rejects.toThrow("Document is not valid");
   });
+
+  it("should allow user to specify ttl", async () => {
+    isValid.mockReturnValueOnce(true);
+    const document = { foo: "bar" };
+    const uploaded = await uploadDocument(document, 20000);
+    expect(uploaded).toMatchObject(thatIsUploadResponse);
+    const getResults = await getDocument(uploaded.id);
+    expect(getResults.document.ttl).toBeLessThan(
+      Date.now() + 20000 + TIME_SKEW_ALLOWANCE
+    );
+    expect(getResults).toMatchObject(thatIsRetrievedDocumentWithTtl);
+  });
+
+  it("should default ttl value to DEFAULT_TTL_IN_MICROSECONDS ", async () => {
+    isValid.mockReturnValueOnce(true);
+    const document = { foo: "bar" };
+    const uploaded = await uploadDocument(document);
+    expect(uploaded).toMatchObject(thatIsUploadResponse);
+    const getResults = await getDocument(uploaded.id);
+    expect(getResults.document.ttl).toBeLessThan(
+      Date.now() + DEFAULT_TTL_IN_MICROSECONDS + TIME_SKEW_ALLOWANCE
+    );
+    expect(getResults).toMatchObject(thatIsRetrievedDocumentWithTtl);
+  });
+
+  it("should throw error when ttl value > MAX_TTL_IN_MICROSECONDS", async () => {
+    isValid.mockReturnValueOnce(true);
+    const document = { foo: "bar" };
+    const uploaded = uploadDocument(document, MAX_TTL_IN_MICROSECONDS + 1);
+    await expect(uploaded).rejects.toThrow("Ttl cannot exceed 90 days");
+  });
 });
 
-describe.only("uploadDocumentAtId", () => {
+describe("uploadDocumentAtId", () => {
   afterEach(() => {
     isValid.mockClear();
   });
@@ -81,9 +117,47 @@ describe.only("uploadDocumentAtId", () => {
     const uploaded = uploadDocumentAtId(document, queueNumber);
     await expect(uploaded).rejects.toThrow("Document is not valid");
   });
+
+  it("should allow user to specify ttl", async () => {
+    isValid.mockReturnValueOnce(true);
+    const { id: queueNumber } = await getQueueNumber();
+    const document = { foo: "bar" };
+    const uploaded = await uploadDocumentAtId(document, queueNumber, 20000);
+    expect(uploaded).toMatchObject(thatIsUploadResponse);
+    const getResults = await getDocument(uploaded.id);
+    expect(getResults.document.ttl).toBeLessThan(
+      Date.now() + 20000 + TIME_SKEW_ALLOWANCE
+    );
+    expect(getResults).toMatchObject(thatIsRetrievedDocumentWithTtl);
+  });
+
+  it("should default ttl value to DEFAULT_TTL_IN_MICROSECONDS ", async () => {
+    isValid.mockReturnValueOnce(true);
+    const { id: queueNumber } = await getQueueNumber();
+    const document = { foo: "bar" };
+    const uploaded = await uploadDocumentAtId(document, queueNumber);
+    expect(uploaded).toMatchObject(thatIsUploadResponse);
+    const getResults = await getDocument(uploaded.id);
+    expect(getResults.document.ttl).toBeLessThan(
+      Date.now() + DEFAULT_TTL_IN_MICROSECONDS + TIME_SKEW_ALLOWANCE
+    );
+    expect(getResults).toMatchObject(thatIsRetrievedDocumentWithTtl);
+  });
+
+  it("should throw error when ttl value > MAX_TTL_IN_MICROSECONDS", async () => {
+    isValid.mockReturnValueOnce(true);
+    const document = { foo: "bar" };
+    const { id: queueNumber } = await getQueueNumber();
+    const uploaded = uploadDocumentAtId(
+      document,
+      queueNumber,
+      MAX_TTL_IN_MICROSECONDS + 1
+    );
+    await expect(uploaded).rejects.toThrow("Ttl cannot exceed 90 days");
+  });
 });
 
-describe.only("getDocument", () => {
+describe("getDocument", () => {
   afterEach(() => {
     isValid.mockClear();
   });
@@ -117,14 +191,14 @@ describe.only("getDocument", () => {
   });
 });
 
-describe.only("getQueueNumber", () => {
+describe("getQueueNumber", () => {
   it("should return a placeholder object", async () => {
     const queueNumber = await getQueueNumber();
     expect(queueNumber).toMatchObject(thatIsAQueueNumber);
   });
 });
 
-describe.only("documentService", () => {
+describe("documentService", () => {
   afterEach(() => {
     isValid.mockClear();
   });
