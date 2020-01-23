@@ -77,21 +77,22 @@ const uploadDocumentAtId = async (
     JSON.stringify(document),
     placeHolderObj.key
   );
-
+  const ttl = calculateExpiryTimestamp(ttlInMicroseconds);
   const { id } = await putDocument(
     {
       cipherText,
       iv,
       tag,
       type,
-      ttl: calculateExpiryTimestamp(ttlInMicroseconds)
+      ttl
     },
     documentId
   );
   return {
     id,
     key,
-    type
+    type,
+    ttl
   };
 };
 
@@ -112,20 +113,22 @@ const uploadDocument = async (
     JSON.stringify(document)
   );
 
+  const ttl = calculateExpiryTimestamp(ttlInMicroseconds);
   const { id } = await putDocument(
     {
       cipherText,
       iv,
       tag,
       type,
-      ttl: calculateExpiryTimestamp(ttlInMicroseconds)
+      ttl
     },
     uuid()
   );
   return {
     id,
     key,
-    type
+    type,
+    ttl
   };
 };
 

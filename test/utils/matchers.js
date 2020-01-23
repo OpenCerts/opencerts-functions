@@ -5,7 +5,8 @@ const uuidV4Regex = new RegExp(
 const thatIsUploadResponse = {
   id: expect.stringMatching(uuidV4Regex),
   key: expect.any(String),
-  type: expect.stringMatching("OPEN-ATTESTATION-TYPE-1")
+  type: expect.stringMatching("OPEN-ATTESTATION-TYPE-1"),
+  ttl: expect.any(Number)
 };
 
 const thatIsRetrievedDocument = {
