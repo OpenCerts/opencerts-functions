@@ -43,8 +43,12 @@ describe("verify", () => {
               type: "DOCUMENT_STATUS"
             },
             {
-              message:
-                'Document issuers doesn\'t have "tokenRegistry" property or TOKEN_REGISTRY method',
+              reason: {
+                code: 4,
+                codeString: "SKIPPED",
+                message:
+                  'Document issuers doesn\'t have "tokenRegistry" property or TOKEN_REGISTRY method'
+              },
               name: "OpenAttestationEthereumTokenRegistryMinted",
               status: "SKIPPED",
               type: "DOCUMENT_STATUS"
@@ -64,8 +68,12 @@ describe("verify", () => {
               type: "DOCUMENT_STATUS"
             },
             {
-              message:
-                'Document issuers doesn\'t have "documentStore" / "tokenRegistry" property or doesn\'t use DNS-TXT type',
+              reason: {
+                code: 2,
+                codeString: "SKIPPED",
+                message:
+                  'Document issuers doesn\'t have "documentStore" / "tokenRegistry" property or doesn\'t use DNS-TXT type'
+              },
               name: "OpenAttestationDnsTxt",
               status: "SKIPPED",
               type: "ISSUER_IDENTITY"
@@ -118,21 +126,35 @@ describe("verify", () => {
                 details: [
                   {
                     address: "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
-                    error:
-                      'call exception (address="0x007d40224f6562461633ccfbaffd359ebb2fc9ba", method="isIssued(bytes32)", args=["0x1a040999254caaf7a33cba67ec6a9b862da1dacf8a0d1e3bb76347060fc615d6"], version=4.0.41)',
+                    reason: {
+                      code: 3,
+                      codeString: "ETHERS_UNHANDLED_ERROR",
+                      message:
+                        "Error with smart contract 0x007d40224f6562461633ccfbaffd359ebb2fc9ba: call exception"
+                    },
                     issued: false
                   }
                 ],
                 issuedOnAll: false
               },
-              message: "Certificate has not been issued",
+
+              reason: {
+                code: 3,
+                codeString: "ETHERS_UNHANDLED_ERROR",
+                message:
+                  "Error with smart contract 0x007d40224f6562461633ccfbaffd359ebb2fc9ba: call exception"
+              },
               name: "OpenAttestationEthereumDocumentStoreIssued",
               status: "INVALID",
               type: "DOCUMENT_STATUS"
             },
             {
-              message:
-                'Document issuers doesn\'t have "tokenRegistry" property or TOKEN_REGISTRY method',
+              reason: {
+                code: 4,
+                codeString: "SKIPPED",
+                message:
+                  'Document issuers doesn\'t have "tokenRegistry" property or TOKEN_REGISTRY method'
+              },
               name: "OpenAttestationEthereumTokenRegistryMinted",
               status: "SKIPPED",
               type: "DOCUMENT_STATUS"
@@ -152,8 +174,12 @@ describe("verify", () => {
               type: "DOCUMENT_STATUS"
             },
             {
-              message:
-                'Document issuers doesn\'t have "documentStore" / "tokenRegistry" property or doesn\'t use DNS-TXT type',
+              reason: {
+                code: 2,
+                codeString: "SKIPPED",
+                message:
+                  'Document issuers doesn\'t have "documentStore" / "tokenRegistry" property or doesn\'t use DNS-TXT type'
+              },
               name: "OpenAttestationDnsTxt",
               status: "SKIPPED",
               type: "ISSUER_IDENTITY"
