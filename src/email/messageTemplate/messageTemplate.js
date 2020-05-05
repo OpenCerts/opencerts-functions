@@ -1,20 +1,11 @@
-const path = require("path");
-const fs = require("fs");
 const openAttestation = require("@govtechsg/open-attestation");
 const { get, template } = require("lodash");
+const htmlMailTemplateContent = require("./template.html");
+const txtMailTemplateContent = require("./template.txt");
+const subjectMailTemplateContent = require("./template.subject");
 
-const htmlTemplatePath = path.join(__dirname, "./template.html");
-const htmlMailTemplateContent = fs.readFileSync(htmlTemplatePath).toString();
 const htmlMailTemplate = template(htmlMailTemplateContent);
-
-const txtTemplatePath = path.join(__dirname, "./template.txt");
-const txtMailTemplateContent = fs.readFileSync(txtTemplatePath).toString();
 const txtMailTemplate = template(txtMailTemplateContent);
-
-const subjectTemplatePath = path.join(__dirname, "./template.subject");
-const subjectMailTemplateContent = fs
-  .readFileSync(subjectTemplatePath)
-  .toString();
 const subjectMailTemplate = template(subjectMailTemplateContent);
 
 const messageTemplate = certificate => {
@@ -36,7 +27,7 @@ const messageTemplate = certificate => {
     };
   } catch (e) {
     // eslint-disable-next-line
-    throw new Error('Fail to read data from certificate');
+    throw new Error("Fail to read data from certificate");
   }
 };
 

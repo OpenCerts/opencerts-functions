@@ -7,26 +7,31 @@ jobs:
   include:
     - stage: unit_test
       script:
-        - npm run s3-local-setup
         - mv .env.example .env
         - npm run lint
         - npm run test
+        - npm run s3-local-setup
         - npm run dev &
-        - sleep 5
+        - sleep 40 # to fix by splitting test :)
         - npm run integration:local
-        - npm run depcheck
         - npm run sls-config-check
         - rm .env
     - stage: deploy_staging
-      if: branch = master AND type != pull_request
+#      if: branch = master AND type != pull_request
+      env:
+        - DOMAIN: "api-ropsten.opencerts.io"
+        - CERTIFICATE_DOMAIN: "*.opencerts.io"
       script:
         - ./scripts/deploy_staging.sh
     - stage: e2etest
-      if: branch = master AND type != pull_request
+#      if: branch = master AND type != pull_request
       script:
         - npm run e2etest
     - stage: deploy_production
       if: branch = master AND type != pull_request
+      env:
+        - DOMAIN: "api.opencerts.io"
+        - CERTIFICATE_DOMAIN: "*.opencerts.io"
       script:
         - ./scripts/deploy_production.sh
 stages:

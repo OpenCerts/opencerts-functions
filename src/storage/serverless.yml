@@ -1,0 +1,80 @@
+service: storage
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: '${opt:stage, ''stg''}'
+  region: ap-southeast-1
+  environment:
+    BUCKET_NAME: '${self:custom.BUCKET_NAME.${self:provider.stage}}'
+    OBJECT_TTL: '${self:custom.OBJECT_TTL.${self:provider.stage}}'
+    NETWORK: '${self:custom.NETWORK.${self:provider.stage}}'
+  iamRoleStatements:
+    -
+      Effect: Allow
+      Action: ['s3:putObject', 's3:upload', 's3:deleteObject', 's3:getObject']
+      Resource:
+        -  "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : 'DeployedBucket' }, "/*" ] ]
+resources:
+  Resources:
+    DeployedBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: '${self:custom.BUCKET_NAME.${self:provider.stage}}'
+functions:
+    get:
+      handler: index.getHandler
+      events:
+        - {http: {path: '/{id}', method: get, request: {parameters: {paths: {id: true}}}, cors: true}}
+    createAtId:
+      handler: index.createAtIdHandler
+      events:
+        - {http: {path: '/{id}', method: post, request: {parameters: {paths: {id: true}}}, cors: true}}
+    create:
+      handler: index.createHandler
+      events:
+        - {http: {path: /, method: post, cors: true}}
+    getQueueNumber:
+      handler: index.queueNumberHandler
+      events:
+        - {http: {path: /queue, method: get, cors: true}}
+        - s3:
+          bucket: ${self:provider.environment.BUCKET_NAME}
+          lifecycle:
+            -
+              ExpirationInDays: ${self:provider.environment.OBJECT_TTL}
+              Status: Enabled
+
+custom:
+  bucket: '${self:custom.BUCKET_NAME.${self:provider.stage}}'
+  s3:
+    port: 8000
+    directory: /tmp
+  NETWORK:
+    stg: '${env:stg_NETWORK}'
+    prd: '${env:prd_NETWORK}'
+  BUCKET_NAME:
+    stg: '${env:stg_BUCKET_NAME, env:BUCKET_NAME}'
+    prd: '${env:prd_BUCKET_NAME}'
+  OBJECT_TTL:
+    stg: '${env: stg_OBJECT_TTL}'
+    prd: '${env: prd_OBJECT_TTL}'
+  serverless-offline:
+    lambdaPort: 5002
+    httpPort: 5000
+  customDomain:
+    domainName: "${env:DOMAIN}" # Change this to your domain.
+    basePath: "storage" # This will be prefixed to all routes
+    stage: ${self:provider.stage}
+    certificateName: "${env:CERTIFICATE_DOMAIN}"
+    createRoute53Record: true
+    endpointType: "regional"
+    securityPolicy: tls_1_2
+  webpack:
+    includeModules:
+      packagePath: "../../package.json"
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-s3-local
+  - serverless-offline
+  - serverless-domain-manager
+  - serverless-webpack

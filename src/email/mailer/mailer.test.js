@@ -45,7 +45,8 @@ describe("mailer", () => {
   it("sends test email through ethereal transporter", async () => {
     const emailReceipt = await mailByEthereal({
       to: account.user,
-      certificate
+      certificate,
+      prefix: `${__dirname}/../`
     });
     const previewUrl = nodemailer.getTestMessageUrl(emailReceipt);
     // eslint-disable-next-line
