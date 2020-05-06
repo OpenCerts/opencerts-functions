@@ -1,7 +1,7 @@
 service: mail
 provider:
   name: aws
-  runtime: nodejs10.x
+  runtime: nodejs12.x
   stage: "${opt:stage, 'stg'}"
   region: ap-southeast-1
   environment:
