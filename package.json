@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "create-domain:verify": "cd ./src/verify && sls create_domain",
     "dev": "npm-run-all --parallel dev:*",
     "dev:email": "cd ./src/email && sls offline start",
     "dev:storage": "cd ./src/storage && sls offline start",
