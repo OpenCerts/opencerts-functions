@@ -8,7 +8,7 @@
     "dev:email": "cd ./src/email && sls offline start",
     "dev:storage": "cd ./src/storage && sls offline start",
     "dev:verify": "cd ./src/verify && sls offline start",
-    "deploy": "npm-run-all --sequential deploy:*",
+    "deploy": "npm-run-all --sequential \"deploy:* -- {@}\" --",
     "deploy:email": "cd ./src/email && sls deploy",
     "deploy:storage": "cd ./src/storage && sls deploy",
     "deploy:verify": "cd ./src/verify && sls deploy",
