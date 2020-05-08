@@ -1,0 +1,39 @@
+service: verify
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: "${opt:stage, 'stg'}"
+  region: "${opt:region, 'ap-southeast-1'}"
+  environment:
+    NETWORK: "${self:custom.NETWORK.${self:provider.stage}}"
+functions:
+  verify:
+    description: "Checks the validity of the certificate against the 4 checks."
+    handler: index.handler
+    events:
+      - { http: { path: /, method: post, cors: true } }
+custom:
+  dotenv:
+    basePath: ../../
+  serverless-offline:
+    lambdaPort: 4002
+    httpPort: 4000
+  NETWORK:
+    stg: "${env:stg_NETWORK}"
+    prd: "${env:prd_NETWORK}"
+  customDomain:
+    domainName: "${env:DOMAIN}" # Change this to your domain.
+    basePath: "verify" # This will be prefixed to all routes
+    stage: ${self:provider.stage}
+    certificateName: "${env:CERTIFICATE_DOMAIN}"
+    createRoute53Record: true
+    endpointType: "regional"
+    securityPolicy: tls_1_2
+  webpack:
+    includeModules:
+      packagePath: "../../package.json"
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-offline
+  - serverless-domain-manager
+  - serverless-webpack

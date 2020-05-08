@@ -1,7 +1,7 @@
+jest.mock("../s3");
 const { calculateExpiryTimestamp, getDocument } = require("./documentService");
 const { get } = require("../s3");
 
-jest.mock("../s3");
 jest.spyOn(Date, "now").mockImplementation(() => 1578897000000);
 
 describe("calculateExpiryTimestamp", () => {
