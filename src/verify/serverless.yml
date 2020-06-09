@@ -4,14 +4,24 @@ provider:
   runtime: nodejs12.x
   stage: "${opt:stage, 'stg'}"
   region: "${opt:region, 'ap-southeast-1'}"
+  memorySize: 256
+  tracing:
+    lambda: true
+    apiGateway: true
+  logs:
+    restApi: true
   environment:
     NETWORK: "${self:custom.NETWORK.${self:provider.stage}}"
 functions:
   verify:
     description: "Checks the validity of the certificate against the 4 checks."
     handler: index.handler
+    timeout: 15 # long timeout as infura api can take awhile
     events:
-      - { http: { path: /, method: post, cors: true } }
+      - http: 
+          path: / 
+          method: post 
+          cors: true
 custom:
   dotenv:
     basePath: ../../

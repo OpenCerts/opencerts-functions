@@ -4,6 +4,13 @@ provider:
   runtime: nodejs12.x
   stage: '${opt:stage, ''stg''}'
   region: ap-southeast-1
+  memorySize: 256
+  timeout: 30 # downstream things take a long time
+  tracing:
+    lambda: true
+    apiGateway: true
+  logs:
+    restApi: true
   environment:
     BUCKET_NAME: '${self:custom.BUCKET_NAME.${self:provider.stage}}'
     OBJECT_TTL: '${self:custom.OBJECT_TTL.${self:provider.stage}}'
