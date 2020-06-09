@@ -4,6 +4,12 @@ provider:
   runtime: nodejs12.x
   stage: "${opt:stage, 'stg'}"
   region: ap-southeast-1
+  memorySize: 256
+  tracing:
+    lambda: true
+    apiGateway: true
+  logs:
+    restApi: true
   environment:
     SES_KEY_ID: "${self:custom.SES_KEY_ID.${self:provider.stage}}"
     SES_SECRET: "${self:custom.SES_SECRET.${self:provider.stage}}"
@@ -15,9 +21,12 @@ functions:
   email:
     description: "Sends email on behalf of user to third party with the OpenCerts' preset template."
     handler: index.handler
+    timeout: 20 # long timeout as verify api can take awhile
     events:
-      - { http: { path: /, method: post, cors: true } }
-
+      - http:
+          path: /
+          method: post
+          cors: true
 custom:
   dotenv:
     basePath: ../../
