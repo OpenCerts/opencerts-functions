@@ -3,8 +3,9 @@ const supertest = require("supertest");
 const ropstenCertificate = require("../fixtures/certificate.json");
 const mainnetCertificate = require("../fixtures/certificateMainnetValid.json");
 
-const API_ENDPOINT = "https://api-ropsten.opencerts.io";
+const API_ENDPOINT = process.env.ENDPOINT || "https://api-ropsten.opencerts.io";
 
+console.log(process.env)
 const request = supertest(API_ENDPOINT);
 
 describe("email", () => {

@@ -7,7 +7,8 @@ const {
   thatIsAQueueNumber
 } = require("../utils/matchers");
 
-const API_ENDPOINT = "https://api-ropsten.opencerts.io";
+const API_ENDPOINT = process.env.ENDPOINT || "https://api-ropsten.opencerts.io";
+
 const request = supertest(API_ENDPOINT);
 
 describe("storage endpoint test", () => {
