@@ -21,7 +21,6 @@
     "test": "jest --testPathPattern=src",
     "test-watch": "jest --watch",
     "e2etest": "jest --testPathPattern=test/e2e",
-    "docker-compose:test": "docker-compose -f docker-compose.test.yml",
     "integration:local": "IS_OFFLINE=true jest --testPathPattern=test/integration",
     "e2e:local": "IS_OFFLINE=true jest --testPathPattern=test/e2e",
     "lint": "eslint . --ext .js --max-warnings 0",

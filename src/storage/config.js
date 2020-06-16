@@ -15,7 +15,7 @@ const config = () =>
       }
     : {
         s3: {
-          region: process.env.SES_REGION || "us-west-2"
+          region: process.env.S3_REGION || "ap-southeast-1"
         },
         bucketName: process.env.BUCKET_NAME,
         network: process.env.NETWORK || "homestead"
