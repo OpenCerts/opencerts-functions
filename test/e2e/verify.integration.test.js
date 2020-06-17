@@ -2,14 +2,15 @@ const supertest = require("supertest");
 const ropstenDocument = require("../fixtures/certificate.json");
 const mainnetDocument = require("../fixtures/certificateMainnetValid.json");
 
-const API_ENDPOINT = process.env.ENDPOINT || "https://api-ropsten.opencerts.io";
+const API_ENDPOINT = process.env.VERIFY_ENDPOINT || "https://api-ropsten.opencerts.io/verify";
+const API_TIMEOUT = 15000 // api timeout defined in serverless.yml
 
 const request = supertest(API_ENDPOINT);
 
 describe("verify", () => {
   it("should works for valid Ropsten document", async () => {
     await request
-      .post("/verify")
+      .post("/")
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .send({
@@ -98,11 +99,11 @@ describe("verify", () => {
           }
         });
       });
-  }, 5000);
+  }, API_TIMEOUT);
 
   it("should not works for invalid document", async () => {
     await request
-      .post("/verify")
+      .post("/")
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .send({
@@ -208,5 +209,5 @@ describe("verify", () => {
           }
         });
       });
-  }, 5000);
+  }, API_TIMEOUT);
 });

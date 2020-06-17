@@ -7,15 +7,15 @@ const {
   thatIsAQueueNumber
 } = require("../utils/matchers");
 
-const API_ENDPOINT = process.env.ENDPOINT || "https://api-ropsten.opencerts.io";
+const API_ENDPOINT = process.env.STORAGE_ENDPOINT || "https://api-ropsten.opencerts.io/storage";
+const API_TIMEOUT = 30000 // api timeout defined in serverless.yml
 
 const request = supertest(API_ENDPOINT);
 
 describe("storage endpoint test", () => {
-  jest.setTimeout(10000);
   test("should create a new document when no placeholder object is there", async () => {
     await request
-      .post("/storage")
+      .post("/")
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .send({
@@ -24,23 +24,23 @@ describe("storage endpoint test", () => {
       .expect(res => {
         expect(res.body).toEqual(thatIsUploadResponse);
       });
-  });
+  }, API_TIMEOUT);
 
   test("should fail when you try to create at a path that hasn't been initialised", async () => {
     await request
-      .post("/storage/foo")
+      .post("/foo")
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .send({
         document: ropstenDocument
       })
       .expect(400);
-  });
+  }, API_TIMEOUT);
 
   test("should retrieve the document created", async () => {
     let documentKey;
     await request
-      .get("/storage/queue")
+      .get("/queue")
       .set("Content-Type", "application/json")
       .expect("Content-Type", /json/)
       .expect(200)
@@ -50,7 +50,7 @@ describe("storage endpoint test", () => {
       });
 
     await request
-      .post(`/storage/${documentKey}`)
+      .post(`/${documentKey}`)
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .send({
@@ -65,12 +65,12 @@ describe("storage endpoint test", () => {
       });
 
     await request
-      .get(`/storage/${documentKey}`)
+      .get(`/${documentKey}`)
       .set("Content-Type", "application/json")
       .expect("Content-Type", /json/)
       .expect(200)
       .expect(res => {
         expect(res.body).toEqual(thatIsRetrievedDocument);
       });
-  });
+  }, API_TIMEOUT);
 });

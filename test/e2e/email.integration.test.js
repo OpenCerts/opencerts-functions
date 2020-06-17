@@ -3,16 +3,17 @@ const supertest = require("supertest");
 const ropstenCertificate = require("../fixtures/certificate.json");
 const mainnetCertificate = require("../fixtures/certificateMainnetValid.json");
 
-const API_ENDPOINT = process.env.ENDPOINT || "https://api-ropsten.opencerts.io";
+const API_ENDPOINT = process.env.EMAIL_ENDPOINT || "https://api-ropsten.opencerts.io/email";
+const API_TIMEOUT = 20000 // api timeout defined in serverless.yml
 
-console.log(process.env)
+
 const request = supertest(API_ENDPOINT);
 
 describe("email", () => {
   it("should works for valid Ropsten certificate", async () => {
     const apiKey = process.env.EMAIL_INTEGRATION_TEST_API_KEY;
     await request
-      .post("/email")
+      .post("/")
       .set("X-API-KEY", apiKey)
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
@@ -25,12 +26,12 @@ describe("email", () => {
       .expect(res => {
         expect(res.body).toEqual({ success: true });
       });
-  }, 20000);
+  }, API_TIMEOUT);
 
   it("should fail for invalid certificate (or on wrong network)", async () => {
     const apiKey = process.env.EMAIL_INTEGRATION_TEST_API_KEY;
     await request
-      .post("/email")
+      .post("/")
       .set("X-API-KEY", apiKey)
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
@@ -43,11 +44,11 @@ describe("email", () => {
       .expect(res => {
         expect(res.body).toEqual({ error: "Invalid certificate" });
       });
-  }, 20000);
+  }, API_TIMEOUT);
 
   it("should fail if captcha is invalid and missing api key", async () => {
     await request
-      .post("/email")
+      .post("/")
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .send({
@@ -62,11 +63,11 @@ describe("email", () => {
           error: "Invalid captcha or missing API key"
         });
       });
-  }, 20000);
+  }, API_TIMEOUT);
 
   it("should fail if api key is invalid", async () => {
     await request
-      .post("/email")
+      .post("/")
       .set("X-API-KEY", "oink")
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
@@ -79,5 +80,5 @@ describe("email", () => {
       .expect(res => {
         expect(res.body).toEqual({ error: "Invalid API key" });
       });
-  }, 20000);
+  }, API_TIMEOUT);
 });
