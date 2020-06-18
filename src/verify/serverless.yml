@@ -10,8 +10,6 @@ provider:
     apiGateway: true
   logs:
     restApi: true
-  environment:
-    NETWORK: "${self:custom.NETWORK.${self:provider.stage}}"
 functions:
   verify:
     description: "Checks the validity of the certificate against the 4 checks."
@@ -28,9 +26,10 @@ custom:
   serverless-offline:
     lambdaPort: 4002
     httpPort: 4000
-  NETWORK:
-    stg: "${env:stg_NETWORK}"
-    prd: "${env:prd_NETWORK}"
+  NETWORK: ${env:NETWORK, "ropsten"}
+  isManagedDomain: 
+    false: 'true' # To negate the environment variable DISABLE_DOMAIN
+    true: 'false' # if you know of a way to do conditionals please change this
   customDomain:
     domainName: "${env:DOMAIN}" # Change this to your domain.
     basePath: "verify" # This will be prefixed to all routes
@@ -39,6 +38,7 @@ custom:
     createRoute53Record: true
     endpointType: "regional"
     securityPolicy: tls_1_2
+    enabled: ${strToBool(${self:custom.isManagedDomain.${env:DISABLE_DOMAIN, 'false'}})}
   webpack:
     includeModules:
       packagePath: "../../package.json"
