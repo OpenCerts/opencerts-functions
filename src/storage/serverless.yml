@@ -75,14 +75,14 @@ custom:
   webpack:
     includeModules:
       packagePath: "../../package.json"
-  disableBucketDeletionPrompt:
-    prod: false # we don't want these buckets in these stages to be deleted without a prompt
-    stg: false
+  enableBucketDeletionPrompt:
+    prod: true # we don't want these buckets in these stages to be deleted without a prompt
+    stg: true
   remover:
     buckets:
       - ${self:custom.BUCKET_NAME}
     prompt:
-      ${self:custom.disableBucketDeletingPrompt.${self:provider.stage}, true}
+      ${self:custom.disableBucketDeletingPrompt.${self:provider.stage}, false}
 
 plugins:
   - serverless-dotenv-plugin
