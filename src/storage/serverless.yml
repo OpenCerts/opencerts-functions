@@ -75,9 +75,14 @@ custom:
   webpack:
     includeModules:
       packagePath: "../../package.json"
+  remover:
+    buckets:
+      ${self:custom.BUCKET_NAME}
+      
 plugins:
   - serverless-dotenv-plugin
   - serverless-s3-local
+  - serverless-s3-remover
   - serverless-offline
   - serverless-domain-manager
   - serverless-webpack
