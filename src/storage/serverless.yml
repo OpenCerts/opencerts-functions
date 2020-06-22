@@ -58,7 +58,7 @@ functions:
               parameters: 
                 paths: 
                   id: true
-            private: ${self:custom.ENABLE_API_KEY}
+            private: ${self:custom.ENABLE_STORAGE_UPLOAD_API_KEY}
             cors: true
 
     create:
@@ -68,7 +68,7 @@ functions:
             path: / 
             method: post
             cors: true
-            private: ${self:custom.ENABLE_API_KEY}
+            private: ${self:custom.ENABLE_STORAGE_UPLOAD_API_KEY}
 
     getQueueNumber:
       handler: index.queueNumberHandler
@@ -77,7 +77,7 @@ functions:
             path: /queue
             method: get
             cors: true
-            private: ${self:custom.ENABLE_API_KEY}
+            private: ${self:custom.ENABLE_STORAGE_UPLOAD_API_KEY}
 
 
 custom:
@@ -85,7 +85,7 @@ custom:
     port: 8000
     directory: /tmp
   BUCKET_NAME: ${env:BUCKET_NAME, "opencerts-functions-transfer-document-storage"}-${self:provider.stage}
-  ENABLE_API_KEY: ${strToBool(${env:ENABLE_API_KEY, 'false'})}
+  ENABLE_STORAGE_UPLOAD_API_KEY: ${strToBool(${env:ENABLE_STORAGE_UPLOAD_API_KEY, 'false'})}
   OBJECT_TTL: ${env:OBJECT_TTL, 31} # Object TTL in days
   serverless-offline:
     lambdaPort: 5002
