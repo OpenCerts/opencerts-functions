@@ -137,6 +137,92 @@ curl --header "Content-Type: application/json" \
   https://api.opencerts.io/email
 ```
 
+## Storage
+
+This service exists to provide transient file storage to facilitate transmission via QR codes or hyperlinks.
+The OpenAttestation file is received and then encrypted by the server with a randomly generated decryption key.
+This decryption key is returned to the API caller, along with the other necessary decryption parameters.
+
+Files have a default expiration date of 31 days from upload, after which it will be permanently deleted from storage and made irretrievable.
+
+**This service currently has a limitation where uploaded files must be < 6MB, due to AWS Lambda payload limit**
+
+#### Examples
+
+###### Uploading a document with API key
+
+```sh
+curl --request POST \
+  --url https://api.opencerts.io/storage \
+  --header 'content-type: application/json' \
+  --header 'x-api-key: kNb15YYZ6N1zBlYd25cjj8PLgK6YAuvN9Gf7fPM1' \
+  --data '{
+	"document": {
+  "schema": "opencerts/v2.0",
+  "data": { ... },
+  "privacy": {},
+  "signature": {
+    "type": "SHA3MerkleProof",
+    "targetHash": "cbd224a72af5e0050bd58ab2264094cbacac0f19f7f430e347cad451ae8c590d",
+    "proof": [],
+    "merkleRoot": "cbd224a72af5e0050bd58ab2264094cbacac0f19f7f430e347cad451ae8c590d"
+  }
+}
+}'
+```
+Returns:
+```json
+{
+  "id": "3f52945e-c3f1-4169-b170-29f0166e67ec",
+  "key": "034d406a166786c29cb060b0eaba145ec824ceb1391e7dbb651dfe87d5fde0b1",
+  "type": "OPEN-ATTESTATION-TYPE-1",
+  "ttl": 1595397805611
+}
+```
+Which means the file has been successfully uploaded and can be retrieved from https://api.opencerts.io/storage/3f52945e-c3f1-4169-b170-29f0166e67ec and decrypted using the given key.
+
+###### Retrieving an uploaded file
+
+```sh
+curl --request GET \
+  --url https://api.opencerts.io/storage/23ed66b3-464f-4cae-9e59-3af3be8ce604
+```
+
+Will return
+
+```json
+{
+  "document": {
+    "cipherText": "twETH8OSgv5lOcj6J8jIcn7/CC...",
+    "iv": "Qq+uDpAs4CbMpZRs",
+    "tag": "ghT8WP0PxMm58oHzzdqD9w==",
+    "type": "OPEN-ATTESTATION-TYPE-1",
+    "ttl": 1595390482411
+  }
+}
+```
+
+This content can be decrypted using the [OpenAttestation encryption library](https://www.npmjs.com/package/@govtechsg/oa-encryption)
+
+
+#### Configuration
+
+###### File Expiration
+To configure the file expiration duration, please set the environment variable `OBJECT_TTL` to an integer value with the number of days. For example, `7`.
+
+###### Access Control
+To enable access control of uploading documents via API keys, please set the environment variable `ENABLE_STORAGE_UPLOAD_API_KEY` to `true`
+This option is disabled by default. This access control does not include the GET function, as the document is already encrypted. Any retrieved data is unusable without the decryption key.
+
+Upon deployment, the API key is printed in the console output as such:
+```
+...
+api keys:
+  stg-storage-api-key: kNb15YYZ6N1zBlYd25cjj8PLgK6YAuvN9Gf7fPM1
+...
+```
+
+
 # Development
 
 Copy `.env` from a co-worker or insert own credentials to get started. A copy of the .env file is available at `.env.example`

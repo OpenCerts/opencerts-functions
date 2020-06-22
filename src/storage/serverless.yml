@@ -1,6 +1,8 @@
 service: storage
 provider:
   name: aws
+  apiKeys: 
+    - ${self:provider.stage}-storage-api-key
   runtime: nodejs12.x
   stage: ${opt:stage, 'stg'}
   region: ap-southeast-1
@@ -27,35 +29,63 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: '${self:custom.BUCKET_NAME}'
+        LifecycleConfiguration:
+            Rules:
+              -
+                ExpirationInDays: ${self:custom.OBJECT_TTL}
+                Prefix: '/'
+                Status: Enabled
 functions:
     get:
       handler: index.getHandler
       events:
-        - {http: {path: '/{id}', method: get, request: {parameters: {paths: {id: true}}}, cors: true}}
+        - http: 
+            path: '/{id}' 
+            method: get 
+            request: 
+              parameters: 
+                paths: 
+                  id: true
+            cors: true
+    
     createAtId:
       handler: index.createAtIdHandler
       events:
-        - {http: {path: '/{id}', method: post, request: {parameters: {paths: {id: true}}}, cors: true}}
+        - http: 
+            path: '/{id}'
+            method: post  
+            request: 
+              parameters: 
+                paths: 
+                  id: true
+            private: ${self:custom.ENABLE_API_KEY}
+            cors: true
+
     create:
       handler: index.createHandler
       events:
-        - {http: {path: /, method: post, cors: true}}
+        - http: 
+            path: / 
+            method: post
+            cors: true
+            private: ${self:custom.ENABLE_API_KEY}
+
     getQueueNumber:
       handler: index.queueNumberHandler
       events:
-        - {http: {path: /queue, method: get, cors: true}}
-        - s3:
-          bucket: ${self:custom.BUCKET_NAME}
-          lifecycle:
-            -
-              ExpirationInDays: ${self:custom.OBJECT_TTL}
-              Status: Enabled
+        - http: 
+            path: /queue
+            method: get
+            cors: true
+            private: ${self:custom.ENABLE_API_KEY}
+
 
 custom:
   s3:
     port: 8000
     directory: /tmp
   BUCKET_NAME: ${env:BUCKET_NAME, "opencerts-functions-transfer-document-storage"}-${self:provider.stage}
+  ENABLE_API_KEY: ${strToBool(${env:ENABLE_API_KEY, 'false'})}
   OBJECT_TTL: ${env:OBJECT_TTL, 31} # Object TTL in days
   serverless-offline:
     lambdaPort: 5002
