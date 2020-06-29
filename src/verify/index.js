@@ -3,7 +3,6 @@ const { cors } = require("middy/middlewares");
 const { verify, isValid } = require("@govtechsg/opencerts-verify");
 const config = require("./config");
 
-// adding a comment to trigger a deploy
 const handleVerify = async (event, _context, callback) => {
   const { document } = JSON.parse(event.body);
   try {
