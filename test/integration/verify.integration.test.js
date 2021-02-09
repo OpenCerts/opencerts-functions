@@ -21,83 +21,98 @@ describe("verify", () => {
       .expect(200)
       .expect(res => {
         expect(res.body).toStrictEqual({
+          summary: {
+            all: true,
+            documentStatus: true,
+            documentIntegrity: true,
+            issuerIdentity: true
+          },
           data: [
             {
-              data: true,
+              type: "DOCUMENT_INTEGRITY",
               name: "OpenAttestationHash",
-              status: "VALID",
-              type: "DOCUMENT_INTEGRITY"
+              data: true,
+              status: "VALID"
             },
             {
-              data: {
-                details: [
-                  {
-                    address: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495",
-                    issued: true
-                  }
-                ],
-                issuedOnAll: true
-              },
-              name: "OpenAttestationEthereumDocumentStoreIssued",
-              status: "VALID",
-              type: "DOCUMENT_STATUS"
-            },
-            {
+              status: "SKIPPED",
+              type: "DOCUMENT_STATUS",
+              name: "OpenAttestationEthereumTokenRegistryStatus",
               reason: {
                 code: 4,
                 codeString: "SKIPPED",
                 message:
                   'Document issuers doesn\'t have "tokenRegistry" property or TOKEN_REGISTRY method'
-              },
-              name: "OpenAttestationEthereumTokenRegistryMinted",
-              status: "SKIPPED",
-              type: "DOCUMENT_STATUS"
+              }
             },
             {
+              name: "OpenAttestationEthereumDocumentStoreStatus",
+              type: "DOCUMENT_STATUS",
               data: {
-                details: [
-                  {
-                    address: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495",
-                    revoked: false
-                  }
-                ],
-                revokedOnAny: false
+                issuedOnAll: true,
+                revokedOnAny: false,
+                details: {
+                  issuance: [
+                    {
+                      issued: true,
+                      address: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495"
+                    }
+                  ],
+                  revocation: [
+                    {
+                      revoked: false,
+                      address: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495"
+                    }
+                  ]
+                }
               },
-              name: "OpenAttestationEthereumDocumentStoreRevoked",
-              status: "VALID",
-              type: "DOCUMENT_STATUS"
+              status: "VALID"
             },
             {
+              status: "SKIPPED",
+              type: "DOCUMENT_STATUS",
+              name: "OpenAttestationDidSignedDocumentStatus",
+              reason: {
+                code: 0,
+                codeString: "SKIPPED",
+                message: "Document was not signed by DID directly"
+              }
+            },
+            {
+              status: "SKIPPED",
+              type: "ISSUER_IDENTITY",
+              name: "OpenAttestationDnsTxtIdentityProof",
               reason: {
                 code: 2,
                 codeString: "SKIPPED",
                 message:
                   'Document issuers doesn\'t have "documentStore" / "tokenRegistry" property or doesn\'t use DNS-TXT type'
-              },
-              name: "OpenAttestationDnsTxt",
-              status: "SKIPPED",
-              type: "ISSUER_IDENTITY"
+              }
             },
             {
-              data: [
-                {
-                  displayCard: false,
-                  name: "ROPSTEN: Ngee Ann Polytechnic",
-                  status: "VALID",
-                  value: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495"
-                }
-              ],
+              status: "SKIPPED",
+              type: "ISSUER_IDENTITY",
+              name: "OpenAttestationDnsDidIdentityProof",
+              reason: {
+                code: 0,
+                codeString: "SKIPPED",
+                message: "Document was not issued using DNS-DID"
+              }
+            },
+            {
+              type: "ISSUER_IDENTITY",
               name: "OpencertsRegistryVerifier",
               status: "VALID",
-              type: "ISSUER_IDENTITY"
+              data: [
+                {
+                  status: "VALID",
+                  value: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495",
+                  name: "ROPSTEN: Ngee Ann Polytechnic",
+                  displayCard: false
+                }
+              ]
             }
-          ],
-          summary: {
-            all: true,
-            documentIntegrity: true,
-            documentStatus: true,
-            issuerIdentity: true
-          }
+          ]
         });
       });
   });
@@ -114,101 +129,116 @@ describe("verify", () => {
       .expect(200)
       .expect(res => {
         expect(res.body).toStrictEqual({
+          summary: {
+            all: false,
+            documentStatus: false,
+            documentIntegrity: true,
+            issuerIdentity: true
+          },
           data: [
             {
-              data: true,
+              type: "DOCUMENT_INTEGRITY",
               name: "OpenAttestationHash",
-              status: "VALID",
-              type: "DOCUMENT_INTEGRITY"
+              data: true,
+              status: "VALID"
             },
             {
-              data: {
-                details: [
-                  {
-                    address: "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
-                    reason: {
-                      code: 3,
-                      codeString: "ETHERS_UNHANDLED_ERROR",
-                      message:
-                        "Error with smart contract 0x007d40224f6562461633ccfbaffd359ebb2fc9ba: call exception"
-                    },
-                    issued: false
-                  }
-                ],
-                issuedOnAll: false
-              },
-
-              reason: {
-                code: 3,
-                codeString: "ETHERS_UNHANDLED_ERROR",
-                message:
-                  "Error with smart contract 0x007d40224f6562461633ccfbaffd359ebb2fc9ba: call exception"
-              },
-              name: "OpenAttestationEthereumDocumentStoreIssued",
-              status: "INVALID",
-              type: "DOCUMENT_STATUS"
-            },
-            {
+              status: "SKIPPED",
+              type: "DOCUMENT_STATUS",
+              name: "OpenAttestationEthereumTokenRegistryStatus",
               reason: {
                 code: 4,
                 codeString: "SKIPPED",
                 message:
                   'Document issuers doesn\'t have "tokenRegistry" property or TOKEN_REGISTRY method'
-              },
-              name: "OpenAttestationEthereumTokenRegistryMinted",
-              status: "SKIPPED",
-              type: "DOCUMENT_STATUS"
+              }
             },
             {
+              name: "OpenAttestationEthereumDocumentStoreStatus",
+              type: "DOCUMENT_STATUS",
               data: {
-                details: [
-                  {
-                    address: "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
-                    revoked: false
-                  }
-                ],
-                revokedOnAny: false
+                reason:
+                  "cannot estimate gas; transaction may fail or may require manual gas limit",
+                code: "UNPREDICTABLE_GAS_LIMIT",
+                error: {
+                  reason: "processing response error",
+                  code: "SERVER_ERROR",
+                  body:
+                    '{"jsonrpc":"2.0","id":42,"error":{"code":-32000,"message":"execution reverted"}}',
+                  error: {
+                    code: -32000
+                  },
+                  requestBody:
+                    '{"method":"eth_call","params":[{"to":"0x007d40224f6562461633ccfbaffd359ebb2fc9ba","data":"0x163aa6311a040999254caaf7a33cba67ec6a9b862da1dacf8a0d1e3bb76347060fc615d6"},"latest"],"id":42,"jsonrpc":"2.0"}',
+                  requestMethod: "POST",
+                  url:
+                    "https://ropsten.infura.io/v3/bb46da3f80e040e8ab73c0a9ff365d18"
+                },
+                method: "call",
+                transaction: {
+                  to: "0x007d40224F6562461633ccFBaffd359EbB2FC9Ba",
+                  data:
+                    "0x163aa6311a040999254caaf7a33cba67ec6a9b862da1dacf8a0d1e3bb76347060fc615d6"
+                }
               },
-              name: "OpenAttestationEthereumDocumentStoreRevoked",
-              status: "VALID",
-              type: "DOCUMENT_STATUS"
+              reason: {
+                message:
+                  'cannot estimate gas; transaction may fail or may require manual gas limit (error={"reason":"processing response error","code":"SERVER_ERROR","body":"{\\"jsonrpc\\":\\"2.0\\",\\"id\\":42,\\"error\\":{\\"code\\":-32000,\\"message\\":\\"execution reverted\\"}}","error":{"code":-32000},"requestBody":"{\\"method\\":\\"eth_call\\",\\"params\\":[{\\"to\\":\\"0x007d40224f6562461633ccfbaffd359ebb2fc9ba\\",\\"data\\":\\"0x163aa6311a040999254caaf7a33cba67ec6a9b862da1dacf8a0d1e3bb76347060fc615d6\\"},\\"latest\\"],\\"id\\":42,\\"jsonrpc\\":\\"2.0\\"}","requestMethod":"POST","url":"https://ropsten.infura.io/v3/bb46da3f80e040e8ab73c0a9ff365d18"}, method="call", transaction={"to":"0x007d40224F6562461633ccFBaffd359EbB2FC9Ba","data":"0x163aa6311a040999254caaf7a33cba67ec6a9b862da1dacf8a0d1e3bb76347060fc615d6"}, code=UNPREDICTABLE_GAS_LIMIT, version=providers/5.0.22)',
+                code: 0,
+                codeString: "UNEXPECTED_ERROR"
+              },
+              status: "ERROR"
             },
             {
+              status: "SKIPPED",
+              type: "DOCUMENT_STATUS",
+              name: "OpenAttestationDidSignedDocumentStatus",
+              reason: {
+                code: 0,
+                codeString: "SKIPPED",
+                message: "Document was not signed by DID directly"
+              }
+            },
+            {
+              status: "SKIPPED",
+              type: "ISSUER_IDENTITY",
+              name: "OpenAttestationDnsTxtIdentityProof",
               reason: {
                 code: 2,
                 codeString: "SKIPPED",
                 message:
                   'Document issuers doesn\'t have "documentStore" / "tokenRegistry" property or doesn\'t use DNS-TXT type'
-              },
-              name: "OpenAttestationDnsTxt",
-              status: "SKIPPED",
-              type: "ISSUER_IDENTITY"
+              }
             },
             {
-              data: [
-                {
-                  displayCard: true,
-                  email: "info@tech.gov.sg",
-                  id: "govtech-registry",
-                  logo: "/static/images/GOVTECH_logo.png",
-                  name: "Government Technology Agency of Singapore (GovTech)",
-                  phone: "+65 6211 2100",
-                  status: "VALID",
-                  value: "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
-                  website: "https://www.tech.gov.sg"
-                }
-              ],
+              status: "SKIPPED",
+              type: "ISSUER_IDENTITY",
+              name: "OpenAttestationDnsDidIdentityProof",
+              reason: {
+                code: 0,
+                codeString: "SKIPPED",
+                message: "Document was not issued using DNS-DID"
+              }
+            },
+            {
+              type: "ISSUER_IDENTITY",
               name: "OpencertsRegistryVerifier",
               status: "VALID",
-              type: "ISSUER_IDENTITY"
+              data: [
+                {
+                  status: "VALID",
+                  value: "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
+                  name: "Government Technology Agency of Singapore (GovTech)",
+                  displayCard: true,
+                  website: "https://www.tech.gov.sg",
+                  email: "info@tech.gov.sg",
+                  phone: "+65 6211 2100",
+                  logo: "/static/images/GOVTECH_logo.png",
+                  id: "govtech-registry"
+                }
+              ]
             }
-          ],
-          summary: {
-            all: false,
-            documentIntegrity: true,
-            documentStatus: false,
-            issuerIdentity: true
-          }
+          ]
         });
       });
   });

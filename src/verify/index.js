@@ -7,7 +7,7 @@ const config = require("./config");
 const handleVerify = async (event, _context, callback) => {
   const { document } = JSON.parse(event.body);
   try {
-    const fragments = await verify(document, { network: config.network });
+    const fragments = await verify({ network: config.network })(document);
     callback(null, {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
