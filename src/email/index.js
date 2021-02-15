@@ -41,7 +41,7 @@ const handleEmail = async (event, _context, callback) => {
     }
 
     // Verify Certificate
-    const fragments = await verify(data, { network: config.network });
+    const fragments = await verify({ network: config.network })(data);
     if (!isValid(fragments)) {
       throw new Error("Invalid certificate");
     }
