@@ -84,7 +84,7 @@ custom:
   s3:
     port: 8000
     directory: /tmp
-  BUCKET_NAME: ${env:BUCKET_NAME, "oa-functions-storage"}-${self:provider.stage}
+  BUCKET_NAME: ${env:BUCKET_NAME, "oc-functions-storage"}-${self:provider.stage}
   ENABLE_STORAGE_UPLOAD_API_KEY: ${strToBool(${env:ENABLE_STORAGE_UPLOAD_API_KEY, 'false'})}
   OBJECT_TTL: ${env:OBJECT_TTL, 31} # Object TTL in days
   serverless-offline:
