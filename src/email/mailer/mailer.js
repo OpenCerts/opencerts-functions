@@ -1,6 +1,6 @@
 const messageTemplate = require("../messageTemplate");
 
-const FROM_ADDRESS = "OpenCerts™ <donotreply@opencerts.io>";
+const FROM_ADDRESS = "OpenCerts™ <donotreply@mail.opencerts.io>";
 
 // TODO: Filename according to recipient name
 const FILE_NAME = "certificate.opencert";
