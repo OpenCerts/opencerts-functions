@@ -31,52 +31,67 @@ describe("verify", () => {
                 type: "DOCUMENT_INTEGRITY"
               },
               {
-                data: {
-                  details: [
-                    {
-                      address: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495",
-                      issued: true
-                    }
-                  ],
-                  issuedOnAll: true
-                },
-                name: "OpenAttestationEthereumDocumentStoreIssued",
-                status: "VALID",
-                type: "DOCUMENT_STATUS"
-              },
-              {
+                name: "OpenAttestationEthereumTokenRegistryStatus",
                 reason: {
                   code: 4,
                   codeString: "SKIPPED",
                   message:
                     'Document issuers doesn\'t have "tokenRegistry" property or TOKEN_REGISTRY method'
                 },
-                name: "OpenAttestationEthereumTokenRegistryMinted",
                 status: "SKIPPED",
                 type: "DOCUMENT_STATUS"
               },
               {
                 data: {
-                  details: [
-                    {
-                      address: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495",
-                      revoked: false
-                    }
-                  ],
+                  details: {
+                    issuance: [
+                      {
+                        address: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495",
+                        issued: true
+                      }
+                    ],
+                    revocation: [
+                      {
+                        address: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495",
+                        revoked: false
+                      }
+                    ]
+                  },
+                  issuedOnAll: true,
                   revokedOnAny: false
                 },
-                name: "OpenAttestationEthereumDocumentStoreRevoked",
+                name: "OpenAttestationEthereumDocumentStoreStatus",
                 status: "VALID",
                 type: "DOCUMENT_STATUS"
               },
               {
+                name: "OpenAttestationDidSignedDocumentStatus",
+                reason: {
+                  code: 0,
+                  codeString: "SKIPPED",
+                  message: "Document was not signed by DID directly"
+                },
+                status: "SKIPPED",
+                type: "DOCUMENT_STATUS"
+              },
+              {
+                name: "OpenAttestationDnsTxtIdentityProof",
                 reason: {
                   code: 2,
                   codeString: "SKIPPED",
                   message:
                     'Document issuers doesn\'t have "documentStore" / "tokenRegistry" property or doesn\'t use DNS-TXT type'
                 },
-                name: "OpenAttestationDnsTxt",
+                status: "SKIPPED",
+                type: "ISSUER_IDENTITY"
+              },
+              {
+                name: "OpenAttestationDnsDidIdentityProof",
+                reason: {
+                  code: 0,
+                  codeString: "SKIPPED",
+                  message: "Document was not issued using DNS-DID"
+                },
                 status: "SKIPPED",
                 type: "ISSUER_IDENTITY"
               },
@@ -144,48 +159,78 @@ describe("verify", () => {
                   issuedOnAll: false
                 },
                 reason: {
-                  code: 3,
-                  codeString: "ETHERS_UNHANDLED_ERROR",
-                  message:
-                    "Error with smart contract 0x007d40224f6562461633ccfbaffd359ebb2fc9ba: undefined"
-                },
-                name: "OpenAttestationEthereumDocumentStoreIssued",
-                status: "INVALID",
-                type: "DOCUMENT_STATUS"
-              },
-              {
-                reason: {
                   code: 4,
                   codeString: "SKIPPED",
                   message:
-                    'Document issuers doesn\'t have "tokenRegistry" property or TOKEN_REGISTRY method'
+                    "Error with smart contract 0x007d40224f6562461633ccfbaffd359ebb2fc9ba: undefined"
                 },
-                name: "OpenAttestationEthereumTokenRegistryMinted",
                 status: "SKIPPED",
                 type: "DOCUMENT_STATUS"
               },
               {
                 data: {
-                  details: [
-                    {
-                      address: "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
-                      revoked: false
-                    }
-                  ],
-                  revokedOnAny: false
+                  code: "UNPREDICTABLE_GAS_LIMIT",
+                  error: {
+                    body:
+                      '{"jsonrpc":"2.0","id":42,"error":{"code":-32000,"message":"execution reverted"}}',
+                    code: "SERVER_ERROR",
+                    error: {
+                      code: -32000
+                    },
+                    reason: "processing response error",
+                    requestBody:
+                      '{"method":"eth_call","params":[{"to":"0x007d40224f6562461633ccfbaffd359ebb2fc9ba","data":"0x163aa6311a040999254caaf7a33cba67ec6a9b862da1dacf8a0d1e3bb76347060fc615d6"},"latest"],"id":42,"jsonrpc":"2.0"}',
+                    requestMethod: "POST",
+                    url:
+                      "https://ropsten.infura.io/v3/bb46da3f80e040e8ab73c0a9ff365d18"
+                  },
+                  method: "call",
+                  reason:
+                    "cannot estimate gas; transaction may fail or may require manual gas limit",
+                  transaction: {
+                    data:
+                      "0x163aa6311a040999254caaf7a33cba67ec6a9b862da1dacf8a0d1e3bb76347060fc615d6",
+                    to: "0x007d40224F6562461633ccFBaffd359EbB2FC9Ba"
+                  }
                 },
-                name: "OpenAttestationEthereumDocumentStoreRevoked",
-                status: "VALID",
+                name: "OpenAttestationEthereumDocumentStoreStatus",
+                reason: {
+                  code: 0,
+                  codeString: "UNEXPECTED_ERROR",
+                  message:
+                    'cannot estimate gas; transaction may fail or may require manual gas limit (error={"reason":"processing response error","code":"SERVER_ERROR","body":"{\\"jsonrpc\\":\\"2.0\\",\\"id\\":42,\\"error\\":{\\"code\\":-32000,\\"message\\":\\"execution reverted\\"}}","error":{"code":-32000},"requestBody":"{\\"method\\":\\"eth_call\\",\\"params\\":[{\\"to\\":\\"0x007d40224f6562461633ccfbaffd359ebb2fc9ba\\",\\"data\\":\\"0x163aa6311a040999254caaf7a33cba67ec6a9b862da1dacf8a0d1e3bb76347060fc615d6\\"},\\"latest\\"],\\"id\\":42,\\"jsonrpc\\":\\"2.0\\"}","requestMethod":"POST","url":"https://ropsten.infura.io/v3/bb46da3f80e040e8ab73c0a9ff365d18"}, method="call", transaction={"to":"0x007d40224F6562461633ccFBaffd359EbB2FC9Ba","data":"0x163aa6311a040999254caaf7a33cba67ec6a9b862da1dacf8a0d1e3bb76347060fc615d6"}, code=UNPREDICTABLE_GAS_LIMIT, version=providers/5.0.22)'
+                },
+                status: "ERROR",
                 type: "DOCUMENT_STATUS"
               },
               {
+                name: "OpenAttestationDidSignedDocumentStatus",
+                reason: {
+                  code: 0,
+                  codeString: "SKIPPED",
+                  message: "Document was not signed by DID directly"
+                },
+                status: "SKIPPED",
+                type: "DOCUMENT_STATUS"
+              },
+              {
+                name: "OpenAttestationDnsTxtIdentityProof",
                 reason: {
                   code: 2,
                   codeString: "SKIPPED",
                   message:
                     'Document issuers doesn\'t have "documentStore" / "tokenRegistry" property or doesn\'t use DNS-TXT type'
                 },
-                name: "OpenAttestationDnsTxt",
+                status: "SKIPPED",
+                type: "ISSUER_IDENTITY"
+              },
+              {
+                name: "OpenAttestationDnsDidIdentityProof",
+                reason: {
+                  code: 0,
+                  codeString: "SKIPPED",
+                  message: "Document was not issued using DNS-DID"
+                },
                 status: "SKIPPED",
                 type: "ISSUER_IDENTITY"
               },

@@ -2,9 +2,9 @@ const uuid = require("uuid/v4");
 const {
   openAttestationVerifiers,
   verificationBuilder,
-  openAttestationDidIdentityProof,
-  isValid
+  openAttestationDidIdentityProof
 } = require("@govtechsg/oa-verify");
+const { isValid, registryVerifier } = require("@govtechsg/opencerts-verify");
 const {
   encryptString,
   generateEncryptionKey
@@ -17,7 +17,11 @@ const DEFAULT_TTL_IN_MICROSECONDS = 30 * 24 * 60 * 60 * 1000; // 30 Days
 const MAX_TTL_IN_MICROSECONDS = 90 * 24 * 60 * 60 * 1000; // 90 Days
 
 const verify = verificationBuilder(
-  [...openAttestationVerifiers, openAttestationDidIdentityProof],
+  [
+    ...openAttestationVerifiers,
+    openAttestationDidIdentityProof,
+    registryVerifier
+  ],
   {
     network: config.network
   }

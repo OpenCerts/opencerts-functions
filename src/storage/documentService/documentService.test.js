@@ -8,6 +8,7 @@ const { get, put } = require("../s3");
 const documentDidSigned = require("../../../test/fixtures/documentDidSigned.json");
 const documentWithDocumentStore = require("../../../test/fixtures/documentWithDocumentStore.json");
 const invalidDocumentFile = require("../../../test/fixtures/invalidDocument.json");
+const certificate = require("../../../test/fixtures/certificate.json");
 const {
   calculateExpiryTimestamp,
   getDocument,
@@ -28,6 +29,25 @@ describe("uploadDocument", () => {
       type: "OPEN-ATTESTATION-TYPE-1"
     });
     const upload = await uploadDocument(documentWithDocumentStore);
+    expect(upload).toStrictEqual({
+      id: 123,
+      key: "4df5cc8daff794d9ec536baf022e03f8ad0226a4e17dfe3fe624c16b2042f354",
+      type: "OPEN-ATTESTATION-TYPE-1",
+      ttl: 1581489000000
+    });
+  });
+
+  it("should upload without any error for documents from openCerts that are currently verified", async () => {
+    put.mockResolvedValue(true);
+    uuid.mockReturnValue(123);
+    encryptString.mockResolvedValue({
+      cipherText: "MOCK_CIPHERTEXT",
+      iv: "MOCK_IV",
+      tag: "MOCK_TAG",
+      key: "4df5cc8daff794d9ec536baf022e03f8ad0226a4e17dfe3fe624c16b2042f354",
+      type: "OPEN-ATTESTATION-TYPE-1"
+    });
+    const upload = await uploadDocument(certificate);
     expect(upload).toStrictEqual({
       id: 123,
       key: "4df5cc8daff794d9ec536baf022e03f8ad0226a4e17dfe3fe624c16b2042f354",

@@ -9,6 +9,8 @@ const config = require("./config");
 
 const captchaValidator = recaptcha(config.recaptchaSecret);
 
+const verifyDocument = verify({ network: config.network });
+
 const validateApiKey = key => {
   if (!key) return false;
   if (config.emailApiKeys.includes(key)) {
@@ -41,7 +43,7 @@ const handleEmail = async (event, _context, callback) => {
     }
 
     // Verify Certificate
-    const fragments = await verify(data, { network: config.network });
+    const fragments = await verifyDocument(data);
     if (!isValid(fragments)) {
       throw new Error("Invalid certificate");
     }
