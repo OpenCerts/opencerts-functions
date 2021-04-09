@@ -2,7 +2,8 @@ const supertest = require("supertest");
 const ropstenDocument = require("../fixtures/certificate.json");
 const mainnetDocument = require("../fixtures/certificateMainnetValid.json");
 
-const API_ENDPOINT = "https://api-ropsten.opencerts.io/verify";
+const API_ENDPOINT =
+  process.env.VERIFY_ENDPOINT || "https://api-ropsten.opencerts.io/verify";
 const API_TIMEOUT = 15000; // api timeout defined in serverless.yml
 
 const request = supertest(API_ENDPOINT);

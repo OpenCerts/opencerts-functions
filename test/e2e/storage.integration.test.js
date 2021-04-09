@@ -7,7 +7,8 @@ const {
   thatIsAQueueNumber
 } = require("../utils/matchers");
 
-const API_ENDPOINT = "https://api-ropsten.opencerts.io/storage";
+const API_ENDPOINT =
+  process.env.STORAGE_ENDPOINT || "https://api-ropsten.opencerts.io/storage";
 const API_TIMEOUT = 30000; // api timeout defined in serverless.yml
 
 const request = supertest(API_ENDPOINT);
