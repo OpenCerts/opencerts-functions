@@ -1,5 +1,5 @@
 const supertest = require("supertest");
-const ropstenDocument = require("../fixtures/certificate.json");
+const ropstenDocument = require("../fixtures/documentWithDocumentStore.json");
 
 const {
   thatIsRetrievedDocument,
@@ -8,7 +8,7 @@ const {
 } = require("../utils/matchers");
 
 const API_ENDPOINT =
-  process.env.STORAGE_ENDPOINT || "https://api-ropsten.opencerts.io/storage";
+  process.env.STORAGE_ENDPOINT || "https://api-ropsten.tradetrust.io/storage";
 const API_TIMEOUT = 30000; // api timeout defined in serverless.yml
 
 const request = supertest(API_ENDPOINT);
