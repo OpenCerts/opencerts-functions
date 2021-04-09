@@ -136,7 +136,7 @@ describe("verify", () => {
                         code: 3,
                         codeString: "ETHERS_UNHANDLED_ERROR",
                         message:
-                          "Error with smart contract 0x007d40224f6562461633ccfbaffd359ebb2fc9ba: call exception"
+                          "Error with smart contract 0x007d40224f6562461633ccfbaffd359ebb2fc9ba: undefined"
                       },
                       issued: false
                     }
@@ -147,7 +147,7 @@ describe("verify", () => {
                   code: 3,
                   codeString: "ETHERS_UNHANDLED_ERROR",
                   message:
-                    "Error with smart contract 0x007d40224f6562461633ccfbaffd359ebb2fc9ba: call exception"
+                    "Error with smart contract 0x007d40224f6562461633ccfbaffd359ebb2fc9ba: undefined"
                 },
                 name: "OpenAttestationEthereumDocumentStoreIssued",
                 status: "INVALID",
