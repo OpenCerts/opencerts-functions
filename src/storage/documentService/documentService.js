@@ -4,6 +4,7 @@ const {
   verificationBuilder,
   openAttestationDidIdentityProof
 } = require("@govtechsg/oa-verify");
+// need to use opencerts-verify isValid function as it is an extension of the default isValid function from oa-verify
 const { isValid, registryVerifier } = require("@govtechsg/opencerts-verify");
 const {
   encryptString,
