@@ -3,13 +3,11 @@ const { cors } = require("middy/middlewares");
 const { verify, isValid } = require("@govtechsg/opencerts-verify");
 const config = require("./config");
 
-const verifyDocument = verify({ network: config.network });
-
 // adding a comment to trigger a deploy
 const handleVerify = async (event, _context, callback) => {
   const { document } = JSON.parse(event.body);
   try {
-    const fragments = await verifyDocument(document);
+    const fragments = await verify(document, { network: config.network });
     callback(null, {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
