@@ -5,7 +5,7 @@ jest.mock("../config", () => ({ network: "ropsten" }));
 const { encryptString } = require("@govtechsg/oa-encryption");
 const uuid = require("uuid/v4");
 const { get, put } = require("../s3");
-const documentDidSigned = require("../../../test/fixtures/documentDidSigned.json");
+const documentDnsDidSigned = require("../../../test/fixtures/documentDnsDidSigned.json");
 const documentWithDocumentStore = require("../../../test/fixtures/documentWithDocumentStore.json");
 const invalidDocumentFile = require("../../../test/fixtures/invalidDocument.json");
 const {
@@ -46,7 +46,7 @@ describe("uploadDocument", () => {
       key: "4df5cc8daff794d9ec536baf022e03f8ad0226a4e17dfe3fe624c16b2042f354",
       type: "OPEN-ATTESTATION-TYPE-1"
     });
-    const upload = await uploadDocument(documentDidSigned);
+    const upload = await uploadDocument(documentDnsDidSigned);
 
     expect(upload).toStrictEqual({
       id: 123,

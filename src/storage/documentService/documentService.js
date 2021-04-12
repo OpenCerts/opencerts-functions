@@ -2,7 +2,6 @@ const uuid = require("uuid/v4");
 const {
   openAttestationVerifiers,
   verificationBuilder,
-  openAttestationDidIdentityProof,
   isValid
 } = require("@govtechsg/oa-verify");
 // need to use opencerts-verify isValid function as it is an extension of the default isValid function from oa-verify
@@ -17,12 +16,9 @@ const { put, get, remove } = require("../s3");
 const DEFAULT_TTL_IN_MICROSECONDS = 30 * 24 * 60 * 60 * 1000; // 30 Days
 const MAX_TTL_IN_MICROSECONDS = 90 * 24 * 60 * 60 * 1000; // 90 Days
 
-const verify = verificationBuilder(
-  [...openAttestationVerifiers, openAttestationDidIdentityProof],
-  {
-    network: config.network
-  }
-);
+const verify = verificationBuilder(openAttestationVerifiers, {
+  network: config.network
+});
 
 const putDocument = async (document, id) => {
   const params = {
