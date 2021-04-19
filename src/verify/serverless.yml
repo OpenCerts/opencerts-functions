@@ -16,9 +16,9 @@ functions:
     handler: index.handler
     timeout: 15 # long timeout as infura api can take awhile
     events:
-      - http: 
-          path: / 
-          method: post 
+      - http:
+          path: /
+          method: post
           cors: true
 custom:
   dotenv:
@@ -27,7 +27,7 @@ custom:
     lambdaPort: 4002
     httpPort: 4000
   NETWORK: ${env:NETWORK, "ropsten"}
-  isManagedDomain: 
+  isManagedDomain:
     false: 'true' # To negate the environment variable DISABLE_DOMAIN
     true: 'false' # if you know of a way to do conditionals please change this
   customDomain:

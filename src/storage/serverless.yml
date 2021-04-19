@@ -1,7 +1,7 @@
 service: storage
 provider:
   name: aws
-  apiKeys: 
+  apiKeys:
     - ${self:provider.stage}-storage-api-key
   runtime: nodejs12.x
   stage: ${opt:stage, 'stg'}
@@ -14,85 +14,82 @@ provider:
   logs:
     restApi: true
   environment:
-    BUCKET_NAME: '${self:custom.BUCKET_NAME}'
-    OBJECT_TTL: '${self:custom.OBJECT_TTL}'
+    BUCKET_NAME: "${self:custom.BUCKET_NAME}"
+    OBJECT_TTL: "${self:custom.OBJECT_TTL}"
     S3_REGION: ${self:provider.region}
   iamRoleStatements:
-    -
-      Effect: Allow
-      Action: ['s3:putObject', 's3:upload', 's3:deleteObject', 's3:getObject']
+    - Effect: Allow
+      Action: ["s3:putObject", "s3:upload", "s3:deleteObject", "s3:getObject"]
       Resource:
-        -  "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : 'DeployedBucket' }, "/*" ] ]
+        - "Fn::Join": ["", ["arn:aws:s3:::", { "Ref": "DeployedBucket" }, "/*"]]
 resources:
   Resources:
     DeployedBucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: '${self:custom.BUCKET_NAME}'
+        BucketName: "${self:custom.BUCKET_NAME}"
         LifecycleConfiguration:
-            Rules:
-              -
-                ExpirationInDays: ${self:custom.OBJECT_TTL}
-                Prefix: '/'
-                Status: Enabled
+          Rules:
+            - ExpirationInDays: ${self:custom.OBJECT_TTL}
+              Prefix: "/"
+              Status: Enabled
 functions:
-    get:
-      handler: index.getHandler
-      events:
-        - http: 
-            path: '/{id}' 
-            method: get 
-            request: 
-              parameters: 
-                paths: 
-                  id: true
-            cors: true
-    
-    createAtId:
-      handler: index.createAtIdHandler
-      events:
-        - http: 
-            path: '/{id}'
-            method: post  
-            request: 
-              parameters: 
-                paths: 
-                  id: true
-            private: ${self:custom.ENABLE_STORAGE_UPLOAD_API_KEY}
-            cors: true
+  get:
+    handler: index.getHandler
+    events:
+      - http:
+          path: "/{id}"
+          method: get
+          request:
+            parameters:
+              paths:
+                id: true
+          cors: true
 
-    create:
-      handler: index.createHandler
-      events:
-        - http: 
-            path: / 
-            method: post
-            cors: true
-            private: ${self:custom.ENABLE_STORAGE_UPLOAD_API_KEY}
+  createAtId:
+    handler: index.createAtIdHandler
+    events:
+      - http:
+          path: "/{id}"
+          method: post
+          request:
+            parameters:
+              paths:
+                id: true
+          private: ${self:custom.ENABLE_STORAGE_UPLOAD_API_KEY}
+          cors: true
 
-    getQueueNumber:
-      handler: index.queueNumberHandler
-      events:
-        - http: 
-            path: /queue
-            method: get
-            cors: true
-            private: ${self:custom.ENABLE_STORAGE_UPLOAD_API_KEY}
+  create:
+    handler: index.createHandler
+    events:
+      - http:
+          path: /
+          method: post
+          cors: true
+          private: ${self:custom.ENABLE_STORAGE_UPLOAD_API_KEY}
 
+  getQueueNumber:
+    handler: index.queueNumberHandler
+    events:
+      - http:
+          path: /queue
+          method: get
+          cors: true
+          private: ${self:custom.ENABLE_STORAGE_UPLOAD_API_KEY}
 
 custom:
   s3:
     port: 8000
     directory: /tmp
-  BUCKET_NAME: ${env:BUCKET_NAME, "opencerts-functions-transfer-document-storage"}-${self:provider.stage}
+  BUCKET_NAME: ${env:BUCKET_NAME, "oa-functions-transfer-document-storage"}-${self:provider.stage}
   ENABLE_STORAGE_UPLOAD_API_KEY: ${strToBool(${env:ENABLE_STORAGE_UPLOAD_API_KEY, 'false'})}
   OBJECT_TTL: ${env:OBJECT_TTL, 31} # Object TTL in days
   serverless-offline:
     lambdaPort: 5002
     httpPort: 5000
-  isManagedDomain: 
-    false: 'true' # To negate the environment variable DISABLE_DOMAIN
-    true: 'false' # if you know of a way to do conditionals please change this
+  isManagedDomain:
+    false: "true" # To negate the environment variable DISABLE_DOMAIN
+    true: "false" # if you know of a way to do conditionals please change this
   customDomain:
     domainName: "${env:DOMAIN}" # Change this to your domain.
     basePath: "storage" # This will be prefixed to all routes
@@ -111,9 +108,7 @@ custom:
   remover:
     buckets:
       - ${self:custom.BUCKET_NAME}
-    prompt:
-      ${self:custom.disableBucketDeletingPrompt.${self:provider.stage}, false}
-
+    prompt: ${self:custom.disableBucketDeletingPrompt.${self:provider.stage}, false}
 plugins:
   - serverless-dotenv-plugin
   - serverless-s3-local

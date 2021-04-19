@@ -4,7 +4,7 @@ const {
   verificationBuilder,
   isValid
 } = require("@govtechsg/oa-verify");
-// need to use opencerts-verify isValid function as it is an extension of the default isValid function from oa-verify
+
 const {
   encryptString,
   generateEncryptionKey
