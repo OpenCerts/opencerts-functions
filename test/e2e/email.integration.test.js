@@ -1,10 +1,10 @@
 require("dotenv").config();
 const supertest = require("supertest");
-const ropstenCertificate = require("../fixtures/certificate.json");
-const mainnetCertificate = require("../fixtures/certificateMainnetValid.json");
+const ropstenDocument = require("../fixtures/documentWithDocumentStore.json");
+const invalidDocument = require("../fixtures/invalidDocument.json");
 
 const API_ENDPOINT =
-  process.env.EMAIL_ENDPOINT || "https://api-ropsten.opencerts.io/email";
+  process.env.EMAIL_ENDPOINT || "https://api-ropsten.tradetrust.io/email";
 const API_TIMEOUT = 20000; // api timeout defined in serverless.yml
 
 const request = supertest(API_ENDPOINT);
@@ -20,8 +20,8 @@ describe("email", () => {
         .set("Content-Type", "application/json")
         .set("Accept", "application/json")
         .send({
-          to: "example@opencerts.io",
-          data: ropstenCertificate
+          to: "example@tradetrust.io",
+          data: ropstenDocument
         })
         .expect("Content-Type", /json/)
         .expect(200)
@@ -42,8 +42,8 @@ describe("email", () => {
         .set("Content-Type", "application/json")
         .set("Accept", "application/json")
         .send({
-          to: "example@opencerts.io",
-          data: mainnetCertificate
+          to: "example@tradetrust.io",
+          data: invalidDocument
         })
         .expect("Content-Type", /json/)
         .expect(400)
@@ -62,8 +62,8 @@ describe("email", () => {
         .set("Content-Type", "application/json")
         .set("Accept", "application/json")
         .send({
-          to: "example@opencerts.io",
-          data: ropstenCertificate,
+          to: "example@tradetrust.io",
+          data: ropstenDocument,
           captcha: "moo"
         })
         .expect("Content-Type", /json/)
@@ -86,8 +86,8 @@ describe("email", () => {
         .set("Content-Type", "application/json")
         .set("Accept", "application/json")
         .send({
-          to: "example@opencerts.io",
-          data: ropstenCertificate
+          to: "example@tradetrust.io",
+          data: ropstenDocument
         })
         .expect("Content-Type", /json/)
         .expect(400)
