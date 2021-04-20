@@ -1,5 +1,6 @@
 const path = require("path");
 const slsw = require("serverless-webpack");
+const webpack = require("webpack");
 
 module.exports = {
   mode: slsw.lib.webpack.isLocal ? "development" : "production",
@@ -8,6 +9,11 @@ module.exports = {
     : "source-map",
   entry: "./index.js",
   target: "node",
+  plugins: [
+    new webpack.ProvidePlugin({
+      fetch: path.resolve(path.join(__dirname, "../", "fetch-shim"))
+    })
+  ],
   output: {
     libraryTarget: "commonjs",
     path: path.resolve(__dirname, ".webpack"),

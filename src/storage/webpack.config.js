@@ -11,7 +11,7 @@ module.exports = {
   target: "node",
   plugins: [
     new webpack.ProvidePlugin({
-      fetch: path.resolve(path.join(__dirname, ".", "fetch-shim"))
+      fetch: path.resolve(path.join(__dirname, "../", "fetch-shim"))
     })
   ],
   output: {

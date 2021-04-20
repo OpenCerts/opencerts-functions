@@ -1,6 +1,7 @@
 const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 const slsw = require("serverless-webpack");
+const webpack = require("webpack");
 
 module.exports = {
   mode: slsw.lib.webpack.isLocal ? "development" : "production",
@@ -14,7 +15,12 @@ module.exports = {
     path: path.resolve(__dirname, ".webpack"),
     filename: "index.js"
   },
-  plugins: [new CopyPlugin([{ from: "static", to: "static" }])],
+  plugins: [
+    new CopyPlugin([{ from: "static", to: "static" }]),
+    new webpack.ProvidePlugin({
+      fetch: path.resolve(path.join(__dirname, "../", "fetch-shim"))
+    })
+  ],
   module: {
     rules: [
       {
