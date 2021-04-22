@@ -78,6 +78,8 @@ functions:
           private: ${self:custom.ENABLE_STORAGE_UPLOAD_API_KEY}
 
 custom:
+  dotenv:
+    basePath: ../../
   s3:
     port: 8000
     directory: /tmp

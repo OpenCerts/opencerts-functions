@@ -241,10 +241,6 @@ To run local tests against dynamodb-local, run commands
 
 `npm run integration:local` to run the tests
 
-## Env
-
-- Make sure u have the `.env` files with respective variables, in each of the folders. (email, storage, verify services)
-
 ## Dynamodb
 
 The development environment uses [serverless-dynamodb-local](https://www.npmjs.com/package/serverless-dynamodb-local) to emulate the dynamodb in AWS.
