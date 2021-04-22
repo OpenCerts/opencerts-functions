@@ -1,13 +1,21 @@
 const middy = require("middy");
 const { get } = require("lodash");
 const { cors } = require("middy/middlewares");
-const { isValid, verify } = require("@govtechsg/opencerts-verify");
+const {
+  openAttestationVerifiers,
+  verificationBuilder,
+  isValid
+} = require("@govtechsg/oa-verify");
 
 const recaptcha = require("./recaptcha");
 const certificateMailer = require("./mailer/mailerWithSESTransporter");
 const config = require("./config");
 
 const captchaValidator = recaptcha(config.recaptchaSecret);
+
+const verify = verificationBuilder(openAttestationVerifiers, {
+  network: config.network
+});
 
 const validateApiKey = key => {
   if (!key) return false;
@@ -41,7 +49,7 @@ const handleEmail = async (event, _context, callback) => {
     }
 
     // Verify Certificate
-    const fragments = await verify(data, { network: config.network });
+    const fragments = await verify(data);
     if (!isValid(fragments)) {
       throw new Error("Invalid certificate");
     }

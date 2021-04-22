@@ -1,5 +1,5 @@
 {
-  "name": "function-email",
+  "name": "oa-functions",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -20,9 +20,9 @@
     "sls-config-check:verify": "cd ./src/verify && sls print",
     "test": "jest --testPathPattern=src",
     "test-watch": "jest --watch",
-    "e2etest": "jest --testPathPattern=test/e2e",
     "integration:local": "IS_OFFLINE=true jest --testPathPattern=test/integration",
-    "e2e:local": "IS_OFFLINE=true jest --testPathPattern=test/e2e",
+    "e2etest": "jest --testPathPattern=test/e2e",
+    "e2etest:local": "IS_OFFLINE=true jest --testPathPattern=test/e2e",
     "lint": "eslint . --ext .js --max-warnings 0",
     "lint:fix": "eslint . --ext .js --fix"
   },
@@ -31,8 +31,8 @@
   "license": "ISC",
   "dependencies": {
     "@govtechsg/oa-encryption": "^1.3.0",
-    "@govtechsg/open-attestation": "^1.1.42",
-    "@govtechsg/opencerts-verify": "^1.0.4",
+    "@govtechsg/oa-verify": "^7.3.3",
+    "@govtechsg/open-attestation": "^5.1.3",
     "aws-sdk": "^2.590.0",
     "lodash": "^4.17.13",
     "middy": "^0.24.0",
