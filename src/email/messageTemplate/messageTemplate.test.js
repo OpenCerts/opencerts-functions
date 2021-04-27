@@ -1,7 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const messageTemplate = require("./messageTemplate");
-const certificate = require("../../../test/fixtures/certificate.json");
+const document = require("../../../test/fixtures/documentWithDocumentStore.json");
 
 const expectedPathHtml = path.join(__dirname, "./expected.html");
 const expectedContentHtml = fs.readFileSync(expectedPathHtml).toString();
@@ -13,9 +13,9 @@ const expectedPathSubject = path.join(__dirname, "./expected.subject");
 const expectedContentSubject = fs.readFileSync(expectedPathSubject).toString();
 
 describe("messageTemplate", () => {
-  it("returns html and text given a certificate", () => {
+  it("returns html and text given a document", () => {
     const extractContent = str => str.replace(/ +/g, "");
-    const message = messageTemplate(certificate);
+    const message = messageTemplate(document);
     expect(extractContent(message.html)).toEqual(
       extractContent(expectedContentHtml)
     );
@@ -27,18 +27,18 @@ describe("messageTemplate", () => {
     );
   });
 
-  it("throws for undefined certificate", () => {
+  it("throws for undefined document", () => {
     expect(() => messageTemplate()).toThrow();
     expect(() => messageTemplate(undefined)).toThrow();
   });
 
-  it("throws for null certificate", () => {
+  it("throws for null document", () => {
     expect(() => messageTemplate(null)).toThrow();
   });
 
-  it("throws for invalid certificate", () => {
+  it("throws for invalid document", () => {
     expect(() => messageTemplate({ foo: "Invalid Data" })).toThrow(
-      "Fail to read data from certificate"
+      "Fail to read data from document"
     );
   });
 });

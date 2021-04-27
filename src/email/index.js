@@ -6,6 +6,7 @@ const {
   verificationBuilder,
   isValid
 } = require("@govtechsg/oa-verify");
+const { CORS_POLICY_HEADER } = require("../../utils/cors");
 
 const recaptcha = require("./recaptcha");
 const certificateMailer = require("./mailer/mailerWithSESTransporter");
@@ -64,6 +65,7 @@ const handleEmail = async (event, _context, callback) => {
   } catch (e) {
     callback(null, {
       statusCode: 400,
+      headers: CORS_POLICY_HEADER,
       body: JSON.stringify({ error: e.message })
     });
   }

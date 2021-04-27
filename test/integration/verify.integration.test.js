@@ -1,6 +1,6 @@
 const supertest = require("supertest");
-const ropstenDocument = require("../fixtures/certificate.json");
-const mainnetDocument = require("../fixtures/certificateMainnetValid.json");
+const ropstenDocument = require("../fixtures/documentWithDocumentStore.json");
+const invalidDocument = require("../fixtures/invalidDocument.json");
 
 const API_ENDPOINT = "http://localhost:4000/stg";
 const request = supertest(API_ENDPOINT);
@@ -108,7 +108,7 @@ describe("verify", () => {
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .send({
-        document: mainnetDocument
+        document: invalidDocument
       })
       .expect("Content-Type", /json/)
       .expect(200)

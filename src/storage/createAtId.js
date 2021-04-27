@@ -1,6 +1,7 @@
 const middy = require("middy");
 const { cors } = require("middy/middlewares");
 const { uploadDocumentAtId } = require("./documentService");
+const { CORS_POLICY_HEADER } = require("../../utils/cors");
 
 const handleCreateAtId = async event => {
   try {
@@ -18,11 +19,13 @@ const handleCreateAtId = async event => {
     ) {
       return {
         statusCode: 400,
+        headers: CORS_POLICY_HEADER,
         body: JSON.stringify({ error: "Unauthorised Access" })
       };
     }
     return {
       statusCode: 400,
+      headers: CORS_POLICY_HEADER,
       body: JSON.stringify({
         error: e.message
       })

@@ -6,6 +6,7 @@ const {
   isValid
 } = require("@govtechsg/oa-verify");
 const config = require("./config");
+const { CORS_POLICY_HEADER } = require("../../utils/cors");
 
 const verify = verificationBuilder(openAttestationVerifiers, {
   network: config.network
@@ -32,6 +33,7 @@ const handleVerify = async (event, _context, callback) => {
   } catch (e) {
     callback(null, {
       statusCode: 400,
+      headers: CORS_POLICY_HEADER,
       body: e.message
     });
   }

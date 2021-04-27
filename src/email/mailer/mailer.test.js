@@ -2,7 +2,7 @@ const nodemailer = require("nodemailer");
 const fetch = require("node-fetch");
 const mailer = require("./mailer");
 
-const certificate = require("../../../test/fixtures/certificate.json");
+const document = require("../../../test/fixtures/documentWithDocumentStore.json");
 
 const etherealCreateAccount = () =>
   new Promise((resolve, reject) => {
@@ -45,7 +45,7 @@ describe("mailer", () => {
   it("sends test email through ethereal transporter", async () => {
     const emailReceipt = await mailByEthereal({
       to: account.user,
-      certificate,
+      document,
       prefix: `${__dirname}/../`
     });
     const previewUrl = nodemailer.getTestMessageUrl(emailReceipt);
@@ -54,9 +54,9 @@ describe("mailer", () => {
     const rawEmailUrl = `${previewUrl}/message.eml`;
     const valid = await validateRawEmail({
       url: rawEmailUrl,
-      html: "cid:certificate",
+      html: "cid:document",
       text: "----------",
-      subject: "Subject: Student Name PHARM Cert sent you a certificate",
+      subject: "Subject: Student Name PHARM Cert sent you a document",
       to: account.user
     });
     expect(valid).toBe(true);
