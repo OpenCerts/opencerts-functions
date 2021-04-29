@@ -4,19 +4,20 @@ const slsw = require("serverless-webpack");
 const webpack = require("webpack");
 
 module.exports = {
+  context: __dirname,
   mode: slsw.lib.webpack.isLocal ? "development" : "production",
-  devtool: slsw.lib.webpack.isLocal
-    ? "cheap-module-eval-source-map"
-    : "source-map",
   entry: "./index.js",
   target: "node",
+  devtool: slsw.lib.webpack.isLocal ? "eval-cheap-module-source-map" : "source-map",
   output: {
     libraryTarget: "commonjs",
     path: path.resolve(__dirname, ".webpack"),
     filename: "index.js"
   },
   plugins: [
-    new CopyPlugin([{ from: "static", to: "static" }]),
+    new CopyPlugin({
+      patterns: [{ from: "static", to: "static" }]
+    }),
     new webpack.ProvidePlugin({
       fetch: path.resolve(path.join(__dirname, "../", "fetch-shim"))
     })
