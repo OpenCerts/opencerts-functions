@@ -2,7 +2,7 @@ const nodemailer = require("nodemailer");
 const fetch = require("node-fetch");
 const mailer = require("./mailer");
 
-const document = require("../../../test/fixtures/documentWithDocumentStore.json");
+const certificate = require("../../../test/fixtures/certificate.json");
 
 const etherealCreateAccount = () =>
   new Promise((resolve, reject) => {
@@ -15,7 +15,7 @@ const etherealCreateAccount = () =>
   });
 
 const validateRawEmail = async ({ url, subject, text, html, to }) => {
-  const rawEmail = await fetch(url).then(res => res.text());
+  const rawEmail = await fetch(url).then((res) => res.text());
   return (
     rawEmail.includes(subject) &&
     rawEmail.includes(`To: ${to}`) &&
@@ -36,8 +36,8 @@ describe("mailer", () => {
       secure: account.smtp.secure,
       auth: {
         user: account.user,
-        pass: account.pass
-      }
+        pass: account.pass,
+      },
     });
     mailByEthereal = mailer(etherealTransporter);
   });
@@ -45,8 +45,8 @@ describe("mailer", () => {
   it("sends test email through ethereal transporter", async () => {
     const emailReceipt = await mailByEthereal({
       to: account.user,
-      document,
-      prefix: `${__dirname}/../`
+      certificate,
+      prefix: `${__dirname}/../`,
     });
     const previewUrl = nodemailer.getTestMessageUrl(emailReceipt);
     // eslint-disable-next-line
@@ -54,10 +54,10 @@ describe("mailer", () => {
     const rawEmailUrl = `${previewUrl}/message.eml`;
     const valid = await validateRawEmail({
       url: rawEmailUrl,
-      html: "cid:document",
+      html: "cid:certificate",
       text: "----------",
-      subject: "Subject: Student Name PHARM Cert sent you a document",
-      to: account.user
+      subject: "Subject: Student Name PHARM Cert sent you a certificate",
+      to: account.user,
     });
     expect(valid).toBe(true);
   }, 20000);

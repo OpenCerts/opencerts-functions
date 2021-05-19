@@ -8,17 +8,17 @@ const config = () =>
           accessKeyId: "S3RVER",
           secretAccessKey: "S3RVER",
           region: "us-west-2",
-          endpoint: new AWS.Endpoint("http://localhost:8000")
+          endpoint: new AWS.Endpoint("http://localhost:8000"),
         },
-        bucketName: `${process.env.BUCKET_NAME}-stg`,
-        network: process.env.NETWORK || "ropsten"
+        bucketName: process.env.BUCKET_NAME,
+        network: process.env.NETWORK || "ropsten",
       }
     : {
         s3: {
-          region: process.env.S3_REGION || "ap-southeast-1"
+          region: process.env.S3_REGION || "ap-southeast-1",
         },
         bucketName: process.env.BUCKET_NAME,
-        network: process.env.NETWORK || "homestead"
+        network: process.env.NETWORK || "homestead",
       };
 
 module.exports = config();

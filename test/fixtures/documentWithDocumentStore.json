@@ -27,6 +27,7 @@
     }
   },
   "signature": {
+    "created": "2021-03-25T07:52:31.291Z",
     "type": "SHA3MerkleProof",
     "targetHash": "77c8e74955a8df8b802ebbb498924b12ef133894c3fbf28a6ef18bd3bf0d9531",
     "proof": [],
