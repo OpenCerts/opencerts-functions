@@ -3,10 +3,9 @@ const slsw = require("serverless-webpack");
 const webpack = require("webpack");
 
 module.exports = {
+  context: __dirname,
   mode: slsw.lib.webpack.isLocal ? "development" : "production",
-  devtool: slsw.lib.webpack.isLocal
-    ? "cheap-module-eval-source-map"
-    : "source-map",
+  devtool: slsw.lib.webpack.isLocal ? "eval-cheap-module-source-map" : "source-map",
   entry: "./index.js",
   target: "node",
   plugins: [

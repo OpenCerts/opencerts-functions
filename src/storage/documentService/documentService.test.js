@@ -1,9 +1,9 @@
 jest.mock("../s3");
 jest.mock("@govtechsg/oa-encryption");
-jest.mock("uuid/v4");
+jest.mock("uuid");
 jest.mock("../config", () => ({ network: "ropsten" }));
 const { encryptString } = require("@govtechsg/oa-encryption");
-const uuid = require("uuid/v4");
+const { v4: uuid } = require("uuid");
 const { get, put } = require("../s3");
 const documentDnsDidSigned = require("../../../test/fixtures/documentDnsDidSigned.json");
 const documentWithDocumentStore = require("../../../test/fixtures/documentWithDocumentStore.json");
