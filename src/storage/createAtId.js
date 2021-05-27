@@ -3,14 +3,14 @@ const { cors } = require("middy/middlewares");
 const { uploadDocumentAtId } = require("./documentService");
 const { CORS_POLICY_HEADER } = require("../../utils/cors");
 
-const handleCreateAtId = async event => {
+const handleCreateAtId = async (event) => {
   try {
     const { document, ttl } = JSON.parse(event.body);
     const { id } = event.pathParameters;
     const receipt = await uploadDocumentAtId(document, id, ttl);
     return {
       statusCode: 200,
-      body: JSON.stringify(receipt)
+      body: JSON.stringify(receipt),
     };
   } catch (e) {
     if (
@@ -20,15 +20,15 @@ const handleCreateAtId = async event => {
       return {
         statusCode: 400,
         headers: CORS_POLICY_HEADER,
-        body: JSON.stringify({ error: "Unauthorised Access" })
+        body: JSON.stringify({ error: "Unauthorised Access" }),
       };
     }
     return {
       statusCode: 400,
       headers: CORS_POLICY_HEADER,
       body: JSON.stringify({
-        error: e.message
-      })
+        error: e.message,
+      }),
     };
   }
 };
@@ -36,5 +36,5 @@ const handleCreateAtId = async event => {
 const handler = middy(handleCreateAtId).use(cors());
 
 module.exports = {
-  handler
+  handler,
 };

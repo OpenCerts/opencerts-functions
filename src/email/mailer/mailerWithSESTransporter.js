@@ -7,7 +7,7 @@ const SES = new aws.SES({
   apiVersion: "2010-12-01",
   accessKeyId: config.ses.accessKeyId,
   secretAccessKey: config.ses.secretAccessKey,
-  region: config.ses.region
+  region: config.ses.region,
 });
 
 const sesTransporter = nodemailer.createTransport({ SES });

@@ -7,5 +7,5 @@ module.exports = {
   getHandler,
   createAtIdHandler,
   createHandler,
-  queueNumberHandler
+  queueNumberHandler,
 };

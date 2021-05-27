@@ -1,22 +1,22 @@
-name: Tests
+name: CI
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1    
-      with:
-        node-version: '12.x'
-      
-    - run: npm install   
-    - run: npm run sls-config-check
-    
-    - run: npm run lint
-    - run: mv .env.example .env
-    - run: npm run test
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+
+      - run: npm ci
+      # - run: npm run sls-config-check
+
+      - run: npm run lint
+      # - run: mv .env.example .env
+      - run: npm run test
 
     # TODO: problematic on github actions atm - this is covered by seed.run integration tests for now, will fix later
     #       as part of upgrading the storage api

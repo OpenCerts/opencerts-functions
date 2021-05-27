@@ -8,13 +8,13 @@ const handleQueueNumber = async () => {
     const { id, key } = await getQueueNumber();
     return {
       statusCode: 200,
-      body: JSON.stringify({ id, key })
+      body: JSON.stringify({ id, key }),
     };
   } catch (e) {
     return {
       statusCode: 400,
       headers: CORS_POLICY_HEADER,
-      body: JSON.stringify({ error: e.message })
+      body: JSON.stringify({ error: e.message }),
     };
   }
 };
@@ -22,5 +22,5 @@ const handleQueueNumber = async () => {
 const handler = middy(handleQueueNumber).use(cors());
 
 module.exports = {
-  handler
+  handler,
 };

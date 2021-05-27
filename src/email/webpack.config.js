@@ -8,19 +8,21 @@ module.exports = {
   mode: slsw.lib.webpack.isLocal ? "development" : "production",
   entry: "./index.js",
   target: "node",
-  devtool: slsw.lib.webpack.isLocal ? "eval-cheap-module-source-map" : "source-map",
+  devtool: slsw.lib.webpack.isLocal
+    ? "eval-cheap-module-source-map"
+    : "source-map",
   output: {
     libraryTarget: "commonjs",
     path: path.resolve(__dirname, ".webpack"),
-    filename: "index.js"
+    filename: "index.js",
   },
   plugins: [
     new CopyPlugin({
-      patterns: [{ from: "static", to: "static" }]
+      patterns: [{ from: "static", to: "static" }],
     }),
     new webpack.ProvidePlugin({
-      fetch: path.resolve(path.join(__dirname, "../", "fetch-shim"))
-    })
+      fetch: path.resolve(path.join(__dirname, "../", "fetch-shim")),
+    }),
   ],
   module: {
     rules: [
@@ -30,19 +32,19 @@ module.exports = {
           {
             loader: "raw-loader",
             options: {
-              esModule: false
-            }
-          }
-        ]
+              esModule: false,
+            },
+          },
+        ],
       },
       {
         test: /\.(png|jpe?g|gif)$/i,
         use: [
           {
-            loader: "file-loader"
-          }
-        ]
-      }
-    ]
-  }
+            loader: "file-loader",
+          },
+        ],
+      },
+    ],
+  },
 };

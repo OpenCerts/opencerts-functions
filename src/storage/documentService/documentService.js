@@ -2,12 +2,12 @@ const { v4: uuid } = require("uuid");
 const {
   openAttestationVerifiers,
   verificationBuilder,
-  isValid
+  isValid,
 } = require("@govtechsg/oa-verify");
 
 const {
   encryptString,
-  generateEncryptionKey
+  generateEncryptionKey,
 } = require("@govtechsg/oa-encryption");
 
 const config = require("../config");
@@ -17,14 +17,14 @@ const DEFAULT_TTL_IN_MICROSECONDS = 30 * 24 * 60 * 60 * 1000; // 30 Days
 const MAX_TTL_IN_MICROSECONDS = 90 * 24 * 60 * 60 * 1000; // 90 Days
 
 const verify = verificationBuilder(openAttestationVerifiers, {
-  network: config.network
+  network: config.network,
 });
 
 const putDocument = async (document, id) => {
   const params = {
     Bucket: config.bucketName,
     Key: id,
-    Body: JSON.stringify({ document })
+    Body: JSON.stringify({ document }),
   };
   return put(params).then(() => ({ id: params.Key }));
 };
@@ -32,7 +32,7 @@ const putDocument = async (document, id) => {
 const getDocument = async (id, { cleanup } = { cleanup: false }) => {
   const params = {
     Bucket: config.bucketName,
-    Key: id
+    Key: id,
   };
   const document = await get(params);
   // we throw this error because if awaitingUpload exists on an object, it also has a decryption key in it and we don't want to return that, ever
@@ -49,17 +49,17 @@ const getDocument = async (id, { cleanup } = { cleanup: false }) => {
   return document;
 };
 
-const getDecryptionKey = async id => {
+const getDecryptionKey = async (id) => {
   const params = {
     Bucket: config.bucketName,
-    Key: id
+    Key: id,
   };
   const document = await get(params);
   if (!document.key) throw new Error("The conditional request failed");
   return document;
 };
 
-const calculateExpiryTimestamp = ttlInMicroseconds =>
+const calculateExpiryTimestamp = (ttlInMicroseconds) =>
   Date.now() + ttlInMicroseconds;
 
 const uploadDocumentAtId = async (
@@ -93,7 +93,7 @@ const uploadDocumentAtId = async (
       iv,
       tag,
       type,
-      ttl
+      ttl,
     },
     documentId
   );
@@ -101,7 +101,7 @@ const uploadDocumentAtId = async (
     id,
     key,
     type,
-    ttl
+    ttl,
   };
 };
 
@@ -129,7 +129,7 @@ const uploadDocument = async (
       iv,
       tag,
       type,
-      ttl
+      ttl,
     },
     uuid()
   );
@@ -137,7 +137,7 @@ const uploadDocument = async (
     id,
     key,
     type,
-    ttl
+    ttl,
   };
 };
 
@@ -148,12 +148,12 @@ const getQueueNumber = async () => {
     id,
     key: generateEncryptionKey(),
     awaitingUpload: true,
-    created
+    created,
   };
   const params = {
     Bucket: config.bucketName,
     Body: JSON.stringify(tempData),
-    Key: id
+    Key: id,
   };
   return put(params).then(() => ({ key: tempData.key, id }));
 };
@@ -166,5 +166,5 @@ module.exports = {
   getDocument,
   calculateExpiryTimestamp,
   DEFAULT_TTL_IN_MICROSECONDS,
-  MAX_TTL_IN_MICROSECONDS
+  MAX_TTL_IN_MICROSECONDS,
 };

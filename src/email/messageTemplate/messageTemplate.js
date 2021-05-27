@@ -8,7 +8,7 @@ const htmlMailTemplate = template(htmlMailTemplateContent);
 const txtMailTemplate = template(txtMailTemplateContent);
 const subjectMailTemplate = template(subjectMailTemplateContent);
 
-const messageTemplate = certificate => {
+const messageTemplate = (certificate) => {
   try {
     // Might throw if the certificate is undefined
     const data = openAttestation.getData(certificate);
@@ -23,7 +23,7 @@ const messageTemplate = certificate => {
     return {
       subject: subjectMailTemplate(params),
       html: htmlMailTemplate(params),
-      text: txtMailTemplate(params)
+      text: txtMailTemplate(params),
     };
   } catch (e) {
     // eslint-disable-next-line

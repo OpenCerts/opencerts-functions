@@ -21,11 +21,11 @@ describe("email", () => {
         .set("Accept", "application/json")
         .send({
           to: "example@tradetrust.io",
-          data: ropstenDocument
+          data: ropstenDocument,
         })
         .expect("Content-Type", /json/)
         .expect(200)
-        .expect(res => {
+        .expect((res) => {
           expect(res.body).toEqual({ success: true });
         });
     },
@@ -43,11 +43,11 @@ describe("email", () => {
         .set("Accept", "application/json")
         .send({
           to: "example@tradetrust.io",
-          data: invalidDocument
+          data: invalidDocument,
         })
         .expect("Content-Type", /json/)
         .expect(400)
-        .expect(res => {
+        .expect((res) => {
           expect(res.body).toEqual({ error: "Invalid certificate" });
         });
     },
@@ -64,13 +64,13 @@ describe("email", () => {
         .send({
           to: "example@tradetrust.io",
           data: ropstenDocument,
-          captcha: "moo"
+          captcha: "moo",
         })
         .expect("Content-Type", /json/)
         .expect(400)
-        .expect(res => {
+        .expect((res) => {
           expect(res.body).toEqual({
-            error: "Invalid captcha or missing API key"
+            error: "Invalid captcha or missing API key",
           });
         });
     },
@@ -87,11 +87,11 @@ describe("email", () => {
         .set("Accept", "application/json")
         .send({
           to: "example@tradetrust.io",
-          data: ropstenDocument
+          data: ropstenDocument,
         })
         .expect("Content-Type", /json/)
         .expect(400)
-        .expect(res => {
+        .expect((res) => {
           expect(res.body).toEqual({ error: "Invalid API key" });
         });
     },

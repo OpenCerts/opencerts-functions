@@ -4,7 +4,7 @@ const ropstenDocument = require("../fixtures/documentWithDocumentStore.json");
 const {
   thatIsRetrievedDocument,
   thatIsUploadResponse,
-  thatIsAQueueNumber
+  thatIsAQueueNumber,
 } = require("../utils/matchers");
 
 const API_ENDPOINT =
@@ -22,9 +22,9 @@ describe("storage endpoint test", () => {
         .set("Content-Type", "application/json")
         .set("Accept", "application/json")
         .send({
-          document: ropstenDocument
+          document: ropstenDocument,
         })
-        .expect(res => {
+        .expect((res) => {
           expect(res.body).toEqual(thatIsUploadResponse);
         });
     },
@@ -39,7 +39,7 @@ describe("storage endpoint test", () => {
         .set("Content-Type", "application/json")
         .set("Accept", "application/json")
         .send({
-          document: ropstenDocument
+          document: ropstenDocument,
         })
         .expect(400);
     },
@@ -55,7 +55,7 @@ describe("storage endpoint test", () => {
         .set("Content-Type", "application/json")
         .expect("Content-Type", /json/)
         .expect(200)
-        .expect(res => {
+        .expect((res) => {
           documentKey = res.body.id;
           expect(res.body).toEqual(thatIsAQueueNumber);
         });
@@ -66,11 +66,11 @@ describe("storage endpoint test", () => {
         .set("Accept", "application/json")
         .send({
           document: ropstenDocument,
-          id: documentKey
+          id: documentKey,
         })
         .expect("Content-Type", /json/)
         .expect(200)
-        .expect(res => {
+        .expect((res) => {
           expect(res.body.id).toEqual(documentKey);
           expect(res.body).toEqual(thatIsUploadResponse);
         });
@@ -80,7 +80,7 @@ describe("storage endpoint test", () => {
         .set("Content-Type", "application/json")
         .expect("Content-Type", /json/)
         .expect(200)
-        .expect(res => {
+        .expect((res) => {
           expect(res.body).toEqual(thatIsRetrievedDocument);
         });
     },

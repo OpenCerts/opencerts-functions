@@ -4,7 +4,7 @@ const { cors } = require("middy/middlewares");
 const {
   openAttestationVerifiers,
   verificationBuilder,
-  isValid
+  isValid,
 } = require("@govtechsg/oa-verify");
 const { CORS_POLICY_HEADER } = require("../../utils/cors");
 
@@ -15,10 +15,10 @@ const config = require("./config");
 const captchaValidator = recaptcha(config.recaptchaSecret);
 
 const verify = verificationBuilder(openAttestationVerifiers, {
-  network: config.network
+  network: config.network,
 });
 
-const validateApiKey = key => {
+const validateApiKey = (key) => {
   if (!key) return false;
   if (config.emailApiKeys.includes(key)) {
     return true;
@@ -60,13 +60,13 @@ const handleEmail = async (event, _context, callback) => {
 
     callback(null, {
       statusCode: 200,
-      body: JSON.stringify({ success: true })
+      body: JSON.stringify({ success: true }),
     });
   } catch (e) {
     callback(null, {
       statusCode: 400,
       headers: CORS_POLICY_HEADER,
-      body: JSON.stringify({ error: e.message })
+      body: JSON.stringify({ error: e.message }),
     });
   }
 };

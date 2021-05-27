@@ -11,7 +11,7 @@ const invalidDocumentFile = require("../../../test/fixtures/invalidDocument.json
 const {
   calculateExpiryTimestamp,
   getDocument,
-  uploadDocument
+  uploadDocument,
 } = require("./documentService");
 
 jest.spyOn(Date, "now").mockImplementation(() => 1578897000000);
@@ -25,14 +25,14 @@ describe("uploadDocument", () => {
       iv: "MOCK_IV",
       tag: "MOCK_TAG",
       key: "4df5cc8daff794d9ec536baf022e03f8ad0226a4e17dfe3fe624c16b2042f354",
-      type: "OPEN-ATTESTATION-TYPE-1"
+      type: "OPEN-ATTESTATION-TYPE-1",
     });
     const upload = await uploadDocument(documentWithDocumentStore);
     expect(upload).toStrictEqual({
       id: 123,
       key: "4df5cc8daff794d9ec536baf022e03f8ad0226a4e17dfe3fe624c16b2042f354",
       type: "OPEN-ATTESTATION-TYPE-1",
-      ttl: 1581489000000
+      ttl: 1581489000000,
     });
   });
 
@@ -44,7 +44,7 @@ describe("uploadDocument", () => {
       iv: "MOCK_IV",
       tag: "MOCK_TAG",
       key: "4df5cc8daff794d9ec536baf022e03f8ad0226a4e17dfe3fe624c16b2042f354",
-      type: "OPEN-ATTESTATION-TYPE-1"
+      type: "OPEN-ATTESTATION-TYPE-1",
     });
     const upload = await uploadDocument(documentDnsDidSigned);
 
@@ -52,7 +52,7 @@ describe("uploadDocument", () => {
       id: 123,
       key: "4df5cc8daff794d9ec536baf022e03f8ad0226a4e17dfe3fe624c16b2042f354",
       type: "OPEN-ATTESTATION-TYPE-1",
-      ttl: 1581489000000
+      ttl: 1581489000000,
     });
   });
 
@@ -84,8 +84,8 @@ describe("getDocument", () => {
         iv: "MOCK_IV",
         tag: "MOCK_TAG",
         type: "OPEN-ATTESTATION-TYPE-1",
-        ttl: 1478983400000
-      }
+        ttl: 1478983400000,
+      },
     };
     get.mockResolvedValue(invalidDocument);
     await expect(getDocument("ID")).rejects.toThrow("No Document Found");
@@ -98,8 +98,8 @@ describe("getDocument", () => {
         iv: "MOCK_IV",
         tag: "MOCK_TAG",
         type: "OPEN-ATTESTATION-TYPE-1",
-        ttl: 1578983400000
-      }
+        ttl: 1578983400000,
+      },
     };
     get.mockResolvedValue(validDocument);
     const result = await getDocument("ID");

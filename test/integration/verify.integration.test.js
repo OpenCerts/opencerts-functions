@@ -15,68 +15,68 @@ describe("verify", () => {
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .send({
-        document: ropstenDocument
+        document: ropstenDocument,
       })
       .expect("Content-Type", /json/)
       .expect(200)
-      .expect(res => {
+      .expect((res) => {
         expect(res.body).toStrictEqual({
           data: [
             {
               data: true,
               name: "OpenAttestationHash",
               status: "VALID",
-              type: "DOCUMENT_INTEGRITY"
+              type: "DOCUMENT_INTEGRITY",
             },
             {
               data: {
                 details: [
                   {
                     address: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495",
-                    issued: true
-                  }
+                    issued: true,
+                  },
                 ],
-                issuedOnAll: true
+                issuedOnAll: true,
               },
               name: "OpenAttestationEthereumDocumentStoreIssued",
               status: "VALID",
-              type: "DOCUMENT_STATUS"
+              type: "DOCUMENT_STATUS",
             },
             {
               reason: {
                 code: 4,
                 codeString: "SKIPPED",
                 message:
-                  'Document issuers doesn\'t have "tokenRegistry" property or TOKEN_REGISTRY method'
+                  'Document issuers doesn\'t have "tokenRegistry" property or TOKEN_REGISTRY method',
               },
               name: "OpenAttestationEthereumTokenRegistryMinted",
               status: "SKIPPED",
-              type: "DOCUMENT_STATUS"
+              type: "DOCUMENT_STATUS",
             },
             {
               data: {
                 details: [
                   {
                     address: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495",
-                    revoked: false
-                  }
+                    revoked: false,
+                  },
                 ],
-                revokedOnAny: false
+                revokedOnAny: false,
               },
               name: "OpenAttestationEthereumDocumentStoreRevoked",
               status: "VALID",
-              type: "DOCUMENT_STATUS"
+              type: "DOCUMENT_STATUS",
             },
             {
               reason: {
                 code: 2,
                 codeString: "SKIPPED",
                 message:
-                  'Document issuers doesn\'t have "documentStore" / "tokenRegistry" property or doesn\'t use DNS-TXT type'
+                  'Document issuers doesn\'t have "documentStore" / "tokenRegistry" property or doesn\'t use DNS-TXT type',
               },
               name: "OpenAttestationDnsTxt",
               status: "SKIPPED",
-              type: "ISSUER_IDENTITY"
+              type: "ISSUER_IDENTITY",
             },
             {
               data: [
@@ -84,20 +84,20 @@ describe("verify", () => {
                   displayCard: false,
                   name: "ROPSTEN: Ngee Ann Polytechnic",
                   status: "VALID",
-                  value: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495"
-                }
+                  value: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495",
+                },
               ],
               name: "OpencertsRegistryVerifier",
               status: "VALID",
-              type: "ISSUER_IDENTITY"
-            }
+              type: "ISSUER_IDENTITY",
+            },
           ],
           summary: {
             all: true,
             documentIntegrity: true,
             documentStatus: true,
-            issuerIdentity: true
-          }
+            issuerIdentity: true,
+          },
         });
       });
   });
@@ -108,18 +108,18 @@ describe("verify", () => {
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .send({
-        document: invalidDocument
+        document: invalidDocument,
       })
       .expect("Content-Type", /json/)
       .expect(200)
-      .expect(res => {
+      .expect((res) => {
         expect(res.body).toStrictEqual({
           data: [
             {
               data: true,
               name: "OpenAttestationHash",
               status: "VALID",
-              type: "DOCUMENT_INTEGRITY"
+              type: "DOCUMENT_INTEGRITY",
             },
             {
               data: {
@@ -130,59 +130,59 @@ describe("verify", () => {
                       code: 3,
                       codeString: "ETHERS_UNHANDLED_ERROR",
                       message:
-                        "Error with smart contract 0x007d40224f6562461633ccfbaffd359ebb2fc9ba: call exception"
+                        "Error with smart contract 0x007d40224f6562461633ccfbaffd359ebb2fc9ba: call exception",
                     },
-                    issued: false
-                  }
+                    issued: false,
+                  },
                 ],
-                issuedOnAll: false
+                issuedOnAll: false,
               },
 
               reason: {
                 code: 3,
                 codeString: "ETHERS_UNHANDLED_ERROR",
                 message:
-                  "Error with smart contract 0x007d40224f6562461633ccfbaffd359ebb2fc9ba: call exception"
+                  "Error with smart contract 0x007d40224f6562461633ccfbaffd359ebb2fc9ba: call exception",
               },
               name: "OpenAttestationEthereumDocumentStoreIssued",
               status: "INVALID",
-              type: "DOCUMENT_STATUS"
+              type: "DOCUMENT_STATUS",
             },
             {
               reason: {
                 code: 4,
                 codeString: "SKIPPED",
                 message:
-                  'Document issuers doesn\'t have "tokenRegistry" property or TOKEN_REGISTRY method'
+                  'Document issuers doesn\'t have "tokenRegistry" property or TOKEN_REGISTRY method',
               },
               name: "OpenAttestationEthereumTokenRegistryMinted",
               status: "SKIPPED",
-              type: "DOCUMENT_STATUS"
+              type: "DOCUMENT_STATUS",
             },
             {
               data: {
                 details: [
                   {
                     address: "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
-                    revoked: false
-                  }
+                    revoked: false,
+                  },
                 ],
-                revokedOnAny: false
+                revokedOnAny: false,
               },
               name: "OpenAttestationEthereumDocumentStoreRevoked",
               status: "VALID",
-              type: "DOCUMENT_STATUS"
+              type: "DOCUMENT_STATUS",
             },
             {
               reason: {
                 code: 2,
                 codeString: "SKIPPED",
                 message:
-                  'Document issuers doesn\'t have "documentStore" / "tokenRegistry" property or doesn\'t use DNS-TXT type'
+                  'Document issuers doesn\'t have "documentStore" / "tokenRegistry" property or doesn\'t use DNS-TXT type',
               },
               name: "OpenAttestationDnsTxt",
               status: "SKIPPED",
-              type: "ISSUER_IDENTITY"
+              type: "ISSUER_IDENTITY",
             },
             {
               data: [
@@ -195,20 +195,20 @@ describe("verify", () => {
                   phone: "+65 6211 2100",
                   status: "VALID",
                   value: "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
-                  website: "https://www.tech.gov.sg"
-                }
+                  website: "https://www.tech.gov.sg",
+                },
               ],
               name: "OpencertsRegistryVerifier",
               status: "VALID",
-              type: "ISSUER_IDENTITY"
-            }
+              type: "ISSUER_IDENTITY",
+            },
           ],
           summary: {
             all: false,
             documentIntegrity: true,
             documentStatus: false,
-            issuerIdentity: true
-          }
+            issuerIdentity: true,
+          },
         });
       });
   });

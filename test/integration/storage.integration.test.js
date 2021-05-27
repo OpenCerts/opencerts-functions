@@ -9,14 +9,14 @@ const {
   getDocument,
   getQueueNumber,
   DEFAULT_TTL_IN_MICROSECONDS,
-  MAX_TTL_IN_MICROSECONDS
+  MAX_TTL_IN_MICROSECONDS,
 } = require("../../src/storage/documentService");
 
 const {
   thatIsRetrievedDocument,
   thatIsRetrievedDocumentWithTtl,
   thatIsUploadResponse,
-  thatIsAQueueNumber
+  thatIsAQueueNumber,
 } = require("../utils/matchers");
 
 const TIME_SKEW_ALLOWANCE = 5000;
@@ -215,7 +215,7 @@ describe("documentService", () => {
         cipherText: retrieve.document.cipherText,
         iv: retrieve.document.iv,
         key: uploaded.key,
-        type: "OPEN-ATTESTATION-TYPE-1"
+        type: "OPEN-ATTESTATION-TYPE-1",
       })
     );
 

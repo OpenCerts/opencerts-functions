@@ -3,6 +3,6 @@ module.exports = {
   transform: {
     "\\.html": "jest-raw-loader",
     "\\.txt": "jest-raw-loader",
-    "\\.subject": "jest-raw-loader"
-  }
+    "\\.subject": "jest-raw-loader",
+  },
 };

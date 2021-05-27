@@ -5,7 +5,7 @@ const options = process.env.IS_OFFLINE
       region: "localhost",
       endpoint: "http://localhost:8000",
       accessKeyId: "DEFAULT_ACCESS_KEY",
-      secretAccessKey: "DEFAULT_SECRET"
+      secretAccessKey: "DEFAULT_SECRET",
     }
   : {};
 
@@ -16,7 +16,7 @@ const get = (...args) =>
   dynamoClient
     .get(...args)
     .promise()
-    .then(results => {
+    .then((results) => {
       if (results.Item) {
         return results.Item;
       }

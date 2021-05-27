@@ -6,15 +6,15 @@ const thatIsUploadResponse = {
   id: expect.stringMatching(uuidV4Regex),
   key: expect.any(String),
   type: expect.stringMatching("OPEN-ATTESTATION-TYPE-1"),
-  ttl: expect.any(Number)
+  ttl: expect.any(Number),
 };
 
 const thatIsRetrievedDocument = {
   document: expect.objectContaining({
     cipherText: expect.any(String),
     iv: expect.any(String),
-    tag: expect.any(String)
-  })
+    tag: expect.any(String),
+  }),
 };
 
 const thatIsRetrievedDocumentWithTtl = {
@@ -22,18 +22,18 @@ const thatIsRetrievedDocumentWithTtl = {
     cipherText: expect.any(String),
     iv: expect.any(String),
     tag: expect.any(String),
-    ttl: expect.any(Number)
-  })
+    ttl: expect.any(Number),
+  }),
 };
 
 const thatIsAQueueNumber = {
   key: expect.any(String),
-  id: expect.stringMatching(uuidV4Regex)
+  id: expect.stringMatching(uuidV4Regex),
 };
 
 module.exports = {
   thatIsRetrievedDocument,
   thatIsRetrievedDocumentWithTtl,
   thatIsUploadResponse,
-  thatIsAQueueNumber
+  thatIsAQueueNumber,
 };
