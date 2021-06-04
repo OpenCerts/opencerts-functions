@@ -1,31 +1,19 @@
-const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
-const slsw = require("serverless-webpack");
-const webpack = require("webpack");
+const { buildConfig } = require("../../webpack.helper");
+
+const webpackConfig = buildConfig({ root: __dirname });
 
 module.exports = {
-  context: __dirname,
-  mode: slsw.lib.webpack.isLocal ? "development" : "production",
-  entry: "./index.js",
-  target: "node",
-  devtool: slsw.lib.webpack.isLocal
-    ? "eval-cheap-module-source-map"
-    : "source-map",
-  output: {
-    libraryTarget: "commonjs",
-    path: path.resolve(__dirname, ".webpack"),
-    filename: "index.js",
-  },
+  ...webpackConfig,
   plugins: [
+    ...webpackConfig.plugins,
     new CopyPlugin({
       patterns: [{ from: "static", to: "static" }],
-    }),
-    new webpack.ProvidePlugin({
-      fetch: path.resolve(path.join(__dirname, "../", "fetch-shim")),
     }),
   ],
   module: {
     rules: [
+      ...webpackConfig.module.rules,
       {
         test: /(\.txt|\.html|\.subject)$/i,
         use: [
