@@ -16,5 +16,5 @@ const handleQueueNumber = async () => {
 export const handler = middy(handleQueueNumber)
   .use(jsonBodyParser())
   .use(unknownErrorHandler())
-  .use(httpErrorHandler())
-  .use(cors());
+  .use(cors())
+  .use(httpErrorHandler());

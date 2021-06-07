@@ -6,11 +6,15 @@ import { getDocument } from "./services/documentService";
 import { APIGatewayRequestAuthorizerEvent } from "aws-lambda";
 import createError from "http-errors";
 import { unknownErrorHandler } from "../unknownErrorHandler";
+import { getLogger } from "../logger";
+
+const { error } = getLogger("storage");
 
 const handleGet = async (event: APIGatewayRequestAuthorizerEvent) => {
   const id = event.pathParameters?.id;
   const cleanup = event.queryStringParameters?.cleanup === "true";
   if (!id) {
+    error("Please provide ID of document to retrieve");
     throw new createError.BadRequest(
       "Please provide ID of document to retrieve"
     );
@@ -25,5 +29,5 @@ const handleGet = async (event: APIGatewayRequestAuthorizerEvent) => {
 export const handler = middy(handleGet)
   .use(jsonBodyParser())
   .use(unknownErrorHandler())
-  .use(httpErrorHandler())
-  .use(cors());
+  .use(cors())
+  .use(httpErrorHandler());

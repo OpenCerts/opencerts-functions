@@ -13,10 +13,14 @@ const verify = verificationBuilder(openAttestationVerifiers, {
 });
 import createError from "http-errors";
 import { unknownErrorHandler } from "../unknownErrorHandler";
+import { getLogger } from "../logger";
+
+const { error } = getLogger("verify");
 
 const handleVerify = async (event: { body: { document: any } }) => {
   const { document } = event.body ?? {};
   if (!document) {
+    error("Please provide a document to verify in the document body property");
     throw new createError.BadRequest(
       "Please provide a document to verify in the document body property"
     );
@@ -41,5 +45,5 @@ const handleVerify = async (event: { body: { document: any } }) => {
 export const handler = middy(handleVerify)
   .use(jsonBodyParser())
   .use(unknownErrorHandler())
-  .use(httpErrorHandler())
-  .use(cors());
+  .use(cors())
+  .use(httpErrorHandler());

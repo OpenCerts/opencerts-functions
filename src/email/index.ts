@@ -14,6 +14,9 @@ import { config } from "./config";
 import { unknownErrorHandler } from "../unknownErrorHandler";
 import { String } from "runtypes";
 import createError from "http-errors";
+import { getLogger } from "../logger";
+
+const { error } = getLogger("email");
 
 const captchaValidator = recaptcha(config.recaptchaSecret ?? "");
 
@@ -26,6 +29,7 @@ const validateApiKey = (key: string) => {
   if (config.emailApiKeys.includes(key)) {
     return true;
   }
+  error(`Invalid API key: ${key}`);
   throw new createError.BadRequest("Invalid API key");
 };
 
@@ -36,6 +40,12 @@ const handleEmail = async (event: { body: any }) => {
     Object.keys(data ?? {}).length < 1 ||
     !String.guard(to)
   ) {
+    error(
+      `Please provide the document and a recipient: ${JSON.stringify({
+        data,
+        to,
+      })}`
+    );
     throw new createError.BadRequest(
       "Please provide the document and a recipient"
     );
@@ -57,13 +67,21 @@ const handleEmail = async (event: { body: any }) => {
     console.log(`Captcha: ${captcha}`);
     // eslint-disable-next-line no-console
     console.log(`Captcha isValid: ${valid}`);
-    if (!valid)
+    if (!valid) {
+      error(
+        `Invalid captcha or missing API key ${JSON.stringify({
+          captcha,
+          apiKey,
+        })}`
+      );
       throw new createError.BadRequest("Invalid captcha or missing API key");
+    }
   }
 
   // Verify Certificate
   const fragments = await verify(data);
   if (!isValid(fragments)) {
+    error(`Invalid certificate: ${JSON.stringify({ fragments })}`);
     throw new createError.BadRequest("Invalid certificate");
   }
 
@@ -79,5 +97,5 @@ const handleEmail = async (event: { body: any }) => {
 export const handler = middy(handleEmail)
   .use(jsonBodyParser())
   .use(unknownErrorHandler())
-  .use(httpErrorHandler())
-  .use(cors());
+  .use(cors())
+  .use(httpErrorHandler());

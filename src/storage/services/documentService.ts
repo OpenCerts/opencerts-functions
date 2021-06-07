@@ -8,6 +8,9 @@ import { encryptString, generateEncryptionKey } from "@govtechsg/oa-encryption";
 import { config } from "../config";
 import { get, put, remove } from "./s3";
 import createError from "http-errors";
+import { getLogger } from "../../logger";
+
+const { error } = getLogger("storage");
 
 export const DEFAULT_TTL_IN_MICROSECONDS = 30 * 24 * 60 * 60 * 1000; // 30 Days
 export const MAX_TTL_IN_MICROSECONDS = 90 * 24 * 60 * 60 * 1000; // 90 Days
@@ -40,6 +43,7 @@ export const getDocument = async (
     document.awaitingUpload ||
     document.document.ttl < Date.now() // if the document has expired, tell the user that it doesn't exist
   ) {
+    error(`No document found: ${JSON.stringify({ document })}`);
     throw new createError.BadRequest("No Document Found");
   }
   if (cleanup) {
@@ -54,7 +58,10 @@ const getDecryptionKey = async (id: string) => {
     Key: id,
   };
   const document = await get(params);
-  if (!document.key) throw new createError.BadRequest(`Unauthorised Access`);
+  if (!document.key) {
+    error(`No key found in document: ${JSON.stringify({ document })}`);
+    throw new createError.BadRequest(`Unauthorised Access`);
+  }
   return document;
 };
 
@@ -69,15 +76,30 @@ export const uploadDocumentAtId = async (
   const placeHolderObj = await getDecryptionKey(documentId);
   if (!(placeHolderObj.key && placeHolderObj.awaitingUpload)) {
     // we get here when a file exists at location but is not a placeholder awaiting upload
+    error(
+      `Tried to upload to an already uploaded document: ${JSON.stringify({
+        documentId,
+      })}`
+    );
     throw new createError.BadRequest(`Unauthorised Access`);
   }
 
   if (ttlInMicroseconds > MAX_TTL_IN_MICROSECONDS) {
+    error(
+      `Ttl cannot exceed 90 days: ${JSON.stringify({
+        ttl: ttlInMicroseconds,
+      })}`
+    );
     throw new createError.BadRequest("Ttl cannot exceed 90 days");
   }
 
   const fragments = await verify(document);
   if (!isValid(fragments)) {
+    error(
+      `Document is not valid: ${JSON.stringify({
+        fragments,
+      })}`
+    );
     throw new createError.BadRequest("Document is not valid");
   }
 
@@ -110,10 +132,20 @@ export const uploadDocument = async (
 ) => {
   const fragments = await verify(document);
   if (!isValid(fragments)) {
+    error(
+      `Document is not valid: ${JSON.stringify({
+        fragments,
+      })}`
+    );
     throw new createError.BadRequest("Document is not valid");
   }
 
   if (ttlInMicroseconds > MAX_TTL_IN_MICROSECONDS) {
+    error(
+      `Ttl cannot exceed 90 days: ${JSON.stringify({
+        ttl: ttlInMicroseconds,
+      })}`
+    );
     throw new createError.BadRequest("Ttl cannot exceed 90 days");
   }
 

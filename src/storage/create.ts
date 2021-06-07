@@ -6,6 +6,9 @@ import { uploadDocument } from "./services/documentService";
 import { Number, Undefined } from "runtypes";
 import createError from "http-errors";
 import { unknownErrorHandler } from "../unknownErrorHandler";
+import { getLogger } from "../logger";
+
+const { error } = getLogger("storage");
 
 const handleCreate = async (event: { body: any }) => {
   const { document, ttl } = event.body ?? {};
@@ -14,6 +17,12 @@ const handleCreate = async (event: { body: any }) => {
     Object.keys(document ?? {}).length < 1 ||
     !(Number.guard(ttl) || Undefined.guard(ttl))
   ) {
+    error(
+      `Please provide the document and a valid TTL ${JSON.stringify(
+        ttl,
+        document
+      )}`
+    );
     throw new createError.BadRequest(
       "Please provide the document and a valid TTL"
     );
@@ -28,5 +37,5 @@ const handleCreate = async (event: { body: any }) => {
 export const handler = middy(handleCreate)
   .use(jsonBodyParser())
   .use(unknownErrorHandler())
-  .use(httpErrorHandler())
-  .use(cors());
+  .use(cors())
+  .use(httpErrorHandler());

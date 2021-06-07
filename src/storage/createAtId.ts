@@ -6,6 +6,9 @@ import httpErrorHandler from "@middy/http-error-handler";
 import { Number, String, Undefined } from "runtypes";
 import createError from "http-errors";
 import { unknownErrorHandler } from "../unknownErrorHandler";
+import { getLogger } from "../logger";
+
+const { error } = getLogger("storage");
 
 const handleCreateAtId = async (event: {
   body: any;
@@ -19,6 +22,15 @@ const handleCreateAtId = async (event: {
     !(Number.guard(ttl) || Undefined.guard(ttl)) ||
     !String.guard(id)
   ) {
+    error(
+      `Please provide the ID of the document, the document and a valid TTL ${JSON.stringify(
+        {
+          ttl,
+          id,
+          document,
+        }
+      )}`
+    );
     throw new createError.BadRequest(
       "Please provide the ID of the document, the document and a valid TTL"
     );
@@ -33,5 +45,5 @@ const handleCreateAtId = async (event: {
 export const handler = middy(handleCreateAtId)
   .use(jsonBodyParser())
   .use(unknownErrorHandler())
-  .use(httpErrorHandler())
-  .use(cors());
+  .use(cors())
+  .use(httpErrorHandler());
