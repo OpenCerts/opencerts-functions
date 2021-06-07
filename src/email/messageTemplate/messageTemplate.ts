@@ -11,11 +11,15 @@ const subjectMailTemplate = template(subjectMailTemplateContent);
 
 export const messageTemplate = (certificate: any) => {
   if (!certificate) {
-    throw new createError.BadRequest("Empty document");
+    throw new createError.BadRequest(
+      "Provided document could not be emailed as it was either empty or not a valid OpenAttestation document"
+    );
   }
   const data = utils.getData(certificate);
   if (!data) {
-    throw new createError.BadRequest("Empty document");
+    throw new createError.BadRequest(
+      "Provided document could not be emailed as it was either empty or not a valid OpenAttestation document"
+    );
   }
   try {
     const issuerName = get(data, "issuers[0].name");

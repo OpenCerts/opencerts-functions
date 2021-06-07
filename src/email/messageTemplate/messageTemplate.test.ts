@@ -39,7 +39,7 @@ describe("messageTemplate", () => {
 
   it("throws for invalid certificate", () => {
     expect(() => messageTemplate({ foo: "Invalid Data" })).toThrow(
-      "Empty document"
+      "Provided document could not be emailed as it was either empty or not a valid OpenAttestation document"
     );
   });
 });

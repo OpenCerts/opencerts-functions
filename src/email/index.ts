@@ -76,10 +76,8 @@ const handleEmail = async (event: { body: any }) => {
   };
 };
 
-const handler = middy(handleEmail)
+export const handler = middy(handleEmail)
   .use(jsonBodyParser())
   .use(unknownErrorHandler())
   .use(httpErrorHandler())
   .use(cors());
-
-module.exports = { handler };
