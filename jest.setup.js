@@ -1,6 +1,6 @@
 process.env.BUCKET_NAME = "oa-functions-transfer-document-storage";
 
-// Please note that the `test:e2e:local` will automatically setup the endpoint for the different API for you. Indeed the command set the environment variable `OFFLINE` to true and here we automatically set the endpoint address when the `OFFLINE` variable is set.
+// this path runs for test:e2e:local and the ports are set in each API's serverless.yml
 if (process.env.IS_OFFLINE === "true") {
   process.env.STORAGE_ENDPOINT = "http://localhost:5000/stg";
   process.env.VERIFY_ENDPOINT = "http://localhost:4000/stg";
