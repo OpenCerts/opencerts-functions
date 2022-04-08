@@ -1,6 +1,7 @@
 const supertest = require("supertest");
 const ropstenDocument = require("../fixtures/certificate.json");
 const mainnetDocument = require("../fixtures/certificateMainnetValid.json");
+const tamperedDocument = require("../fixtures/tampered-certificate.json");
 
 const API_ENDPOINT =
   process.env.VERIFY_ENDPOINT || "https://api-ropsten.opencerts.io/verify";
@@ -237,6 +238,140 @@ describe("verify", () => {
                     id: "govtech-registry"
                   }
                 ]
+              }
+            ]
+          });
+        });
+    },
+    API_TIMEOUT
+  );
+
+  it(
+    "should not work for a tampered document",
+    async () => {
+      await request
+        .post("/")
+        .set("Content-Type", "application/json")
+        .set("Accept", "application/json")
+        .send({
+          document: tamperedDocument
+        })
+        .expect("Content-Type", /json/)
+        .expect(200)
+        .expect(res => {
+          expect(res.body).toStrictEqual({
+            summary: {
+              all: false,
+              documentStatus: false,
+              documentIntegrity: false,
+              issuerIdentity: false
+            },
+            data: [
+              {
+                type: "DOCUMENT_INTEGRITY",
+                name: "OpenAttestationHash",
+                data: false,
+                reason: {
+                  code: 0,
+                  codeString: "DOCUMENT_TAMPERED",
+                  message: "Document has been tampered with"
+                },
+                status: "INVALID"
+              },
+              {
+                status: "SKIPPED",
+                type: "DOCUMENT_STATUS",
+                name: "OpenAttestationEthereumTokenRegistryStatus",
+                reason: {
+                  code: 4,
+                  codeString: "SKIPPED",
+                  message:
+                    'Document issuers doesn\'t have "tokenRegistry" property or TOKEN_REGISTRY method'
+                }
+              },
+              {
+                name: "OpenAttestationEthereumDocumentStoreStatus",
+                type: "DOCUMENT_STATUS",
+                data: {
+                  reason: "missing revert data in call exception",
+                  code: "CALL_EXCEPTION",
+                  error: {
+                    reason: "processing response error",
+                    code: "SERVER_ERROR",
+                    body:
+                      '{"jsonrpc":"2.0","id":42,"error":{"code":-32000,"message":"execution reverted"}}',
+                    error: {
+                      code: -32000
+                    },
+                    requestBody:
+                      '{"method":"eth_call","params":[{"to":"0x20bc9c354a18c8178a713b9bccffac2152b53990","data":"0x163aa63185df2b4e905a82cf10c317df8f4b659b5cf38cc12bd5fbaffba5fc901ef0011b"},"latest"],"id":42,"jsonrpc":"2.0"}',
+                    requestMethod: "POST",
+                    url:
+                      "https://ropsten.infura.io/v3/bb46da3f80e040e8ab73c0a9ff365d18"
+                  },
+                  data: "0x"
+                },
+                reason: {
+                  message:
+                    'missing revert data in call exception [ See: https://links.ethers.org/v5-errors-CALL_EXCEPTION ] (error={"reason":"processing response error","code":"SERVER_ERROR","body":"{\\"jsonrpc\\":\\"2.0\\",\\"id\\":42,\\"error\\":{\\"code\\":-32000,\\"message\\":\\"execution reverted\\"}}","error":{"code":-32000},"requestBody":"{\\"method\\":\\"eth_call\\",\\"params\\":[{\\"to\\":\\"0x20bc9c354a18c8178a713b9bccffac2152b53990\\",\\"data\\":\\"0x163aa63185df2b4e905a82cf10c317df8f4b659b5cf38cc12bd5fbaffba5fc901ef0011b\\"},\\"latest\\"],\\"id\\":42,\\"jsonrpc\\":\\"2.0\\"}","requestMethod":"POST","url":"https://ropsten.infura.io/v3/bb46da3f80e040e8ab73c0a9ff365d18"}, data="0x", code=CALL_EXCEPTION, version=providers/5.6.2)',
+                  code: 0,
+                  codeString: "UNEXPECTED_ERROR"
+                },
+                status: "ERROR"
+              },
+              {
+                status: "SKIPPED",
+                type: "DOCUMENT_STATUS",
+                name: "OpenAttestationDidSignedDocumentStatus",
+                reason: {
+                  code: 0,
+                  codeString: "SKIPPED",
+                  message: "Document was not signed by DID directly"
+                }
+              },
+              {
+                status: "SKIPPED",
+                type: "ISSUER_IDENTITY",
+                name: "OpenAttestationDnsTxtIdentityProof",
+                reason: {
+                  code: 2,
+                  codeString: "SKIPPED",
+                  message:
+                    'Document issuers doesn\'t have "documentStore" / "tokenRegistry" property or doesn\'t use DNS-TXT type'
+                }
+              },
+              {
+                status: "SKIPPED",
+                type: "ISSUER_IDENTITY",
+                name: "OpenAttestationDnsDidIdentityProof",
+                reason: {
+                  code: 0,
+                  codeString: "SKIPPED",
+                  message: "Document was not issued using DNS-DID"
+                }
+              },
+              {
+                type: "ISSUER_IDENTITY",
+                name: "OpencertsRegistryVerifier",
+                status: "INVALID",
+                data: [
+                  {
+                    value: "0x20bc9C354A18C8178A713B9BcCFFaC2152b53990",
+                    status: "INVALID",
+                    reason: {
+                      code: 0,
+                      codeString: "INVALID_IDENTITY",
+                      message:
+                        "Document store 0x20bc9C354A18C8178A713B9BcCFFaC2152b53990 not found in the registry"
+                    }
+                  }
+                ],
+                reason: {
+                  code: 0,
+                  codeString: "INVALID_IDENTITY",
+                  message:
+                    "Document store 0x20bc9C354A18C8178A713B9BcCFFaC2152b53990 not found in the registry"
+                }
               }
             ]
           });
