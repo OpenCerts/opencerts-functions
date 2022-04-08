@@ -16,15 +16,15 @@ const handleVerify = async (event, _context, callback) => {
           all: isValid(fragments),
           documentStatus: isValid(fragments, ["DOCUMENT_STATUS"]),
           documentIntegrity: isValid(fragments, ["DOCUMENT_INTEGRITY"]),
-          issuerIdentity: isValid(fragments, ["ISSUER_IDENTITY"])
+          issuerIdentity: isValid(fragments, ["ISSUER_IDENTITY"]),
         },
-        data: fragments
-      })
+        data: fragments,
+      }),
     });
   } catch (e) {
     callback(null, {
       statusCode: 400,
-      body: e.message
+      body: e.message,
     });
   }
 };
@@ -32,5 +32,5 @@ const handleVerify = async (event, _context, callback) => {
 const handler = middy(handleVerify).use(cors());
 
 module.exports = {
-  handler
+  handler,
 };
