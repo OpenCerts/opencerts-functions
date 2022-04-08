@@ -8,7 +8,7 @@ const handleVerify = async (event, _context, callback) => {
   const { document } = JSON.parse(event.body);
   try {
     const fragments = await verify({ network: config.network })(document);
-    console.log(fragments);
+    // trigger deploy!
     callback(null, {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
