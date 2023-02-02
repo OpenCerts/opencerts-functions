@@ -38,7 +38,7 @@
     "middy": "^0.36.0",
     "node-fetch": "^2.6.1",
     "nodemailer": "^4.6.8",
-    "serverless": "^1.59.3",
+    "serverless": "^1.83.2",
     "serverless-dotenv-plugin": "2.4.2",
     "serverless-http": "^1.6.0",
     "uuid": "^3.3.2"
