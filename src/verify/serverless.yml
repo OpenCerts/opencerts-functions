@@ -1,7 +1,7 @@
 service: verify
 provider:
   name: aws
-  runtime: nodejs18.x
+  runtime: nodejs16.x
   stage: "${opt:stage, 'dev'}"
   region: "${opt:region, 'ap-southeast-1'}"
   memorySize: 256
