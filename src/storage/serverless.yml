@@ -1,4 +1,5 @@
 service: storage
+frameworkVersion: ^3.30.0
 provider:
   name: aws
   apiKeys: 

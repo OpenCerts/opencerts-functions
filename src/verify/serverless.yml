@@ -1,4 +1,5 @@
 service: verify
+frameworkVersion: ^3.30.0
 provider:
   name: aws
   runtime: nodejs16.x
