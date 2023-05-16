@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "engines": {
-    "node": ">=16.16.0",
-    "npm": ">=9.0.0"
+    "node": ">=16.19.0",
+    "npm": ">=8.19.0"
   },
   "scripts": {
     "create-domain:verify": "cd ./src/verify && sls create_domain",
