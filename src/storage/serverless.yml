@@ -4,7 +4,7 @@ provider:
   apiKeys: 
     - ${self:provider.stage}-storage-api-key
   runtime: nodejs12.x
-  stage: ${opt:stage, 'stg'}
+  stage: ${opt:stage, 'dev'}
   region: ap-southeast-1
   memorySize: 256
   timeout: 30 # downstream things take a long time
@@ -87,6 +87,8 @@ custom:
   BUCKET_NAME: ${env:BUCKET_NAME, "oc-functions-storage"}-${self:provider.stage}
   ENABLE_STORAGE_UPLOAD_API_KEY: ${strToBool(${env:ENABLE_STORAGE_UPLOAD_API_KEY, 'false'})}
   OBJECT_TTL: ${env:OBJECT_TTL, 31} # Object TTL in days
+  dotenv:
+    path: ../../
   serverless-offline:
     lambdaPort: 5002
     httpPort: 5000
@@ -94,10 +96,10 @@ custom:
     false: 'true' # To negate the environment variable DISABLE_DOMAIN
     true: 'false' # if you know of a way to do conditionals please change this
   customDomain:
-    domainName: "${env:DOMAIN}" # Change this to your domain.
+    domainName: "${env:DOMAIN, 'dev'}" # Change this to your domain.
     basePath: "storage" # This will be prefixed to all routes
     stage: ${self:provider.stage}
-    certificateName: "${env:CERTIFICATE_DOMAIN}"
+    certificateName: "${env:CERTIFICATE_DOMAIN, 'dev'}"
     createRoute53Record: true
     endpointType: "regional"
     securityPolicy: tls_1_2

@@ -2,7 +2,7 @@ service: verify
 provider:
   name: aws
   runtime: nodejs12.x
-  stage: "${opt:stage, 'stg'}"
+  stage: "${opt:stage, 'dev'}"
   region: "${opt:region, 'ap-southeast-1'}"
   memorySize: 256
   tracing:
@@ -22,7 +22,7 @@ functions:
           cors: true
 custom:
   dotenv:
-    basePath: ../../
+    path: ../../
   serverless-offline:
     lambdaPort: 4002
     httpPort: 4000
@@ -31,10 +31,10 @@ custom:
     false: 'true' # To negate the environment variable DISABLE_DOMAIN
     true: 'false' # if you know of a way to do conditionals please change this
   customDomain:
-    domainName: "${env:DOMAIN}" # Change this to your domain.
+    domainName: "${env:DOMAIN, 'dev'}" # Change this to your domain.
     basePath: "verify" # This will be prefixed to all routes
     stage: ${self:provider.stage}
-    certificateName: "${env:CERTIFICATE_DOMAIN}"
+    certificateName: "${env:CERTIFICATE_DOMAIN, 'dev'}"
     createRoute53Record: true
     endpointType: "regional"
     securityPolicy: tls_1_2

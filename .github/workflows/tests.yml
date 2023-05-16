@@ -6,16 +6,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1    
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
       with:
-        node-version: '12.x'
+        node-version: '18.15.0'
       
     - run: npm install   
+    - run: cp .env.example .env
     - run: npm run sls-config-check
-    
+
     - run: npm run lint
-    - run: mv .env.example .env
     - run: npm run test
 
     # TODO: problematic on github actions atm - this is covered by seed.run integration tests for now, will fix later
