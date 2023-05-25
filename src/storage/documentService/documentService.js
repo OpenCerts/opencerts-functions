@@ -68,7 +68,7 @@ const uploadDocumentAtId = async (
     throw new Error("Ttl cannot exceed 90 days");
   }
 
-  const fragments = await verify({ network: config.network })(document);
+  const fragments = await verify(document, { network: config.network });
   if (!isValid(fragments)) {
     throw new Error("Document is not valid");
   }
@@ -100,7 +100,7 @@ const uploadDocument = async (
   document,
   ttlInMicroseconds = DEFAULT_TTL_IN_MICROSECONDS
 ) => {
-  const fragments = await verify({ network: config.network })(document);
+  const fragments = await verify(document, { network: config.network });
   if (!isValid(fragments)) {
     throw new Error("Document is not valid");
   }
