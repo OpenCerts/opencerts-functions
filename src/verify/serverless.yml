@@ -26,7 +26,7 @@ custom:
   serverless-offline:
     lambdaPort: 4002
     httpPort: 4000
-  NETWORK: ${env:NETWORK, "ropsten"}
+  NETWORK: ${env:NETWORK, "goerli"}
   isManagedDomain: 
     false: 'true' # To negate the environment variable DISABLE_DOMAIN
     true: 'false' # if you know of a way to do conditionals please change this

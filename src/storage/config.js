@@ -11,7 +11,7 @@ const config = () =>
           endpoint: new AWS.Endpoint("http://localhost:8000")
         },
         bucketName: process.env.BUCKET_NAME,
-        network: process.env.NETWORK || "ropsten"
+        network: process.env.NETWORK || "goerli"
       }
     : {
         s3: {
