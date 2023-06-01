@@ -1,5 +1,5 @@
 const supertest = require("supertest");
-const ropstenDocument = require("../fixtures/certificate.json");
+const sepoliaDocument = require("../fixtures/certificate.json");
 const mainnetDocument = require("../fixtures/certificateMainnetValid.json");
 
 const API_ENDPOINT = "http://localhost:4000/stg";
@@ -9,13 +9,13 @@ describe("verify", () => {
   beforeEach(() => {
     jest.setTimeout(5000);
   });
-  it("should works for valid Ropsten document", async () => {
+  it("should works for valid Sepolia document", async () => {
     await request
       .post("/")
       .set("Content-Type", "application/json")
       .set("Accept", "application/json")
       .send({
-        document: ropstenDocument
+        document: sepoliaDocument
       })
       .expect("Content-Type", /json/)
       .expect(200)
@@ -55,13 +55,13 @@ describe("verify", () => {
                   issuance: [
                     {
                       issued: true,
-                      address: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495"
+                      address: "0x80ca96D2Aab5E1E23876a4D8140Ee1292327a4cd"
                     }
                   ],
                   revocation: [
                     {
                       revoked: false,
-                      address: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495"
+                      address: "0x80ca96D2Aab5E1E23876a4D8140Ee1292327a4cd"
                     }
                   ]
                 }
