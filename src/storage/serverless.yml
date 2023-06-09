@@ -1,9 +1,10 @@
 service: storage
+useDotenv: true
 provider:
   name: aws
   apiKeys: 
     - ${self:provider.stage}-storage-api-key
-  runtime: nodejs12.x
+  runtime: nodejs18.x
   stage: ${opt:stage, 'stg'}
   region: ap-southeast-1
   memorySize: 256
@@ -94,10 +95,10 @@ custom:
     false: 'true' # To negate the environment variable DISABLE_DOMAIN
     true: 'false' # if you know of a way to do conditionals please change this
   customDomain:
-    domainName: "${env:DOMAIN}" # Change this to your domain.
+    domainName: "${env:DOMAIN,''}" # Change this to your domain.
     basePath: "storage" # This will be prefixed to all routes
     stage: ${self:provider.stage}
-    certificateName: "${env:CERTIFICATE_DOMAIN}"
+    certificateName: "${env:CERTIFICATE_DOMAIN,''}"
     createRoute53Record: true
     endpointType: "regional"
     securityPolicy: tls_1_2
@@ -115,7 +116,6 @@ custom:
       ${self:custom.disableBucketDeletingPrompt.${self:provider.stage}, false}
 
 plugins:
-  - serverless-dotenv-plugin
   - serverless-s3-local
   - serverless-s3-remover
   - serverless-offline
