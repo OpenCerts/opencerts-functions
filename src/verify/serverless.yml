@@ -1,4 +1,5 @@
 service: verify
+useDotenv: true
 provider:
   name: aws
   runtime: nodejs18.x
@@ -47,4 +48,3 @@ plugins:
   - serverless-offline
   - serverless-domain-manager
   - serverless-webpack
-  - serverless-dotenv-plugin
