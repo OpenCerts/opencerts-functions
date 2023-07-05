@@ -79,15 +79,16 @@ describe("verify", () => {
               }
             },
             {
-              status: "SKIPPED",
-              type: "ISSUER_IDENTITY",
+              status: "VALID",
               name: "OpenAttestationDnsTxtIdentityProof",
-              reason: {
-                code: 2,
-                codeString: "SKIPPED",
-                message:
-                  'Document issuers doesn\'t have "documentStore" / "tokenRegistry" property or doesn\'t use DNS-TXT type'
-              }
+              type: "ISSUER_IDENTITY",
+              data: [
+                {
+                  status: "VALID",
+                  location: "demo-opencerts.openattestation.com",
+                  value: "0x80ca96D2Aab5E1E23876a4D8140Ee1292327a4cd"
+                }
+              ]
             },
             {
               status: "SKIPPED",
@@ -106,8 +107,9 @@ describe("verify", () => {
               data: [
                 {
                   status: "VALID",
-                  value: "0xc36484efa1544c32ffed2e80a1ea9f0dfc517495",
-                  name: "ROPSTEN: Ngee Ann Polytechnic",
+                  value: "0x80ca96D2Aab5E1E23876a4D8140Ee1292327a4cd",
+                  name:
+                    "SEPOLIA: Government Technology Agency of Singapore (GovTech)",
                   displayCard: false
                 }
               ]
@@ -157,37 +159,27 @@ describe("verify", () => {
               name: "OpenAttestationEthereumDocumentStoreStatus",
               type: "DOCUMENT_STATUS",
               data: {
-                reason:
-                  "cannot estimate gas; transaction may fail or may require manual gas limit",
-                code: "UNPREDICTABLE_GAS_LIMIT",
-                error: {
-                  reason: "processing response error",
-                  code: "SERVER_ERROR",
-                  body:
-                    '{"jsonrpc":"2.0","id":42,"error":{"code":-32000,"message":"execution reverted"}}',
-                  error: {
-                    code: -32000
-                  },
-                  requestBody:
-                    '{"method":"eth_call","params":[{"to":"0x007d40224f6562461633ccfbaffd359ebb2fc9ba","data":"0x163aa6311a040999254caaf7a33cba67ec6a9b862da1dacf8a0d1e3bb76347060fc615d6"},"latest"],"id":42,"jsonrpc":"2.0"}',
-                  requestMethod: "POST",
-                  url:
-                    "https://ropsten.infura.io/v3/bb46da3f80e040e8ab73c0a9ff365d18"
-                },
-                method: "call",
-                transaction: {
-                  to: "0x007d40224F6562461633ccFBaffd359EbB2FC9Ba",
-                  data:
-                    "0x163aa6311a040999254caaf7a33cba67ec6a9b862da1dacf8a0d1e3bb76347060fc615d6"
+                issuedOnAll: false,
+                details: {
+                  issuance: [
+                    {
+                      issued: false,
+                      address: "0x007d40224f6562461633ccfbaffd359ebb2fc9ba",
+                      reason: {
+                        message: "Contract is not found",
+                        code: 1,
+                        codeString: "DOCUMENT_NOT_ISSUED"
+                      }
+                    }
+                  ]
                 }
               },
               reason: {
-                message:
-                  'cannot estimate gas; transaction may fail or may require manual gas limit (error={"reason":"processing response error","code":"SERVER_ERROR","body":"{\\"jsonrpc\\":\\"2.0\\",\\"id\\":42,\\"error\\":{\\"code\\":-32000,\\"message\\":\\"execution reverted\\"}}","error":{"code":-32000},"requestBody":"{\\"method\\":\\"eth_call\\",\\"params\\":[{\\"to\\":\\"0x007d40224f6562461633ccfbaffd359ebb2fc9ba\\",\\"data\\":\\"0x163aa6311a040999254caaf7a33cba67ec6a9b862da1dacf8a0d1e3bb76347060fc615d6\\"},\\"latest\\"],\\"id\\":42,\\"jsonrpc\\":\\"2.0\\"}","requestMethod":"POST","url":"https://ropsten.infura.io/v3/bb46da3f80e040e8ab73c0a9ff365d18"}, method="call", transaction={"to":"0x007d40224F6562461633ccFBaffd359EbB2FC9Ba","data":"0x163aa6311a040999254caaf7a33cba67ec6a9b862da1dacf8a0d1e3bb76347060fc615d6"}, code=UNPREDICTABLE_GAS_LIMIT, version=providers/5.0.22)',
-                code: 0,
-                codeString: "UNEXPECTED_ERROR"
+                message: "Contract is not found",
+                code: 1,
+                codeString: "DOCUMENT_NOT_ISSUED"
               },
-              status: "ERROR"
+              status: "INVALID"
             },
             {
               status: "SKIPPED",

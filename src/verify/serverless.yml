@@ -1,5 +1,4 @@
 service: verify
-useDotenv: true
 provider:
   name: aws
   runtime: nodejs18.x
@@ -11,6 +10,8 @@ provider:
     apiGateway: true
   logs:
     restApi: true
+  environment:
+    NETWORK: "${env:NETWORK, 'sepolia'}"
 functions:
   verify:
     description: "Checks the validity of the certificate against the 4 checks."
@@ -27,7 +28,6 @@ custom:
   serverless-offline:
     lambdaPort: 4002
     httpPort: 4000
-  NETWORK: ${env:NETWORK, "sepolia"}
   isManagedDomain: 
     false: 'true' # To negate the environment variable DISABLE_DOMAIN
     true: 'false' # if you know of a way to do conditionals please change this
@@ -47,3 +47,4 @@ plugins:
   - serverless-offline
   - serverless-domain-manager
   - serverless-webpack
+  - serverless-dotenv-plugin
