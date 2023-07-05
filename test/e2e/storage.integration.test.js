@@ -1,5 +1,5 @@
 const supertest = require("supertest");
-const ropstenDocument = require("../fixtures/certificate.json");
+const sepoliaCertificate = require("../fixtures/certificate.json");
 
 const {
   thatIsRetrievedDocument,
@@ -22,7 +22,7 @@ describe("storage endpoint test", () => {
         .set("Content-Type", "application/json")
         .set("Accept", "application/json")
         .send({
-          document: ropstenDocument
+          document: sepoliaCertificate
         })
         .expect(res => {
           expect(res.body).toEqual(thatIsUploadResponse);
@@ -39,7 +39,7 @@ describe("storage endpoint test", () => {
         .set("Content-Type", "application/json")
         .set("Accept", "application/json")
         .send({
-          document: ropstenDocument
+          document: sepoliaCertificate
         })
         .expect(400);
     },
@@ -65,7 +65,7 @@ describe("storage endpoint test", () => {
         .set("Content-Type", "application/json")
         .set("Accept", "application/json")
         .send({
-          document: ropstenDocument,
+          document: sepoliaCertificate,
           id: documentKey
         })
         .expect("Content-Type", /json/)
