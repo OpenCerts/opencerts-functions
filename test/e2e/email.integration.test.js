@@ -1,6 +1,6 @@
 require("dotenv").config();
 const supertest = require("supertest");
-const ropstenCertificate = require("../fixtures/certificate.json");
+const sepoliaCertificate = require("../fixtures/certificate.json");
 const mainnetCertificate = require("../fixtures/certificateMainnetValid.json");
 
 const API_ENDPOINT =
@@ -21,7 +21,7 @@ describe("email", () => {
         .set("Accept", "application/json")
         .send({
           to: "example@opencerts.io",
-          data: ropstenCertificate
+          data: sepoliaCertificate
         })
         .expect("Content-Type", /json/)
         .expect(200)
@@ -63,7 +63,7 @@ describe("email", () => {
         .set("Accept", "application/json")
         .send({
           to: "example@opencerts.io",
-          data: ropstenCertificate,
+          data: sepoliaCertificate,
           captcha: "moo"
         })
         .expect("Content-Type", /json/)
@@ -87,7 +87,7 @@ describe("email", () => {
         .set("Accept", "application/json")
         .send({
           to: "example@opencerts.io",
-          data: ropstenCertificate
+          data: sepoliaCertificate
         })
         .expect("Content-Type", /json/)
         .expect(400)
