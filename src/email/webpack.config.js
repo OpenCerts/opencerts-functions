@@ -6,7 +6,7 @@ const webpack = require("webpack");
 module.exports = {
   mode: slsw.lib.webpack.isLocal ? "development" : "production",
   devtool: slsw.lib.webpack.isLocal
-    ? "cheap-module-eval-source-map"
+    ? "eval-cheap-module-source-map"
     : "source-map",
   entry: "./index.js",
   target: "node",
