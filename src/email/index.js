@@ -1,6 +1,6 @@
-const middy = require("middy");
+const middy = require('@middy/core');
 const { get } = require("lodash");
-const { cors } = require("middy/middlewares");
+const cors = require('@middy/http-cors');
 const { isValid, verify } = require("@govtechsg/opencerts-verify");
 
 const recaptcha = require("./recaptcha");
@@ -61,6 +61,6 @@ const handleEmail = async (event, _context, callback) => {
   }
 };
 
-const handler = middy(handleEmail).use(cors());
+const handler = middy().use(cors()).handler(handleEmail);
 
 module.exports = { handler };
