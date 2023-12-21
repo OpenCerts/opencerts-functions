@@ -1,4 +1,4 @@
-const uuid = require("uuid/v4");
+const { v4: uuidv4 } = require("uuid");
 const { verify, isValid } = require("@govtechsg/opencerts-verify");
 const {
   encryptString,
@@ -122,7 +122,7 @@ const uploadDocument = async (
       type,
       ttl
     },
-    uuid()
+    uuidv4()
   );
   return {
     id,
@@ -134,7 +134,7 @@ const uploadDocument = async (
 
 const getQueueNumber = async () => {
   const created = Math.floor(Date.now() / 1000);
-  const id = uuid();
+  const id = uuidv4();
   const tempData = {
     id,
     key: generateEncryptionKey(),
