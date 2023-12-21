@@ -1,8 +1,8 @@
-const middy = require("middy");
-const { cors } = require("middy/middlewares");
+const middy = require("@middy/core");
+const cors = require("@middy/http-cors");
 const { getDocument } = require("./documentService");
 
-const handleGet = async event => {
+const handleGet = async (event) => {
   try {
     const { id } = event.pathParameters;
     const cleanup =
@@ -21,7 +21,7 @@ const handleGet = async event => {
   }
 };
 
-const handler = middy(handleGet).use(cors());
+const handler = middy().use(cors()).handler(handleGet);
 
 module.exports = {
   handler

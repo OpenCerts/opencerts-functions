@@ -11,6 +11,7 @@
         "argsIgnorePattern": "^_"
       }
     ],
+    "prefer-regex-literals": "off",
     "func-names": ["error", "as-needed"],
     "prettier/prettier": "error",
     "no-unused-expressions": "off"

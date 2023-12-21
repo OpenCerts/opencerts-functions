@@ -14,7 +14,7 @@ const expectedContentSubject = fs.readFileSync(expectedPathSubject).toString();
 
 describe("messageTemplate", () => {
   it("returns html and text given a certificate", () => {
-    const extractContent = str => str.replace(/ +/g, "");
+    const extractContent = (str) => str.replace(/ +/g, "");
     const message = messageTemplate(certificate);
     expect(extractContent(message.html)).toEqual(
       extractContent(expectedContentHtml)

@@ -24,7 +24,7 @@ describe("storage endpoint test", () => {
         .send({
           document: sepoliaCertificate
         })
-        .expect(res => {
+        .expect((res) => {
           expect(res.body).toEqual(thatIsUploadResponse);
         });
     },
@@ -55,7 +55,7 @@ describe("storage endpoint test", () => {
         .set("Content-Type", "application/json")
         .expect("Content-Type", /json/)
         .expect(200)
-        .expect(res => {
+        .expect((res) => {
           documentKey = res.body.id;
           expect(res.body).toEqual(thatIsAQueueNumber);
         });
@@ -70,7 +70,7 @@ describe("storage endpoint test", () => {
         })
         .expect("Content-Type", /json/)
         .expect(200)
-        .expect(res => {
+        .expect((res) => {
           expect(res.body.id).toEqual(documentKey);
           expect(res.body).toEqual(thatIsUploadResponse);
         });
@@ -80,7 +80,7 @@ describe("storage endpoint test", () => {
         .set("Content-Type", "application/json")
         .expect("Content-Type", /json/)
         .expect(200)
-        .expect(res => {
+        .expect((res) => {
           expect(res.body).toEqual(thatIsRetrievedDocument);
         });
     },

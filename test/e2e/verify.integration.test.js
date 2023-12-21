@@ -22,7 +22,7 @@ describe("verify", () => {
         })
         .expect("Content-Type", /json/)
         .expect(200)
-        .expect(res => {
+        .expect((res) => {
           expect(res.body).toStrictEqual({
             summary: {
               all: true,
@@ -111,8 +111,7 @@ describe("verify", () => {
                   {
                     status: "VALID",
                     value: "0x80ca96D2Aab5E1E23876a4D8140Ee1292327a4cd",
-                    name:
-                      "SEPOLIA: Government Technology Agency of Singapore (GovTech)",
+                    name: "SEPOLIA: Government Technology Agency of Singapore (GovTech)",
                     displayCard: false
                   }
                 ]
@@ -136,7 +135,7 @@ describe("verify", () => {
         })
         .expect("Content-Type", /json/)
         .expect(200)
-        .expect(res => {
+        .expect((res) => {
           expect(res.body).toStrictEqual({
             summary: {
               all: false,
@@ -256,7 +255,7 @@ describe("verify", () => {
         })
         .expect("Content-Type", /json/)
         .expect(200)
-        .expect(res => {
+        .expect((res) => {
           expect(res.body).toStrictEqual({
             summary: {
               all: false,

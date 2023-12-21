@@ -1,5 +1,5 @@
-const middy = require("middy");
-const { cors } = require("middy/middlewares");
+const middy = require("@middy/core");
+const cors = require("@middy/http-cors");
 const { verify, isValid } = require("@govtechsg/opencerts-verify");
 const config = require("./config");
 
@@ -29,7 +29,7 @@ const handleVerify = async (event, _context, callback) => {
   }
 };
 
-const handler = middy(handleVerify).use(cors());
+const handler = middy().use(cors()).handler(handleVerify);
 
 module.exports = {
   handler

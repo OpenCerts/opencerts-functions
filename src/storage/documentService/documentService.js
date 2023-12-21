@@ -1,4 +1,4 @@
-const uuid = require("uuid/v4");
+const { v4: uuidv4 } = require("uuid");
 const { verify, isValid } = require("@govtechsg/opencerts-verify");
 const {
   encryptString,
@@ -40,7 +40,7 @@ const getDocument = async (id, { cleanup } = { cleanup: false }) => {
   return document;
 };
 
-const getDecryptionKey = async id => {
+const getDecryptionKey = async (id) => {
   const params = {
     Bucket: config.bucketName,
     Key: id
@@ -50,7 +50,7 @@ const getDecryptionKey = async id => {
   return document;
 };
 
-const calculateExpiryTimestamp = ttlInMicroseconds =>
+const calculateExpiryTimestamp = (ttlInMicroseconds) =>
   Date.now() + ttlInMicroseconds;
 
 const uploadDocumentAtId = async (
@@ -122,7 +122,7 @@ const uploadDocument = async (
       type,
       ttl
     },
-    uuid()
+    uuidv4()
   );
   return {
     id,
@@ -134,7 +134,7 @@ const uploadDocument = async (
 
 const getQueueNumber = async () => {
   const created = Math.floor(Date.now() / 1000);
-  const id = uuid();
+  const id = uuidv4();
   const tempData = {
     id,
     key: generateEncryptionKey(),

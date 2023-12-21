@@ -1,8 +1,8 @@
-const middy = require("middy");
-const { cors } = require("middy/middlewares");
+const middy = require("@middy/core");
+const cors = require("@middy/http-cors");
 const { uploadDocument } = require("./documentService");
 
-const handleCreate = async event => {
+const handleCreate = async (event) => {
   try {
     const { document, ttl } = JSON.parse(event.body);
     const receipt = await uploadDocument(document, ttl);
@@ -27,7 +27,7 @@ const handleCreate = async event => {
   }
 };
 
-const handler = middy(handleCreate).use(cors());
+const handler = middy().use(cors()).handler(handleCreate);
 
 module.exports = {
   handler
