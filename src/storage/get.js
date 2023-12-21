@@ -1,8 +1,8 @@
-const middy = require('@middy/core');
-const cors = require('@middy/http-cors');
+const middy = require("@middy/core");
+const cors = require("@middy/http-cors");
 const { getDocument } = require("./documentService");
 
-const handleGet = async event => {
+const handleGet = async (event) => {
   try {
     const { id } = event.pathParameters;
     const cleanup =

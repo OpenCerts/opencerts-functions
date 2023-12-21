@@ -1,8 +1,8 @@
-const middy = require('@middy/core');
-const cors = require('@middy/http-cors');
+const middy = require("@middy/core");
+const cors = require("@middy/http-cors");
 const { uploadDocumentAtId } = require("./documentService");
 
-const handleCreateAtId = async event => {
+const handleCreateAtId = async (event) => {
   try {
     const { document, ttl } = JSON.parse(event.body);
     const { id } = event.pathParameters;

@@ -68,5 +68,8 @@
     "serverless-webpack": "^5.13.0",
     "supertest": "^4.0.2",
     "webpack": "^5.86.0"
+  },
+  "prettier": {
+    "trailingComma": "none"
   }
 }

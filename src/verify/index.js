@@ -1,5 +1,5 @@
-const middy = require('@middy/core');
-const cors = require('@middy/http-cors');
+const middy = require("@middy/core");
+const cors = require("@middy/http-cors");
 const { verify, isValid } = require("@govtechsg/opencerts-verify");
 const config = require("./config");
 

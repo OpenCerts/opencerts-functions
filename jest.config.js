@@ -6,7 +6,5 @@ module.exports = {
     "\\.subject": "jest-raw-loader",
     "\\.m?jsx?$": "jest-esm-transformer"
   },
-  transformIgnorePatterns: [
-    "node_modules/(?!(axios)/)"
-],
+  transformIgnorePatterns: ["node_modules/(?!(axios)/)"]
 };

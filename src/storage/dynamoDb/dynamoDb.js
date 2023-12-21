@@ -16,7 +16,7 @@ const get = (...args) =>
   dynamoClient
     .get(...args)
     .promise()
-    .then(results => {
+    .then((results) => {
       if (results.Item) {
         return results.Item;
       }

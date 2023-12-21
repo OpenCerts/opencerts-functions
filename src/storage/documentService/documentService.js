@@ -40,7 +40,7 @@ const getDocument = async (id, { cleanup } = { cleanup: false }) => {
   return document;
 };
 
-const getDecryptionKey = async id => {
+const getDecryptionKey = async (id) => {
   const params = {
     Bucket: config.bucketName,
     Key: id
@@ -50,7 +50,7 @@ const getDecryptionKey = async id => {
   return document;
 };
 
-const calculateExpiryTimestamp = ttlInMicroseconds =>
+const calculateExpiryTimestamp = (ttlInMicroseconds) =>
   Date.now() + ttlInMicroseconds;
 
 const uploadDocumentAtId = async (
