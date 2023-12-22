@@ -1,5 +1,6 @@
-const middy = require("@middy/core");
-const cors = require("@middy/http-cors");
+import middy from "@middy/core";
+import cors from "@middy/http-cors";
+
 const { getQueueNumber } = require("./documentService");
 
 const handleQueueNumber = async () => {
