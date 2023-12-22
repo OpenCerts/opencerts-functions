@@ -1,6 +1,7 @@
-const middy = require("@middy/core");
+import middy from "@middy/core";
+import cors from "@middy/http-cors";
+
 const { get } = require("lodash");
-const cors = require("@middy/http-cors");
 const { isValid, verify } = require("@govtechsg/opencerts-verify");
 
 const recaptcha = require("./recaptcha");
