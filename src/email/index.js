@@ -18,7 +18,7 @@ const validateApiKey = (key) => {
   throw new Error("Invalid API key");
 };
 
-const handleEmail = async (event, _context, callback) => {
+const handleEmail = async (event) => {
   try {
     const { to, data, captcha } = JSON.parse(event.body);
 
@@ -50,18 +50,16 @@ const handleEmail = async (event, _context, callback) => {
     // Send certificate out
     await certificateMailer({ to, certificate: data });
 
-    callback(null, {
+    return {
       statusCode: 200,
       body: JSON.stringify({ success: true })
-    });
+    };
   } catch (e) {
-    callback(null, {
+    return {
       statusCode: 400,
       body: JSON.stringify({ error: e.message })
-    });
+    };
   }
 };
 
-const handler = middy().use(cors()).handler(handleEmail);
-
-module.exports = { handler };
+export const handler = middy().use(cors()).handler(handleEmail);

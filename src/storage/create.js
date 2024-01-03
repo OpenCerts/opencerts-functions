@@ -28,8 +28,4 @@ const handleCreate = async (event) => {
   }
 };
 
-const handler = middy().use(cors()).handler(handleCreate);
-
-module.exports = {
-  handler
-};
+export const handler = middy().use(cors()).handler(handleCreate);

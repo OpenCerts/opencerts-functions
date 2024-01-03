@@ -31,8 +31,4 @@ const handleCreateAtId = async (event) => {
   }
 };
 
-const handler = middy().use(cors()).handler(handleCreateAtId);
-
-module.exports = {
-  handler
-};
+export const handler = middy().use(cors()).handler(handleCreateAtId);

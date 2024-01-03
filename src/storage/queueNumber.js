@@ -18,8 +18,4 @@ const handleQueueNumber = async () => {
   }
 };
 
-const handler = middy().use(cors()).handler(handleQueueNumber);
-
-module.exports = {
-  handler
-};
+export const handler = middy().use(cors()).handler(handleQueueNumber);
