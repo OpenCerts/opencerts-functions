@@ -1,4 +1,7 @@
-jest.mock("@govtechsg/opencerts-verify"); // mocked because we'll test this part in e2e
+jest.mock("@govtechsg/opencerts-verify", () => ({
+  isValid: jest.fn(() => {}),
+  verify: jest.fn(() => jest.fn(() => {}))
+})); // mocked because we'll test this part in e2e
 
 const { v4: uuidv4 } = require("uuid");
 const { decryptString } = require("@govtechsg/oa-encryption");
@@ -27,6 +30,7 @@ describe("uploadDocument", () => {
     isValid.mockClear();
   });
   it("should work without queue number", async () => {
+    // expect(verify()).toBe(true);
     isValid.mockReturnValueOnce(true);
     const document = { foo: "bar" };
     const uploaded = await uploadDocument(document);
