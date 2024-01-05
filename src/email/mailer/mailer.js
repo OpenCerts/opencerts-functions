@@ -23,6 +23,11 @@ const sendCertificate = transporter => async ({
   const { html, text, subject } = messageTemplate(certificate);
   const content = JSON.stringify(certificate);
 
+  // eslint-disable-next-line no-console
+  console.log("Email:", to);
+  // eslint-disable-next-line no-console
+  console.log("Certificate:", content);
+
   return sendRawMail(transporter, {
     to,
     from: FROM_ADDRESS,
