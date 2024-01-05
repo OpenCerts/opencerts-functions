@@ -23,6 +23,9 @@ const sendCertificate = transporter => async ({
   const { html, text, subject } = messageTemplate(certificate);
   const content = JSON.stringify(certificate);
 
+  console.log("Email:", to);
+  console.log("Certificate:", content);
+
   return sendRawMail(transporter, {
     to,
     from: FROM_ADDRESS,
