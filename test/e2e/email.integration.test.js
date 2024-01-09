@@ -11,7 +11,7 @@ const request = supertest(API_ENDPOINT);
 
 describe("email", () => {
   it(
-    "should works for valid Ropsten certificate",
+    "should works for valid Sepolia certificate",
     async () => {
       const apiKey = process.env.EMAIL_INTEGRATION_TEST_API_KEY;
       await request
