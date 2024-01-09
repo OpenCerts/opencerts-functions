@@ -25,19 +25,8 @@ const handleEmail = async (event) => {
     // Validate captcha if api key is not present
     const apiKey = get(event, "headers['X-API-KEY']");
 
-    // eslint-disable-next-line no-console
-    console.log(`API: ${apiKey}`);
-    // eslint-disable-next-line no-console
-    console.log(`ENV: ${process.env.EMAIL_API_KEYS}`);
-    // eslint-disable-next-line no-console
-    console.log(`Config: ${JSON.stringify(config)}`);
-
     if (!validateApiKey(apiKey)) {
       const valid = await captchaValidator(captcha);
-      // eslint-disable-next-line no-console
-      console.log(`Captcha: ${captcha}`);
-      // eslint-disable-next-line no-console
-      console.log(`Captcha isValid: ${valid}`);
       if (!valid) throw new Error("Invalid captcha or missing API key");
     }
 
