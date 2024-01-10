@@ -30,7 +30,6 @@ describe("uploadDocument", () => {
     isValid.mockClear();
   });
   it("should work without queue number", async () => {
-    // expect(verify()).toBe(true);
     isValid.mockReturnValueOnce(true);
     const document = { foo: "bar" };
     const uploaded = await uploadDocument(document);
