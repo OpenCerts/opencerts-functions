@@ -1,6 +1,9 @@
-jest.mock("@govtechsg/opencerts-verify"); // mocked because we'll test this part in e2e
+jest.mock("@govtechsg/opencerts-verify", () => ({
+  isValid: jest.fn(() => {}),
+  verify: jest.fn(() => jest.fn(() => {}))
+})); // mocked because we'll test this part in e2e
 
-const uuid = require("uuid/v4");
+const { v4: uuidv4 } = require("uuid");
 const { decryptString } = require("@govtechsg/oa-encryption");
 const { isValid } = require("@govtechsg/opencerts-verify");
 const {
@@ -105,7 +108,7 @@ describe("uploadDocumentAtId", () => {
   it("should throw error when you try to upload to a uuid that is not queue number", async () => {
     const document = { foo: "bar" };
 
-    const uploaded = uploadDocumentAtId(document, uuid());
+    const uploaded = uploadDocumentAtId(document, uuidv4());
 
     await expect(uploaded).rejects.toThrow("The specified key does not exist.");
   });

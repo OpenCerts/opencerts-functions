@@ -15,7 +15,7 @@ const etherealCreateAccount = () =>
   });
 
 const validateRawEmail = async ({ url, subject, text, html, to }) => {
-  const rawEmail = await fetch(url).then(res => res.text());
+  const rawEmail = await fetch(url).then((res) => res.text());
   return (
     rawEmail.includes(subject) &&
     rawEmail.includes(`To: ${to}`) &&

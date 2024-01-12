@@ -42,6 +42,7 @@ custom:
     includeModules:
       packagePath: "../../package.json"
 plugins:
+  - serverless-dotenv-plugin
   - serverless-offline
   - serverless-domain-manager
   - serverless-webpack

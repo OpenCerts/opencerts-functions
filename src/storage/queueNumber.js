@@ -1,5 +1,6 @@
-const middy = require("middy");
-const { cors } = require("middy/middlewares");
+import middy from "@middy/core";
+import cors from "@middy/http-cors";
+
 const { getQueueNumber } = require("./documentService");
 
 const handleQueueNumber = async () => {
@@ -17,8 +18,4 @@ const handleQueueNumber = async () => {
   }
 };
 
-const handler = middy(handleQueueNumber).use(cors());
-
-module.exports = {
-  handler
-};
+export const handler = middy().use(cors()).handler(handleQueueNumber);

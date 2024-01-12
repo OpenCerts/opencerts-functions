@@ -11,7 +11,7 @@ const request = supertest(API_ENDPOINT);
 
 describe("email", () => {
   it(
-    "should works for valid Ropsten certificate",
+    "should works for valid Sepolia certificate",
     async () => {
       const apiKey = process.env.EMAIL_INTEGRATION_TEST_API_KEY;
       await request
@@ -25,7 +25,7 @@ describe("email", () => {
         })
         .expect("Content-Type", /json/)
         .expect(200)
-        .expect(res => {
+        .expect((res) => {
           expect(res.body).toEqual({ success: true });
         });
     },
@@ -47,7 +47,7 @@ describe("email", () => {
         })
         .expect("Content-Type", /json/)
         .expect(400)
-        .expect(res => {
+        .expect((res) => {
           expect(res.body).toEqual({ error: "Invalid certificate" });
         });
     },
@@ -68,7 +68,7 @@ describe("email", () => {
         })
         .expect("Content-Type", /json/)
         .expect(400)
-        .expect(res => {
+        .expect((res) => {
           expect(res.body).toEqual({
             error: "Invalid captcha or missing API key"
           });
@@ -91,7 +91,7 @@ describe("email", () => {
         })
         .expect("Content-Type", /json/)
         .expect(400)
-        .expect(res => {
+        .expect((res) => {
           expect(res.body).toEqual({ error: "Invalid API key" });
         });
     },

@@ -1,6 +1,7 @@
-const middy = require("middy");
+import middy from "@middy/core";
+import cors from "@middy/http-cors";
+
 const { get } = require("lodash");
-const { cors } = require("middy/middlewares");
 const { isValid, verify } = require("@govtechsg/opencerts-verify");
 
 const recaptcha = require("./recaptcha");
@@ -9,7 +10,7 @@ const config = require("./config");
 
 const captchaValidator = recaptcha(config.recaptchaSecret);
 
-const validateApiKey = key => {
+const validateApiKey = (key) => {
   if (!key) return false;
   if (config.emailApiKeys.includes(key)) {
     return true;
@@ -17,7 +18,7 @@ const validateApiKey = key => {
   throw new Error("Invalid API key");
 };
 
-const handleEmail = async (event, _context, callback) => {
+const handleEmail = async (event) => {
   try {
     const { to, data, captcha } = JSON.parse(event.body);
 
@@ -38,18 +39,16 @@ const handleEmail = async (event, _context, callback) => {
     // Send certificate out
     await certificateMailer({ to, certificate: data });
 
-    callback(null, {
+    return {
       statusCode: 200,
       body: JSON.stringify({ success: true })
-    });
+    };
   } catch (e) {
-    callback(null, {
+    return {
       statusCode: 400,
       body: JSON.stringify({ error: e.message })
-    });
+    };
   }
 };
 
-const handler = middy(handleEmail).use(cors());
-
-module.exports = { handler };
+export const handler = middy().use(cors()).handler(handleEmail);

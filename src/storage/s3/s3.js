@@ -8,7 +8,7 @@ const get = (...args) =>
   s3bucket
     .getObject(...args)
     .promise()
-    .then(results => {
+    .then((results) => {
       if (results) {
         return JSON.parse(results.Body.toString());
       }
