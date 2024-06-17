@@ -39,7 +39,7 @@
     "lodash": "^4.17.13",
     "node-fetch": "^2.6.1",
     "nodemailer": "^6.9.7",
-    "serverless": "^3.38.0",
+    "serverless": "^4.0.0",
     "serverless-http": "^3.2.0",
     "uuid": "^9.0.1"
   },
