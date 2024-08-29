@@ -16,7 +16,7 @@ module.exports = {
     filename: "index.js"
   },
   plugins: [
-    new CopyPlugin([{ from: "static", to: "static" }]),
+    new CopyPlugin({ patterns: [{ from: "static", to: "static" }] }),
     new webpack.ProvidePlugin({
       fetch: path.resolve(path.join(__dirname, "..", "lol"))
     })
