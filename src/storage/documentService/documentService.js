@@ -1,10 +1,11 @@
 const { v4: uuidv4 } = require("uuid");
-const { verify, isValid } = require("@govtechsg/opencerts-verify"); // FIXME: Unable to use `src/shared/verify.js` due to weird crash claiming `network` is undefined
+const { isValid } = require("@govtechsg/opencerts-verify"); // FIXME: Unable to use `src/shared/verify.js` due to weird crash claiming `network` is undefined
 const {
   encryptString,
   generateEncryptionKey
 } = require("@govtechsg/oa-encryption");
 
+const { verify } = require("../../shared/verify");
 const config = require("../config");
 const { put, get, remove } = require("../s3");
 
@@ -68,7 +69,7 @@ const uploadDocumentAtId = async (
     throw new Error("Ttl cannot exceed 90 days");
   }
 
-  const fragments = await verify({ network: config.network })(document);
+  const fragments = await verify(document);
   if (!isValid(fragments)) {
     throw new Error("Document is not valid");
   }
@@ -100,7 +101,7 @@ const uploadDocument = async (
   document,
   ttlInMicroseconds = DEFAULT_TTL_IN_MICROSECONDS
 ) => {
-  const fragments = await verify({ network: config.network })(document);
+  const fragments = await verify(document);
   if (!isValid(fragments)) {
     throw new Error("Document is not valid");
   }

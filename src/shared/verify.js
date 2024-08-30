@@ -1,4 +1,4 @@
-const { getData } = require("@govtechsg/open-attestation");
+const { getData, validateSchema } = require("@govtechsg/open-attestation");
 const {
   verificationBuilder,
   openAttestationVerifiers
@@ -13,7 +13,13 @@ const IS_MAINNET =
 /**
  * A wrapper of verify to auto-switch between Ethereum and Polygon
  */
-export const verify = (document) => {
+export const verify = async (document) => {
+  if (!validateSchema(document)) {
+    // Following current behaviour of from "@govtechsg/opencerts-verify"
+    // E.g. await verify({ "bad": "document" }) // returns undefined
+    return undefined;
+  }
+
   const _verify = verificationBuilder(
     [...openAttestationVerifiers, registryVerifier],
     {
@@ -21,7 +27,7 @@ export const verify = (document) => {
     }
   );
 
-  return _verify(document);
+  return await _verify(document);
 };
 
 function getNetworkName(document) {
