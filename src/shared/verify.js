@@ -15,7 +15,7 @@ function getNetworkName(document) {
 
   if (IS_MAINNET && data.network) {
     /* Production Network Whitelist */
-    switch (data.network.chainId) {
+    switch (data.network?.chainId) {
       case "137":
         return "matic";
       default:
@@ -23,7 +23,7 @@ function getNetworkName(document) {
     }
   } else {
     /* Non-production Network Whitelist */
-    switch (data.network.chainId) {
+    switch (data.network?.chainId) {
       case "80002":
         // return "amoy";
         // FIXME: Setting "amoy" will fail as it's an unsupported network in Ethers v5.7.2
