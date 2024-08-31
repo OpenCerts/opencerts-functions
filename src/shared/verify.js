@@ -1,9 +1,5 @@
-const { getData, validateSchema } = require("@govtechsg/open-attestation");
-const {
-  verificationBuilder,
-  openAttestationVerifiers
-} = require("@govtechsg/oa-verify");
-const { registryVerifier } = require("@govtechsg/opencerts-verify");
+const { getData, utils } = require("@govtechsg/open-attestation");
+const { verify: ocVerify } = require("@govtechsg/opencerts-verify");
 
 const config = require("./config");
 
@@ -11,7 +7,9 @@ const IS_MAINNET =
   config.network === "mainnet" || config.network === "homestead";
 
 function getNetworkName(document) {
-  const data = getData(document);
+  const data = utils.isWrappedV2Document(document)
+    ? getData(document)
+    : document;
 
   if (IS_MAINNET && data.network) {
     /* Production Network Whitelist */
@@ -51,19 +49,5 @@ function getNetworkName(document) {
 /**
  * A wrapper of verify to auto-switch between Ethereum and Polygon
  */
-export const verify = (document) => {
-  if (!validateSchema(document)) {
-    // Following current behaviour of from "@govtechsg/opencerts-verify"
-    // E.g. await verify({ "bad": "document" }) // returns undefined
-    return undefined;
-  }
-
-  const oaVerify = verificationBuilder(
-    [...openAttestationVerifiers, registryVerifier],
-    {
-      network: getNetworkName(document)
-    }
-  );
-
-  return oaVerify(document);
-};
+export const verify = (document) =>
+  ocVerify({ network: getNetworkName(document) })(document);
