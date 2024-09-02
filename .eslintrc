@@ -1,5 +1,6 @@
 {
   "extends": ["airbnb-base", "prettier"],
+  "parserOptions": { "ecmaVersion": 2020 },
   "env": {
     "jest/globals": true
   },
@@ -15,7 +16,7 @@
     "func-names": ["error", "as-needed"],
     "prettier/prettier": "error",
     "no-unused-expressions": "off",
-    "import/prefer-default-export": "off"
-
+    "import/prefer-default-export": "off",
+    "no-console": "off"
   }
 }

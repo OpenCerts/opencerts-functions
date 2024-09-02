@@ -1,8 +1,10 @@
 import middy from "@middy/core";
 import cors from "@middy/http-cors";
+import { isValid } from "@govtechsg/opencerts-verify";
+
+import { verify } from "../shared/verify";
 
 const { get } = require("lodash");
-const { isValid, verify } = require("@govtechsg/opencerts-verify");
 
 const recaptcha = require("./recaptcha");
 const certificateMailer = require("./mailer/mailerWithSESTransporter");
@@ -31,7 +33,7 @@ const handleEmail = async (event) => {
     }
 
     // Verify Certificate
-    const fragments = await verify({ network: config.network })(data);
+    const fragments = await verify(data);
     if (!isValid(fragments)) {
       throw new Error("Invalid certificate");
     }

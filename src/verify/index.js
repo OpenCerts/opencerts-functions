@@ -1,13 +1,13 @@
 import middy from "@middy/core";
 import cors from "@middy/http-cors";
+import { isValid } from "@govtechsg/opencerts-verify";
 
-const { verify, isValid } = require("@govtechsg/opencerts-verify");
-const config = require("./config");
+import { verify } from "../shared/verify";
 
 const handleVerify = async (event) => {
   const { document } = JSON.parse(event.body);
   try {
-    const fragments = await verify({ network: config.network })(document);
+    const fragments = await verify(document);
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
