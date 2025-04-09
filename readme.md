@@ -237,6 +237,12 @@ To run local tests against dynamodb-local, run commands
 
 `npm run integration:local` to run the tests
 
+Note that a number of dev deps have been removed because they are unmaintained and are listed here:
+
+```
+"serverless-s3-local": "^0.8.1"
+```
+
 ## Dynamodb
 
 The development environment uses [serverless-dynamodb-local](https://www.npmjs.com/package/serverless-dynamodb-local) to emulate the dynamodb in AWS.
