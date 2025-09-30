@@ -1,0 +1,197 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - imda
+  workflow_dispatch:
+    inputs:
+      services:
+        description: 'Services to deploy (comma-separated: email,storage,verify or "all")'
+        required: true
+        default: 'all'
+
+jobs:
+  # Run tests first
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate Serverless configurations
+        run: npm run sls-config-check
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Setup environment file
+        run: cp .env.example .env
+
+      - name: Run unit tests
+        run: npm run test
+
+  # Determine deployment strategy
+  determine-deployment:
+    name: Determine Deployment Strategy
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    outputs:
+      deploy-email: ${{ steps.set-services.outputs.deploy-email }}
+      deploy-storage: ${{ steps.set-services.outputs.deploy-storage }}
+      deploy-verify: ${{ steps.set-services.outputs.deploy-verify }}
+    steps:
+      - name: Determine services to deploy
+        id: set-services
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            SERVICES="${{ github.event.inputs.services }}"
+          else
+            SERVICES="all"
+          fi
+          
+          if [ "$SERVICES" == "all" ]; then
+            echo "deploy-email=true" >> $GITHUB_OUTPUT
+            echo "deploy-storage=true" >> $GITHUB_OUTPUT
+            echo "deploy-verify=true" >> $GITHUB_OUTPUT
+          else
+            echo "deploy-email=false" >> $GITHUB_OUTPUT
+            echo "deploy-storage=false" >> $GITHUB_OUTPUT
+            echo "deploy-verify=false" >> $GITHUB_OUTPUT
+            
+            IFS=',' read -ra SERVICE_ARRAY <<< "$SERVICES"
+            for service in "${SERVICE_ARRAY[@]}"; do
+              service=$(echo "$service" | xargs) # trim whitespace
+              if [ "$service" == "email" ]; then
+                echo "deploy-email=true" >> $GITHUB_OUTPUT
+              elif [ "$service" == "storage" ]; then
+                echo "deploy-storage=true" >> $GITHUB_OUTPUT
+              elif [ "$service" == "verify" ]; then
+                echo "deploy-verify=true" >> $GITHUB_OUTPUT
+              fi
+            done
+          fi
+
+  # Deploy Email Service
+  deploy-email:
+    name: Deploy Email Service
+    needs: determine-deployment
+    if: needs.determine-deployment.outputs.deploy-email == 'true'
+    uses: ./.github/workflows/deploy-service.yml
+    with:
+      service-name: email
+      service-path: src/email
+      environment: prod
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      SES_KEY_ID: ${{ secrets.SES_KEY_ID }}
+      SES_SECRET: ${{ secrets.SES_SECRET }}
+      SES_REGION: ${{ secrets.SES_REGION }}
+      RECAPTCHA_SECRET: ${{ secrets.RECAPTCHA_SECRET }}
+      EMAIL_API_KEYS: ${{ secrets.EMAIL_API_KEYS }}
+      DOMAIN: ${{ secrets.DOMAIN }}
+      CERTIFICATE_DOMAIN: ${{ secrets.CERTIFICATE_DOMAIN }}
+      DISABLE_DOMAIN: ${{ secrets.DISABLE_DOMAIN }}
+
+  # Deploy Storage Service
+  deploy-storage:
+    name: Deploy Storage Service
+    needs: determine-deployment
+    if: needs.determine-deployment.outputs.deploy-storage == 'true'
+    uses: ./.github/workflows/deploy-service.yml
+    with:
+      service-name: storage
+      service-path: src/storage
+      environment: prod
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
+      OBJECT_TTL: ${{ secrets.OBJECT_TTL }}
+      ENABLE_STORAGE_UPLOAD_API_KEY: ${{ secrets.ENABLE_STORAGE_UPLOAD_API_KEY }}
+      DOMAIN: ${{ secrets.DOMAIN }}
+      CERTIFICATE_DOMAIN: ${{ secrets.CERTIFICATE_DOMAIN }}
+      DISABLE_DOMAIN: ${{ secrets.DISABLE_DOMAIN }}
+
+  # Deploy Verify Service - Development (Sepolia)
+  deploy-verify-dev:
+    name: Deploy Verify Service (Dev - Sepolia)
+    needs: determine-deployment
+    if: needs.determine-deployment.outputs.deploy-verify == 'true'
+    uses: ./.github/workflows/deploy-service.yml
+    with:
+      service-name: verify-dev
+      service-path: src/verify
+      environment: dev
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      NETWORK: sepolia
+      DOMAIN: ${{ secrets.DOMAIN }}
+      CERTIFICATE_DOMAIN: ${{ secrets.CERTIFICATE_DOMAIN }}
+      DISABLE_DOMAIN: ${{ secrets.DISABLE_DOMAIN }}
+
+  # Deploy Verify Service - Production (Mainnet)
+  deploy-verify-prod:
+    name: Deploy Verify Service (Prod - Mainnet)
+    needs: determine-deployment
+    if: needs.determine-deployment.outputs.deploy-verify == 'true'
+    uses: ./.github/workflows/deploy-service.yml
+    with:
+      service-name: verify-prod
+      service-path: src/verify
+      environment: prod
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      NETWORK: mainnet
+      DOMAIN: ${{ secrets.DOMAIN }}
+      CERTIFICATE_DOMAIN: ${{ secrets.CERTIFICATE_DOMAIN }}
+      DISABLE_DOMAIN: ${{ secrets.DISABLE_DOMAIN }}
+
+  # Deployment summary
+  deployment-summary:
+    name: Deployment Summary
+    runs-on: ubuntu-latest
+    needs: [determine-deployment, deploy-email, deploy-storage, deploy-verify-dev, deploy-verify-prod]
+    if: always() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    steps:
+      - name: Generate deployment summary
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ needs.determine-deployment.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Services Deployed:" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.deploy-email.result }}" != "skipped" ]; then
+            echo "- **Email Service:** ${{ needs.deploy-email.result }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.deploy-storage.result }}" != "skipped" ]; then
+            echo "- **Storage Service:** ${{ needs.deploy-storage.result }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.deploy-verify-dev.result }}" != "skipped" ]; then
+            echo "- **Verify Service (Dev - Sepolia):** ${{ needs.deploy-verify-dev.result }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.deploy-verify-prod.result }}" != "skipped" ]; then
+            echo "- **Verify Service (Prod - Mainnet):** ${{ needs.deploy-verify-prod.result }}" >> $GITHUB_STEP_SUMMARY
+          fi

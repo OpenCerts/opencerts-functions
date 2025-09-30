@@ -1,0 +1,142 @@
+name: Deploy Service to AWS
+
+on:
+  workflow_call:
+    inputs:
+      service-name:
+        description: 'Name of the service to deploy'
+        required: true
+        type: string
+      service-path:
+        description: 'Path to the service directory'
+        required: true
+        type: string
+      environment:
+        description: 'Environment to deploy to (stg or prod)'
+        required: true
+        type: string
+      stage-suffix:
+        description: 'Optional suffix for stage name (e.g., -dev, -prod)'
+        required: false
+        type: string
+        default: ''
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_REGION:
+        required: true
+      SES_KEY_ID:
+        required: false
+      SES_SECRET:
+        required: false
+      SES_REGION:
+        required: false
+      RECAPTCHA_SECRET:
+        required: false
+      EMAIL_API_KEYS:
+        required: false
+      BUCKET_NAME:
+        required: false
+      OBJECT_TTL:
+        required: false
+      ENABLE_STORAGE_UPLOAD_API_KEY:
+        required: false
+      NETWORK:
+        required: false
+      DOMAIN:
+        required: false
+      CERTIFICATE_DOMAIN:
+        required: false
+      DISABLE_DOMAIN:
+        required: false
+
+jobs:
+  deploy:
+    name: Deploy ${{ inputs.service-name }} to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION || 'ap-southeast-1' }}
+
+      - name: Setup environment variables
+        run: |
+          cat > .env << EOF
+          SES_KEY_ID=${{ secrets.SES_KEY_ID }}
+          SES_SECRET=${{ secrets.SES_SECRET }}
+          SES_REGION=${{ secrets.SES_REGION }}
+          RECAPTCHA_SECRET=${{ secrets.RECAPTCHA_SECRET }}
+          EMAIL_API_KEYS=${{ secrets.EMAIL_API_KEYS }}
+          BUCKET_NAME=${{ secrets.BUCKET_NAME }}
+          OBJECT_TTL=${{ secrets.OBJECT_TTL || '31' }}
+          ENABLE_STORAGE_UPLOAD_API_KEY=${{ secrets.ENABLE_STORAGE_UPLOAD_API_KEY || 'false' }}
+          NETWORK=${{ secrets.NETWORK || 'sepolia' }}
+          DOMAIN=${{ secrets.DOMAIN }}
+          CERTIFICATE_DOMAIN=${{ secrets.CERTIFICATE_DOMAIN }}
+          DISABLE_DOMAIN=${{ secrets.DISABLE_DOMAIN || 'false' }}
+          EOF
+
+      - name: Install Serverless Framework
+        run: npm install -g serverless@3
+
+      - name: Create custom domain (if enabled)
+        if: secrets.DISABLE_DOMAIN != 'true' && secrets.DOMAIN != ''
+        working-directory: ${{ inputs.service-path }}
+        run: |
+          if [[ "${{ inputs.service-name }}" == verify* ]]; then
+            sls create_domain --stage ${{ inputs.environment }}${{ inputs.stage-suffix }} || echo "Domain already exists or creation skipped"
+          fi
+
+      - name: Deploy ${{ inputs.service-name }} service
+        working-directory: ${{ inputs.service-path }}
+        run: sls deploy --stage ${{ inputs.environment }}${{ inputs.stage-suffix }} --verbose
+
+      - name: Get deployment info
+        id: deployment-info
+        working-directory: ${{ inputs.service-path }}
+        run: |
+          echo "Deployment completed successfully"
+          sls info --stage ${{ inputs.environment }}${{ inputs.stage-suffix }} || true
+
+      - name: Create deployment artifact
+        run: |
+          echo "Service: ${{ inputs.service-name }}" > deployment-info.txt
+          echo "Environment: ${{ inputs.environment }}" >> deployment-info.txt
+          echo "Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> deployment-info.txt
+          echo "Commit: ${{ github.sha }}" >> deployment-info.txt
+          echo "Branch: ${{ github.ref_name }}" >> deployment-info.txt
+
+      - name: Upload deployment artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-info-${{ inputs.service-name }}-${{ inputs.environment }}
+          path: deployment-info.txt
+          retention-days: 30
+
+      - name: Deployment summary
+        run: |
+          echo "## ✅ ${{ inputs.service-name }} Service Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Service Path:** ${{ inputs.service-path }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY

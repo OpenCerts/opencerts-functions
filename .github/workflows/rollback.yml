@@ -1,0 +1,116 @@
+name: Rollback Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Service to rollback'
+        required: true
+        type: choice
+        options:
+          - email
+          - storage
+          - verify-dev
+          - verify-prod
+          - verify-all
+          - all
+      environment:
+        description: 'Environment to rollback'
+        required: true
+        type: choice
+        options:
+          - prod
+      commit-sha:
+        description: 'Commit SHA to rollback to (optional - leave empty for previous version)'
+        required: false
+        type: string
+
+jobs:
+  rollback:
+    name: Rollback ${{ inputs.service }} in ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit-sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION || 'ap-southeast-1' }}
+
+      - name: Setup environment variables
+        run: |
+          cat > .env << EOF
+          SES_KEY_ID=${{ secrets.SES_KEY_ID }}
+          SES_SECRET=${{ secrets.SES_SECRET }}
+          SES_REGION=${{ secrets.SES_REGION }}
+          RECAPTCHA_SECRET=${{ secrets.RECAPTCHA_SECRET }}
+          EMAIL_API_KEYS=${{ secrets.EMAIL_API_KEYS }}
+          BUCKET_NAME=${{ secrets.BUCKET_NAME }}
+          OBJECT_TTL=${{ secrets.OBJECT_TTL || '31' }}
+          ENABLE_STORAGE_UPLOAD_API_KEY=${{ secrets.ENABLE_STORAGE_UPLOAD_API_KEY || 'false' }}
+          NETWORK=${{ secrets.NETWORK || 'sepolia' }}
+          DOMAIN=${{ secrets.DOMAIN }}
+          CERTIFICATE_DOMAIN=${{ secrets.CERTIFICATE_DOMAIN }}
+          DISABLE_DOMAIN=${{ secrets.DISABLE_DOMAIN || 'false' }}
+          EOF
+
+      - name: Install Serverless Framework
+        run: npm install -g serverless@3
+
+      - name: Rollback email service
+        if: inputs.service == 'email' || inputs.service == 'all'
+        working-directory: src/email
+        run: |
+          echo "Rolling back email service to commit ${{ inputs.commit-sha || 'previous version' }}"
+          sls deploy --stage ${{ inputs.environment }} --verbose
+
+      - name: Rollback storage service
+        if: inputs.service == 'storage' || inputs.service == 'all'
+        working-directory: src/storage
+        run: |
+          echo "Rolling back storage service to commit ${{ inputs.commit-sha || 'previous version' }}"
+          sls deploy --stage ${{ inputs.environment }} --verbose
+
+      - name: Rollback verify service (Dev - Sepolia)
+        if: inputs.service == 'verify-dev' || inputs.service == 'verify-all' || inputs.service == 'all'
+        working-directory: src/verify
+        env:
+          NETWORK: sepolia
+        run: |
+          echo "Rolling back verify-dev service (Sepolia) to commit ${{ inputs.commit-sha || 'previous version' }}"
+          sls deploy --stage ${{ inputs.environment }}-dev --verbose
+
+      - name: Rollback verify service (Prod - Mainnet)
+        if: inputs.service == 'verify-prod' || inputs.service == 'verify-all' || inputs.service == 'all'
+        working-directory: src/verify
+        env:
+          NETWORK: mainnet
+        run: |
+          echo "Rolling back verify-prod service (Mainnet) to commit ${{ inputs.commit-sha || 'previous version' }}"
+          sls deploy --stage ${{ inputs.environment }}-prod --verbose
+
+      - name: Rollback summary
+        run: |
+          echo "## 🔄 Rollback Completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Service:** ${{ inputs.service }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit SHA:** ${{ inputs.commit-sha || 'Previous version' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY

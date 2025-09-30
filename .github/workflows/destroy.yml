@@ -1,0 +1,112 @@
+name: Destroy Services
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Service to destroy'
+        required: true
+        type: choice
+        options:
+          - email
+          - storage
+          - verify-dev
+          - verify-prod
+          - verify-all
+          - all
+      environment:
+        description: 'Environment to destroy'
+        required: true
+        type: choice
+        options:
+          - prod
+      confirm:
+        description: 'Type "DESTROY" to confirm'
+        required: true
+        type: string
+
+jobs:
+  destroy:
+    name: Destroy ${{ inputs.service }} in ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    if: inputs.confirm == 'DESTROY'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION || 'ap-southeast-1' }}
+
+      - name: Setup environment variables
+        run: |
+          cat > .env << EOF
+          BUCKET_NAME=${{ secrets.BUCKET_NAME }}
+          OBJECT_TTL=${{ secrets.OBJECT_TTL || '31' }}
+          ENABLE_STORAGE_UPLOAD_API_KEY=${{ secrets.ENABLE_STORAGE_UPLOAD_API_KEY || 'false' }}
+          DISABLE_DOMAIN=${{ secrets.DISABLE_DOMAIN || 'false' }}
+          EOF
+
+      - name: Install Serverless Framework
+        run: npm install -g serverless@3
+
+      - name: Destroy email service
+        if: inputs.service == 'email' || inputs.service == 'all'
+        working-directory: src/email
+        run: |
+          echo "⚠️ Destroying email service in ${{ inputs.environment }}"
+          sls remove --stage ${{ inputs.environment }} --verbose
+
+      - name: Destroy storage service
+        if: inputs.service == 'storage' || inputs.service == 'all'
+        working-directory: src/storage
+        run: |
+          echo "⚠️ Destroying storage service in ${{ inputs.environment }}"
+          sls remove --stage ${{ inputs.environment }} --verbose
+
+      - name: Destroy verify service (Dev - Sepolia)
+        if: inputs.service == 'verify-dev' || inputs.service == 'verify-all' || inputs.service == 'all'
+        working-directory: src/verify
+        run: |
+          echo "⚠️ Destroying verify-dev service (Sepolia) in ${{ inputs.environment }}"
+          sls remove --stage ${{ inputs.environment }}-dev --verbose
+
+      - name: Destroy verify service (Prod - Mainnet)
+        if: inputs.service == 'verify-prod' || inputs.service == 'verify-all' || inputs.service == 'all'
+        working-directory: src/verify
+        run: |
+          echo "⚠️ Destroying verify-prod service (Mainnet) in ${{ inputs.environment }}"
+          sls remove --stage ${{ inputs.environment }}-prod --verbose
+
+      - name: Destruction summary
+        run: |
+          echo "## ⚠️ Services Destroyed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Service:** ${{ inputs.service }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+  destroy-failed:
+    name: Destroy Confirmation Failed
+    runs-on: ubuntu-latest
+    if: inputs.confirm != 'DESTROY'
+    steps:
+      - name: Fail workflow
+        run: |
+          echo "❌ Destruction cancelled - confirmation text did not match 'DESTROY'" >> $GITHUB_STEP_SUMMARY
+          exit 1
