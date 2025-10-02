@@ -98,11 +98,14 @@ jobs:
         run: npm install -g serverless@3
 
       - name: Create custom domain (if enabled)
-        if: secrets.DISABLE_DOMAIN != 'true' && secrets.DOMAIN != ''
         working-directory: ${{ inputs.service-path }}
         run: |
-          if [[ "${{ inputs.service-name }}" == verify* ]]; then
-            sls create_domain --stage ${{ inputs.environment }}${{ inputs.stage-suffix }} || echo "Domain already exists or creation skipped"
+          if [[ "${{ secrets.DISABLE_DOMAIN }}" != "true" && -n "${{ secrets.DOMAIN }}" ]]; then
+            if [[ "${{ inputs.service-name }}" == verify* ]]; then
+              sls create_domain --stage ${{ inputs.environment }}${{ inputs.stage-suffix }} || echo "Domain already exists or creation skipped"
+            fi
+          else
+            echo "Custom domain creation skipped (DISABLE_DOMAIN=${{ secrets.DISABLE_DOMAIN }}, DOMAIN=${{ secrets.DOMAIN }})"
           fi
 
       - name: Deploy ${{ inputs.service-name }} service
