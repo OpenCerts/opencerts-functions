@@ -33,10 +33,10 @@ custom:
     false: "true" # To negate the environment variable DISABLE_DOMAIN
     true: "false" # if you know of a way to do conditionals please change this
   customDomain:
-    domainName: "${env:DOMAIN,''}" # Change this to your domain.
+    domainName: "${env:DOMAIN,'api.opencerts.io'}" # Change this to your domain.
     basePath: "verify" # This will be prefixed to all routes
     stage: ${self:provider.stage}
-    certificateName: "${env:CERTIFICATE_DOMAIN,''}"
+    certificateName: "${env:CERTIFICATE_DOMAIN,'*api.opencerts.io'}"
     createRoute53Record: true
     endpointType: "regional"
     securityPolicy: tls_1_2
