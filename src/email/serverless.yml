@@ -26,23 +26,10 @@ custom:
   serverless-offline:
     lambdaPort: 3002
     httpPort: 3000
-  isManagedDomain: 
-    false: 'true' # To negate the environment variable DISABLE_DOMAIN
-    true: 'false' # if you know of a way to do conditionals please change this
-  customDomain:
-    domainName: "${env:DOMAIN,''}" # Change this to your domain.
-    basePath: "email" # This will be prefixed to all routes
-    stage: ${self:provider.stage}
-    certificateName: "${env:CERTIFICATE_DOMAIN,''}"
-    createRoute53Record: true
-    endpointType: "regional"
-    securityPolicy: tls_1_2
-    enabled: ${strToBool(${self:custom.isManagedDomain.${env:DISABLE_DOMAIN, 'false'}})}
   webpack:
     includeModules:
       packagePath: "../../package.json"
 plugins:
   - serverless-dotenv-plugin
   - serverless-offline
-  - serverless-domain-manager
   - serverless-webpack
