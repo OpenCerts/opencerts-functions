@@ -37,6 +37,8 @@ on:
         required: false
       EMAIL_API_KEYS:
         required: false
+      FROM_EMAIL:
+        required: false
       BUCKET_NAME:
         required: false
       OBJECT_TTL:
@@ -85,6 +87,7 @@ jobs:
           SES_REGION=${{ secrets.SES_REGION }}
           RECAPTCHA_SECRET=${{ secrets.RECAPTCHA_SECRET }}
           EMAIL_API_KEYS=${{ secrets.EMAIL_API_KEYS }}
+          FROM_EMAIL=${{ secrets.FROM_EMAIL }}
           BUCKET_NAME=${{ secrets.BUCKET_NAME }}
           OBJECT_TTL=${{ secrets.OBJECT_TTL || '31' }}
           ENABLE_STORAGE_UPLOAD_API_KEY=${{ secrets.ENABLE_STORAGE_UPLOAD_API_KEY || 'false' }}
@@ -110,7 +113,7 @@ jobs:
 
       - name: Deploy ${{ inputs.service-name }} service
         working-directory: ${{ inputs.service-path }}
-        run: sls deploy --stage ${{ inputs.environment }}${{ inputs.stage-suffix }} --verbose
+        run: sls deploy --stage ${{ inputs.environment }}${{ inputs.stage-suffix }} --verbose --param="domain=${{ secrets.DOMAIN }}" --param="certificateDomain=${{ secrets.CERTIFICATE_DOMAIN }}" --param="disableDomain=${{ secrets.DISABLE_DOMAIN }}"
 
       - name: Get deployment info
         id: deployment-info

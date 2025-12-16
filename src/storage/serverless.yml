@@ -81,6 +81,8 @@ functions:
 
 
 custom:
+  dotenv:
+    basePath: ../../
   s3:
     port: 8000
     directory: /tmp
@@ -94,14 +96,14 @@ custom:
     false: 'true' # To negate the environment variable DISABLE_DOMAIN
     true: 'false' # if you know of a way to do conditionals please change this
   customDomain:
-    domainName: "${env:DOMAIN,'api.opencerts.io'}" # Change this to your domain.
+    domainName: "${param:domain, env:DOMAIN, 'api.opencerts.io'}" # Change this to your domain.
     basePath: "storage" # This will be prefixed to all routes
     stage: ${self:provider.stage}
-    certificateName: "${env:CERTIFICATE_DOMAIN,'*api.opencerts.io'}"
+    certificateName: "${param:certificateDomain, env:CERTIFICATE_DOMAIN, '*api.opencerts.io'}"
     createRoute53Record: true
     endpointType: "regional"
     securityPolicy: tls_1_2
-    enabled: ${strToBool(${self:custom.isManagedDomain.${env:DISABLE_DOMAIN, 'false'}})}
+    enabled: ${strToBool(${self:custom.isManagedDomain.${param:disableDomain, env:DISABLE_DOMAIN, 'false'}})}
   webpack:
     includeModules:
       packagePath: "../../package.json"
@@ -115,8 +117,9 @@ custom:
       ${self:custom.disableBucketDeletingPrompt.${self:provider.stage}, false}
 
 plugins:
+  - serverless-dotenv-plugin
+  - serverless-domain-manager
   - serverless-s3-local
   - serverless-s3-remover
   - serverless-offline
-  - serverless-domain-manager
   - serverless-webpack
