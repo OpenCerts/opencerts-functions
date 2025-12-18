@@ -1,5 +1,5 @@
 # OpenAttestation Function
-test deployment
+
 ## Verify
 
 The function invokes [@govtechsg/opencerts-verify](https://github.com/OpenCerts/verify) library and returns the result of the verifications performed on the provided document.
