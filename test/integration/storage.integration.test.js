@@ -1,11 +1,10 @@
-jest.mock("@govtechsg/opencerts-verify", () => ({
+jest.mock("@trustvc/trustvc", () => ({
   isValid: jest.fn(() => {}),
   verify: jest.fn(() => jest.fn(() => {}))
 })); // mocked because we'll test this part in e2e
 
 const { v4: uuidv4 } = require("uuid");
-const { decryptString } = require("@govtechsg/oa-encryption");
-const { isValid } = require("@govtechsg/opencerts-verify");
+const { decryptString, isValid } = require("@trustvc/trustvc");
 const {
   uploadDocument,
   uploadDocumentAtId,

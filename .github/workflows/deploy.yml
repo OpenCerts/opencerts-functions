@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: '22.x'
           cache: 'npm'
 
       - name: Install dependencies
@@ -102,6 +102,7 @@ jobs:
       DOMAIN: ${{ secrets.DOMAIN }}
       CERTIFICATE_DOMAIN: ${{ secrets.CERTIFICATE_DOMAIN }}
       DISABLE_DOMAIN: ${{ secrets.DISABLE_DOMAIN }}
+      NETWORK: mainnet
 
   # Deploy Storage Service
   deploy-storage:

@@ -27,18 +27,20 @@ describe("messageTemplate", () => {
     );
   });
 
-  it("throws for undefined certificate", () => {
-    expect(() => messageTemplate()).toThrow();
-    expect(() => messageTemplate(undefined)).toThrow();
+  it("returns fallback for undefined certificate", () => {
+    const message = messageTemplate();
+    expect(message.subject).toContain("You have been sent a certificate");
+    const message2 = messageTemplate(undefined);
+    expect(message2.subject).toContain("You have been sent a certificate");
   });
 
-  it("throws for null certificate", () => {
-    expect(() => messageTemplate(null)).toThrow();
+  it("returns fallback for null certificate", () => {
+    const message = messageTemplate(null);
+    expect(message.subject).toContain("You have been sent a certificate");
   });
 
-  it("throws for invalid certificate", () => {
-    expect(() => messageTemplate({ foo: "Invalid Data" })).toThrow(
-      "Fail to read data from certificate"
-    );
+  it("returns fallback for invalid certificate", () => {
+    const message = messageTemplate({ foo: "Invalid Data" });
+    expect(message.subject).toContain("You have been sent a certificate");
   });
 });

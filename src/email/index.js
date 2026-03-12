@@ -1,6 +1,6 @@
 import middy from "@middy/core";
 import cors from "@middy/http-cors";
-import { isValid } from "@govtechsg/opencerts-verify";
+import { isValid } from "@trustvc/trustvc";
 
 import { verify } from "../shared/verify";
 
@@ -35,7 +35,7 @@ const handleEmail = async (event) => {
     // Verify Certificate
     const fragments = await verify(data);
     if (!isValid(fragments)) {
-      // throw new Error("Invalid certificate");
+      throw new Error("Invalid certificate");
     }
 
     // Send certificate out

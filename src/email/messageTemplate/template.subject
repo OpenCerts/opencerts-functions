@@ -1,1 +1,1 @@
-<%- recipientName %> sent you a certificate<% if (issuerName) { %> from <%- issuerName %><% } %>
+<% if (recipientName) { %><%- recipientName %> sent you a certificate<% if (issuerName) { %> from <%- issuerName %><% } %><% } else { %>You have been sent a certificate<% if (issuerName) { %> from <%- issuerName %><% } %><% } %>

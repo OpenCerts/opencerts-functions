@@ -90,7 +90,7 @@ This document describes the architecture and flow of the CI/CD pipeline for Open
                ▼
 ┌─────────────────────────────────────────┐
 │   Setup Node.js (actions/setup-node@v4) │
-│   - Version: 18.x                       │
+│   - Version: 22.x                       │
 │   - Cache: npm                          │
 └──────────────┬──────────────────────────┘
                │

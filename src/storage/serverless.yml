@@ -3,7 +3,7 @@ provider:
   name: aws
   apiKeys: 
     - ${self:provider.stage}-storage-api-key
-  runtime: nodejs18.x
+  runtime: nodejs22.x
   stage: ${opt:stage, 'stg'}
   region: ap-southeast-1
   memorySize: 256
@@ -17,6 +17,7 @@ provider:
     BUCKET_NAME: '${self:custom.BUCKET_NAME}'
     OBJECT_TTL: '${self:custom.OBJECT_TTL}'
     S3_REGION: ${self:provider.region}
+    NODE_OPTIONS: "--experimental-require-module"
   iamRoleStatements:
     -
       Effect: Allow
@@ -107,6 +108,8 @@ custom:
   webpack:
     includeModules:
       packagePath: "../../package.json"
+      forceInclude:
+        - dotenv
   enableBucketDeletionPrompt:
     prod: true # we don't want these buckets in these stages to be deleted without a prompt
     stg: true

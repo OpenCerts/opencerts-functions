@@ -17,7 +17,7 @@ Before setting up the CI/CD pipeline, ensure you have:
 - [ ] AWS Account with appropriate permissions
 - [ ] GitHub repository with admin access
 - [ ] AWS CLI installed and configured (for initial setup)
-- [ ] Node.js 18.x installed locally
+- [ ] Node.js 22.x installed locally
 - [ ] Serverless Framework knowledge
 
 ## AWS Setup
@@ -447,7 +447,7 @@ aws cloudwatch put-metric-alarm \
 #### 5. Tests Fail in CI but Pass Locally
 
 **Solution:**
-- Check Node.js version matches (18.x)
+- Check Node.js version matches (22.x)
 - Verify all dependencies are in `package.json`
 - Check for environment-specific code
 

@@ -253,7 +253,7 @@ Ensure AWS IAM user/role has these permissions:
 ## Version Information
 
 - **GitHub Actions:** v4
-- **Node.js:** 18.x
+- **Node.js:** 22.x
 - **Serverless Framework:** 3.x
 - **AWS Actions:** v4
 

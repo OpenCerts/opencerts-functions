@@ -1,9 +1,10 @@
-const { v4: uuidv4 } = require("uuid");
-const { isValid } = require("@govtechsg/opencerts-verify"); // FIXME: Unable to use `src/shared/verify.js` due to weird crash claiming `network` is undefined
 const {
+  isValid,
   encryptString,
   generateEncryptionKey
-} = require("@govtechsg/oa-encryption");
+} = require("@trustvc/trustvc");
+
+const { v4: uuidv4 } = require("uuid");
 
 const { verify } = require("../../shared/verify");
 const config = require("../config");
