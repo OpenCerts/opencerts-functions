@@ -1,10 +1,9 @@
 module.exports = {
   setupFilesAfterEnv: ["./jest.setup.js"],
   transform: {
-    "\\.html": "jest-raw-loader",
-    "\\.txt": "jest-raw-loader",
-    "\\.subject": "jest-raw-loader",
-    "\\.m?jsx?$": "jest-esm-transformer"
+    "\\.(html|txt|subject)$": "<rootDir>/jest-raw-loader.js"
   },
-  transformIgnorePatterns: ["node_modules/(?!(axios)/)"]
+  transformIgnorePatterns: ["node_modules/(?!(axios)/)"],
+  testEnvironment: "node",
+  moduleFileExtensions: ["js", "json", "html", "txt", "subject"]
 };
