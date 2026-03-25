@@ -49,5 +49,7 @@ function getNetworkName(document) {
 /**
  * A wrapper of verify to auto-switch between Ethereum and Polygon
  */
-export const verify = (document) =>
+const verify = (document) =>
   ocVerify({ network: getNetworkName(document) })(document);
+
+module.exports = { verify };
