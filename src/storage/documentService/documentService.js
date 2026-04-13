@@ -1,5 +1,5 @@
 const {
-  isValid,
+  isValidOpenCert,
   encryptString,
   generateEncryptionKey
 } = require("@trustvc/trustvc");
@@ -71,7 +71,7 @@ const uploadDocumentAtId = async (
   }
 
   const fragments = await verify(document);
-  if (!isValid(fragments)) {
+  if (!isValidOpenCert(fragments)) {
     throw new Error("Document is not valid");
   }
 
@@ -103,7 +103,7 @@ const uploadDocument = async (
   ttlInMicroseconds = DEFAULT_TTL_IN_MICROSECONDS
 ) => {
   const fragments = await verify(document);
-  if (!isValid(fragments)) {
+  if (!isValidOpenCert(fragments)) {
     throw new Error("Document is not valid");
   }
 

@@ -17,6 +17,7 @@ provider:
     BUCKET_NAME: '${self:custom.BUCKET_NAME}'
     OBJECT_TTL: '${self:custom.OBJECT_TTL}'
     S3_REGION: ${self:provider.region}
+    INFURA_API_KEY: "${env:INFURA_API_KEY, ''}"
     NODE_OPTIONS: "--experimental-require-module"
   iamRoleStatements:
     -

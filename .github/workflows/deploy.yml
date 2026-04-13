@@ -103,6 +103,7 @@ jobs:
       CERTIFICATE_DOMAIN: ${{ secrets.CERTIFICATE_DOMAIN }}
       DISABLE_DOMAIN: ${{ secrets.DISABLE_DOMAIN }}
       NETWORK: mainnet
+      INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
 
   # Deploy Storage Service
   deploy-storage:
@@ -124,6 +125,7 @@ jobs:
       DOMAIN: ${{ secrets.DOMAIN }}
       CERTIFICATE_DOMAIN: ${{ secrets.CERTIFICATE_DOMAIN }}
       DISABLE_DOMAIN: ${{ secrets.DISABLE_DOMAIN }}
+      INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
 
   # Deploy Verify Service - Development (Sepolia)
   deploy-verify-dev:
@@ -143,6 +145,7 @@ jobs:
       DOMAIN: ${{ secrets.DOMAIN }}
       CERTIFICATE_DOMAIN: ${{ secrets.CERTIFICATE_DOMAIN }}
       DISABLE_DOMAIN: ${{ secrets.DISABLE_DOMAIN }}
+      INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
 
   # Deploy Verify Service - Production (Mainnet)
   deploy-verify-prod:
@@ -162,6 +165,7 @@ jobs:
       DOMAIN: ${{ secrets.DOMAIN }}
       CERTIFICATE_DOMAIN: ${{ secrets.CERTIFICATE_DOMAIN }}
       DISABLE_DOMAIN: ${{ secrets.DISABLE_DOMAIN }}
+      INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
 
   # Deployment summary
   deployment-summary:

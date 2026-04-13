@@ -13,6 +13,7 @@ provider:
     restApi: true
   environment:
     NETWORK: "${env:NETWORK, 'sepolia'}"
+    INFURA_API_KEY: "${env:INFURA_API_KEY, ''}"
     NODE_OPTIONS: "--experimental-require-module"
 functions:
   verify:

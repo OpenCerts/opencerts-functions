@@ -11,6 +11,7 @@ provider:
   logs:
     restApi: true
   environment:
+    INFURA_API_KEY: "${env:INFURA_API_KEY, ''}"
     NODE_OPTIONS: "--experimental-require-module"
 functions:
   email:
