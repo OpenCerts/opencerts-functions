@@ -32,7 +32,7 @@
   "dependencies": {
     "@middy/core": "^5.1.0",
     "@middy/http-cors": "^5.1.0",
-    "@trustvc/trustvc": "^2.11.1",
+    "@trustvc/trustvc": "^2.12.0",
     "aws-sdk": "^2.1523.0",
     "dotenv": "^7.0.0",
     "lodash": "^4.17.13",
