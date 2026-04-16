@@ -1,4 +1,5 @@
-const openAttestation = require("@govtechsg/open-attestation");
+const { getDataV2 } = require("@trustvc/trustvc");
+
 const { get, template } = require("lodash");
 const htmlMailTemplateContent = require("./template.html");
 const txtMailTemplateContent = require("./template.txt");
@@ -9,26 +10,25 @@ const txtMailTemplate = template(txtMailTemplateContent);
 const subjectMailTemplate = template(subjectMailTemplateContent);
 
 const messageTemplate = (certificate) => {
+  let issuerName;
+  let recipientName;
+
   try {
-    // Might throw if the certificate is undefined
-    const data = openAttestation.getData(certificate);
-    if (!data) {
-      throw new Error("Empty document");
+    const data = getDataV2(certificate);
+    if (data) {
+      issuerName = get(data, "issuers[0].name");
+      recipientName = get(data, "recipient.name");
     }
-
-    const issuerName = get(data, "issuers[0].name");
-    const recipientName = get(data, "recipient.name");
-    const params = { recipientName, issuerName };
-
-    return {
-      subject: subjectMailTemplate(params),
-      html: htmlMailTemplate(params),
-      text: txtMailTemplate(params)
-    };
   } catch (e) {
-    // eslint-disable-next-line
-    throw new Error("Fail to read data from certificate");
+    // default to both absent
   }
+
+  const params = { recipientName, issuerName };
+  return {
+    subject: subjectMailTemplate(params),
+    html: htmlMailTemplate(params),
+    text: txtMailTemplate(params)
+  };
 };
 
 module.exports = messageTemplate;

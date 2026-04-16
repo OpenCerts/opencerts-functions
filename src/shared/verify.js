@@ -1,5 +1,11 @@
-const { getData, utils } = require("@govtechsg/open-attestation");
-const { verify: ocVerify } = require("@govtechsg/opencerts-verify");
+const {
+  getDataV2,
+  isWrappedV2Document,
+  isWrappedV3Document,
+  verificationBuilder,
+  openAttestationVerifiers,
+  w3cVerifiers
+} = require("@trustvc/trustvc");
 
 const config = require("./config");
 
@@ -7,9 +13,7 @@ const IS_MAINNET =
   config.network === "mainnet" || config.network === "homestead";
 
 function getNetworkName(document) {
-  const data = utils.isWrappedV2Document(document)
-    ? getData(document)
-    : document;
+  const data = isWrappedV2Document(document) ? getDataV2(document) : document;
 
   if (IS_MAINNET && data.network) {
     /* Production Network Whitelist */
@@ -49,5 +53,12 @@ function getNetworkName(document) {
 /**
  * A wrapper of verify to auto-switch between Ethereum and Polygon
  */
-export const verify = (document) =>
-  ocVerify({ network: getNetworkName(document) })(document);
+export const verify = (document) => {
+  const verifiers =
+    isWrappedV2Document(document) || isWrappedV3Document(document)
+      ? openAttestationVerifiers
+      : w3cVerifiers;
+  return verificationBuilder(verifiers, { network: getNetworkName(document) })(
+    document
+  );
+};

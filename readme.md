@@ -1,14 +1,13 @@
 # OpenAttestation Function
-test deployment
+
 ## Verify
 
-The function invokes [@govtechsg/opencerts-verify](https://github.com/OpenCerts/verify) library and returns the result of the verifications performed on the provided document.
+The function invokes [@trustvc/trustvc](https://github.com/TrustVC/trustvc) library and returns the result of the verifications performed on the provided document.
 
 To get more information, please refer to:
 
 - [ADR about OpenAttestation verifications](https://github.com/Open-Attestation/adr/blob/master/verifier.md): The ADR explains in details the whole process for the verification as well as the different terms used.
-- [@govtechsg/oa-verify](https://github.com/Open-Attestation/oa-verify): Implementation of OpenAttestation verifier ADR. [@govtechsg/opencerts-verify](https://github.com/OpenCerts/verify) is built on top of this library.
-- [@govtechsg/opencerts-verify](https://github.com/OpenCerts/verify): Extension of [@govtechsg/oa-verify](https://github.com/Open-Attestation/oa-verify) providing a new verifier checking issuer identity upon Opencerts registry.
+- [@trustvc/trustvc](https://github.com/TrustVC/trustvc): Unified verification library supporting OpenAttestation v2/v3 and W3C Verifiable Credentials.
 
 ### Usage
 

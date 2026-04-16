@@ -1,6 +1,6 @@
 import middy from "@middy/core";
 import cors from "@middy/http-cors";
-import { isValid } from "@govtechsg/opencerts-verify";
+import { isValidOpenCert } from "@trustvc/trustvc";
 
 import { verify } from "../shared/verify";
 
@@ -13,10 +13,10 @@ const handleVerify = async (event) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         summary: {
-          all: isValid(fragments),
-          documentStatus: isValid(fragments, ["DOCUMENT_STATUS"]),
-          documentIntegrity: isValid(fragments, ["DOCUMENT_INTEGRITY"]),
-          issuerIdentity: isValid(fragments, ["ISSUER_IDENTITY"])
+          all: isValidOpenCert(fragments),
+          documentStatus: isValidOpenCert(fragments, ["DOCUMENT_STATUS"]),
+          documentIntegrity: isValidOpenCert(fragments, ["DOCUMENT_INTEGRITY"]),
+          issuerIdentity: isValidOpenCert(fragments, ["ISSUER_IDENTITY"])
         },
         data: fragments
       })

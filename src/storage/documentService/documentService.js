@@ -1,9 +1,10 @@
-const { v4: uuidv4 } = require("uuid");
-const { isValid } = require("@govtechsg/opencerts-verify"); // FIXME: Unable to use `src/shared/verify.js` due to weird crash claiming `network` is undefined
 const {
+  isValidOpenCert,
   encryptString,
   generateEncryptionKey
-} = require("@govtechsg/oa-encryption");
+} = require("@trustvc/trustvc");
+
+const { v4: uuidv4 } = require("uuid");
 
 const { verify } = require("../../shared/verify");
 const config = require("../config");
@@ -70,7 +71,7 @@ const uploadDocumentAtId = async (
   }
 
   const fragments = await verify(document);
-  if (!isValid(fragments)) {
+  if (!isValidOpenCert(fragments)) {
     throw new Error("Document is not valid");
   }
 
@@ -102,7 +103,7 @@ const uploadDocument = async (
   ttlInMicroseconds = DEFAULT_TTL_IN_MICROSECONDS
 ) => {
   const fragments = await verify(document);
-  if (!isValid(fragments)) {
+  if (!isValidOpenCert(fragments)) {
     throw new Error("Document is not valid");
   }
 

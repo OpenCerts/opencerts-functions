@@ -23,7 +23,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: '22.x'
           cache: 'npm'
 
       - name: Install dependencies
@@ -106,6 +106,7 @@ jobs:
       DOMAIN: ${{ secrets.DEV_DOMAIN }}
       CERTIFICATE_DOMAIN: ${{ secrets.DEV_CERTIFICATE_DOMAIN }}
       DISABLE_DOMAIN: ${{ secrets.DEV_DISABLE_DOMAIN }}
+      INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
 
   # Deploy Storage Service
   deploy-storage:
@@ -127,6 +128,7 @@ jobs:
       DOMAIN: ${{ secrets.DEV_DOMAIN }}
       CERTIFICATE_DOMAIN: ${{ secrets.DEV_CERTIFICATE_DOMAIN }}
       DISABLE_DOMAIN: ${{ secrets.DEV_DISABLE_DOMAIN }}
+      INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
 
   # Deploy Verify Service - Development (Sepolia)
   deploy-verify-dev:
@@ -146,6 +148,7 @@ jobs:
       DOMAIN: ${{ secrets.DEV_DOMAIN }}
       CERTIFICATE_DOMAIN: ${{ secrets.DEV_CERTIFICATE_DOMAIN }}
       DISABLE_DOMAIN: ${{ secrets.DEV_DISABLE_DOMAIN }}
+      INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
 
   # Deployment summary
   deployment-summary:

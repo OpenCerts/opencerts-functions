@@ -53,6 +53,8 @@ on:
         required: false
       DISABLE_DOMAIN:
         required: false
+      INFURA_API_KEY:
+        required: false
 
 jobs:
   deploy:
@@ -66,7 +68,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: '22.x'
           cache: 'npm'
 
       - name: Install dependencies
@@ -95,6 +97,7 @@ jobs:
           DOMAIN=${{ secrets.DOMAIN }}
           CERTIFICATE_DOMAIN=${{ secrets.CERTIFICATE_DOMAIN }}
           DISABLE_DOMAIN=${{ secrets.DISABLE_DOMAIN || 'false' }}
+          INFURA_API_KEY=${{ secrets.INFURA_API_KEY }}
           EOF
 
       - name: Install Serverless Framework

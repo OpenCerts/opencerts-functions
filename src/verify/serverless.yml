@@ -2,7 +2,7 @@ service: verify
 useDotenv: true
 provider:
   name: aws
-  runtime: nodejs18.x
+  runtime: nodejs22.x
   stage: "${opt:stage, 'stg'}"
   region: "${opt:region, 'ap-southeast-1'}"
   memorySize: 256
@@ -13,6 +13,8 @@ provider:
     restApi: true
   environment:
     NETWORK: "${env:NETWORK, 'sepolia'}"
+    INFURA_API_KEY: "${env:INFURA_API_KEY, ''}"
+    NODE_OPTIONS: "--experimental-require-module"
 functions:
   verify:
     description: "Checks the validity of the certificate against the 4 checks."
@@ -44,6 +46,8 @@ custom:
   webpack:
     includeModules:
       packagePath: "../../package.json"
+      forceInclude:
+        - dotenv
 plugins:
   - serverless-dotenv-plugin
   - serverless-domain-manager
