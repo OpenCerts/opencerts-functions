@@ -7,7 +7,7 @@ module.exports = {
     "\\.m?jsx?$": "jest-esm-transformer"
   },
   transformIgnorePatterns: [
-    "/node_modules/(?!(axios|@digitalbazaar|base58-universal|base64url-universal|cborg)/)"
+    "/node_modules/(?!(axios|@digitalbazaar|@noble|base58-universal|base64url-universal|cborg)/)"
   ],
   moduleNameMapper: {
     "@tradetrust-tt/token-registry-v5/contracts":
@@ -21,6 +21,8 @@ module.exports = {
       "<rootDir>/node_modules/@digitalbazaar/bbs-signatures/lib/index.js",
     "@digitalbazaar/ecdsa-multikey":
       "<rootDir>/node_modules/@digitalbazaar/ecdsa-multikey/lib/index.js",
+    "@digitalbazaar/ecdsa-rdfc-2019-cryptosuite":
+      "<rootDir>/node_modules/@digitalbazaar/ecdsa-rdfc-2019-cryptosuite/lib/index.js",
     "@digitalbazaar/data-integrity":
       "<rootDir>/node_modules/@digitalbazaar/data-integrity/lib/index.js",
     "@digitalbazaar/ecdsa-sd-2023-cryptosuite":
