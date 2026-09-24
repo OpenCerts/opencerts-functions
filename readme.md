@@ -7,7 +7,7 @@ The function invokes [@trustvc/trustvc](https://github.com/TrustVC/trustvc) libr
 To get more information, please refer to:
 
 - [ADR about OpenAttestation verifications](https://github.com/Open-Attestation/adr/blob/master/verifier.md): The ADR explains in details the whole process for the verification as well as the different terms used.
-- [@trustvc/trustvc](https://github.com/TrustVC/trustvc): Unified verification library supporting OpenAttestation v2/v3 and W3C Verifiable Credentials.
+- [@trustvc/trustvc](https://github.com/TrustVC/trustvc): Unified verification library supporting OpenAttestation v2/v3, W3C Verifiable Credentials and W3C Verifiable Presentations.
 
 ### Usage
 
