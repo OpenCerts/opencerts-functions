@@ -2,7 +2,8 @@
  * @jest-environment node
  */
 const { isValidOpenCert } = require("@trustvc/trustvc");
-const { verify } = require("./verify");
+const { verify, verifyRequestDocument } = require("./verify");
+const { ClientError } = require("./errors");
 
 const singleCredential = require("../../test/fixtures/presentations/valid/single_credential.json");
 const twoCredentials = require("../../test/fixtures/presentations/valid/two_credentials.json");
@@ -56,5 +57,35 @@ describe("verify - verifiable presentation", () => {
       expect(isValidOpenCert(fragments)).toBe(false);
       expect(isValidOpenCert(fragments, [failingType])).toBe(false);
     });
+  });
+});
+
+describe("verifyRequestDocument", () => {
+  it.each([undefined, null, "document"])(
+    "should throw a client error for a missing document %p",
+    async (document) => {
+      await expect(verifyRequestDocument(document)).rejects.toThrow(
+        new ClientError("Missing document")
+      );
+    }
+  );
+
+  it("should replace a library error with a generic client error", async () => {
+    const spy = jest.spyOn(console, "error").mockImplementation(() => {});
+    const document = {
+      get network() {
+        throw new Error("internal library details");
+      }
+    };
+    const error = verifyRequestDocument(document);
+    await expect(error).rejects.toBeInstanceOf(ClientError);
+    await expect(error).rejects.toThrow("Invalid document");
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it("should return the fragments of a valid document", async () => {
+    const fragments = await verifyRequestDocument(singleCredential);
+    expect(isValidOpenCert(fragments)).toBe(true);
   });
 });

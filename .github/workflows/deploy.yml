@@ -4,8 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       services:
-        description: 'Services to deploy (comma-separated: email,storage,verify or "all")'
+        description: 'Services to deploy'
         required: true
+        type: choice
+        options:
+          - all
+          - email
+          - verify
         default: 'all'
 
 jobs:
@@ -46,39 +51,38 @@ jobs:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     outputs:
       deploy-email: ${{ steps.set-services.outputs.deploy-email }}
-      deploy-storage: ${{ steps.set-services.outputs.deploy-storage }}
       deploy-verify: ${{ steps.set-services.outputs.deploy-verify }}
     steps:
       - name: Determine services to deploy
         id: set-services
+        # inputs are passed through env, never interpolated into the script
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          SERVICES_INPUT: ${{ github.event.inputs.services }}
         run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            SERVICES="${{ github.event.inputs.services }}"
-          else
-            SERVICES="all"
+          SERVICES="all"
+          if [ "$EVENT_NAME" == "workflow_dispatch" ]; then
+            SERVICES="$SERVICES_INPUT"
           fi
-          
-          if [ "$SERVICES" == "all" ]; then
-            echo "deploy-email=true" >> $GITHUB_OUTPUT
-            echo "deploy-storage=true" >> $GITHUB_OUTPUT
-            echo "deploy-verify=true" >> $GITHUB_OUTPUT
-          else
-            echo "deploy-email=false" >> $GITHUB_OUTPUT
-            echo "deploy-storage=false" >> $GITHUB_OUTPUT
-            echo "deploy-verify=false" >> $GITHUB_OUTPUT
-            
-            IFS=',' read -ra SERVICE_ARRAY <<< "$SERVICES"
-            for service in "${SERVICE_ARRAY[@]}"; do
-              service=$(echo "$service" | xargs) # trim whitespace
-              if [ "$service" == "email" ]; then
-                echo "deploy-email=true" >> $GITHUB_OUTPUT
-              elif [ "$service" == "storage" ]; then
-                echo "deploy-storage=true" >> $GITHUB_OUTPUT
-              elif [ "$service" == "verify" ]; then
-                echo "deploy-verify=true" >> $GITHUB_OUTPUT
-              fi
-            done
-          fi
+
+          case "$SERVICES" in
+            all)
+              echo "deploy-email=true" >> "$GITHUB_OUTPUT"
+              echo "deploy-verify=true" >> "$GITHUB_OUTPUT"
+              ;;
+            email)
+              echo "deploy-email=true" >> "$GITHUB_OUTPUT"
+              echo "deploy-verify=false" >> "$GITHUB_OUTPUT"
+              ;;
+            verify)
+              echo "deploy-email=false" >> "$GITHUB_OUTPUT"
+              echo "deploy-verify=true" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "Unknown services input: $SERVICES" >&2
+              exit 1
+              ;;
+          esac
 
   # Deploy Email Service
   deploy-email:
@@ -99,6 +103,10 @@ jobs:
       SES_REGION: ${{ secrets.SES_REGION }}
       RECAPTCHA_SECRET: ${{ secrets.RECAPTCHA_SECRET }}
       EMAIL_API_KEYS: ${{ secrets.EMAIL_API_KEYS }}
+      RECAPTCHA_ALLOWED_HOSTNAMES: ${{ secrets.RECAPTCHA_ALLOWED_HOSTNAMES }}
+      RECAPTCHA_ACTION: ${{ secrets.RECAPTCHA_ACTION }}
+      RECAPTCHA_MIN_SCORE: ${{ secrets.RECAPTCHA_MIN_SCORE }}
+      EMAIL_RATE_LIMIT_PER_5_MIN: ${{ secrets.EMAIL_RATE_LIMIT_PER_5_MIN }}
       DOMAIN: ${{ secrets.DOMAIN }}
       CERTIFICATE_DOMAIN: ${{ secrets.CERTIFICATE_DOMAIN }}
       DISABLE_DOMAIN: ${{ secrets.DISABLE_DOMAIN }}

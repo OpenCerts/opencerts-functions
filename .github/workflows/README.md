@@ -15,16 +15,15 @@ This directory contains GitHub Actions workflows for deploying the OpenCerts Fun
 - Automatically determines environment based on branch:
   - `main`/`master` → `prod`
   - `develop` → `stg`
-- Deploys all three services: email, storage, and verify
+- Deploys both services: email and verify
 - Manual dispatch allows selecting specific services and environment
 
 **Jobs:**
 1. **test** - Runs unit tests, linting, and serverless config validation
 2. **determine-deployment** - Determines which services and environment to deploy
 3. **deploy-email** - Deploys email service
-4. **deploy-storage** - Deploys storage service
-5. **deploy-verify** - Deploys verify service
-6. **deployment-summary** - Generates deployment summary
+4. **deploy-verify** - Deploys verify service
+5. **deployment-summary** - Generates deployment summary
 
 ### 2. `deploy-service.yml` - Reusable Service Deployment
 **Type:** Reusable workflow (called by other workflows)
@@ -36,25 +35,7 @@ This directory contains GitHub Actions workflows for deploying the OpenCerts Fun
 - Deploys using Serverless Framework
 - Creates deployment artifacts
 
-### 3. `rollback.yml` - Rollback Workflow
-**Trigger:** Manual workflow dispatch only
-
-**Features:**
-- Rollback specific service or all services
-- Choose environment (stg/prod)
-- Optionally specify commit SHA to rollback to
-- If no commit SHA provided, deploys previous version
-
-### 4. `destroy.yml` - Service Destruction Workflow
-**Trigger:** Manual workflow dispatch only
-
-**Features:**
-- Destroy specific service or all services
-- Requires typing "DESTROY" to confirm
-- Safety mechanism to prevent accidental destruction
-- Useful for cleaning up test environments
-
-### 5. `tests.yml` - Test-Only Workflow
+### 3. `tests.yml` - Test-Only Workflow
 **Triggers:**
 - Push to any branch
 - Pull requests
@@ -79,11 +60,10 @@ Configure these secrets in your GitHub repository settings (`Settings` → `Secr
 - `SES_REGION` - AWS SES region
 - `RECAPTCHA_SECRET` - Google reCAPTCHA secret key
 - `EMAIL_API_KEYS` - Comma-separated API keys for email service
-
-### Storage Service Secrets
-- `BUCKET_NAME` - S3 bucket name (default: oc-functions-storage)
-- `OBJECT_TTL` - Object time-to-live in days (default: 31)
-- `ENABLE_STORAGE_UPLOAD_API_KEY` - Enable API key for uploads (default: false)
+- `RECAPTCHA_ALLOWED_HOSTNAMES` - Comma-separated hostnames the reCAPTCHA must be solved on, e.g. `www.opencerts.io,opencerts.io` (unset: hostname not checked)
+- `RECAPTCHA_ACTION` - Expected reCAPTCHA v3 action (unset: action not checked)
+- `RECAPTCHA_MIN_SCORE` - Minimum reCAPTCHA v3 score (default: 0.5)
+- `EMAIL_RATE_LIMIT_PER_5_MIN` - Max requests without an API key per IP in any 5 minute window (default: 20)
 
 ### Verify Service Secrets
 - `NETWORK` - Ethereum network to use (default: sepolia)
@@ -125,26 +105,11 @@ This will automatically deploy to `prod` environment.
 3. Click `Run workflow`
 4. Choose:
    - Environment (stg/prod)
-   - Services to deploy (all, or specific: email,storage,verify)
+   - Services to deploy (`all`, `email` or `verify`)
 5. Click `Run workflow`
 
 ### Rollback
-1. Go to `Actions` tab
-2. Select `Rollback Deployment` workflow
-3. Click `Run workflow`
-4. Choose:
-   - Service to rollback
-   - Environment
-   - (Optional) Commit SHA to rollback to
-5. Click `Run workflow`
-
-### Destroy Services
-1. Go to `Actions` tab
-2. Select `Destroy Services` workflow
-3. Click `Run workflow`
-4. Choose service and environment
-5. Type "DESTROY" in the confirmation field
-6. Click `Run workflow`
+Run the `Deploy to AWS` workflow again, selecting the branch or tag of the last known good version in `Use workflow from`.
 
 ## Architecture
 
@@ -158,15 +123,15 @@ This will automatically deploy to `prod` environment.
 │  │          │    │ Strategy │    │ Services │            │
 │  └──────────┘    └──────────┘    └──────────┘            │
 │                                         │                  │
-│                        ┌────────────────┼────────────────┐│
-│                        ▼                ▼                ▼││
-│                   ┌────────┐      ┌─────────┐    ┌──────┐││
-│                   │ Email  │      │ Storage │    │Verify│││
-│                   │Service │      │ Service │    │Service│││
-│                   └────────┘      └─────────┘    └──────┘││
-│                        │                │            │    ││
-└────────────────────────┼────────────────┼────────────┼────┘│
-                         ▼                ▼            ▼     │
+│                        ┌────────────────┴────────────────┐│
+│                        ▼                                 ▼││
+│                   ┌────────┐                       ┌──────┐││
+│                   │ Email  │                       │Verify│││
+│                   │Service │                       │Service│││
+│                   └────────┘                       └──────┘││
+│                        │                             │    ││
+└────────────────────────┼─────────────────────────────┼────┘│
+                         ▼                             ▼     │
                     ┌────────────────────────────────────┐  │
                     │         AWS Lambda                 │  │
                     │    (via Serverless Framework)      │  │
@@ -181,16 +146,6 @@ This will automatically deploy to `prod` environment.
 - **Function:** Sends emails on behalf of OpenCerts users
 - **Dependencies:** AWS SES, reCAPTCHA
 - **Endpoint:** `/email`
-
-### Storage Service
-- **Path:** `src/storage`
-- **Function:** Provides transient file storage with encryption
-- **Dependencies:** AWS S3, DynamoDB
-- **Endpoints:** `/storage`, `/storage/{id}`
-- **Features:** 
-  - File encryption
-  - Automatic expiration (default 31 days)
-  - API key protection (optional)
 
 ### Verify Service
 - **Path:** `src/verify`
@@ -235,7 +190,7 @@ If custom domain deployment fails:
 Ensure AWS IAM user/role has these permissions:
 - Lambda: Create, update, delete functions
 - API Gateway: Create, update, delete APIs
-- S3: Create, manage buckets (for storage service)
+- S3: Create, manage buckets (for Serverless deployment artifacts)
 - CloudFormation: Create, update, delete stacks
 - IAM: Create, manage roles for Lambda
 - CloudWatch: Create log groups

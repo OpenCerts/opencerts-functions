@@ -39,11 +39,13 @@ on:
         required: false
       FROM_EMAIL:
         required: false
-      BUCKET_NAME:
+      RECAPTCHA_ALLOWED_HOSTNAMES:
         required: false
-      OBJECT_TTL:
+      RECAPTCHA_ACTION:
         required: false
-      ENABLE_STORAGE_UPLOAD_API_KEY:
+      RECAPTCHA_MIN_SCORE:
+        required: false
+      EMAIL_RATE_LIMIT_PER_5_MIN:
         required: false
       NETWORK:
         required: false
@@ -90,9 +92,10 @@ jobs:
           RECAPTCHA_SECRET=${{ secrets.RECAPTCHA_SECRET }}
           EMAIL_API_KEYS=${{ secrets.EMAIL_API_KEYS }}
           FROM_EMAIL=${{ secrets.FROM_EMAIL }}
-          BUCKET_NAME=${{ secrets.BUCKET_NAME }}
-          OBJECT_TTL=${{ secrets.OBJECT_TTL || '31' }}
-          ENABLE_STORAGE_UPLOAD_API_KEY=${{ secrets.ENABLE_STORAGE_UPLOAD_API_KEY || 'false' }}
+          RECAPTCHA_ALLOWED_HOSTNAMES=${{ secrets.RECAPTCHA_ALLOWED_HOSTNAMES }}
+          RECAPTCHA_ACTION=${{ secrets.RECAPTCHA_ACTION }}
+          RECAPTCHA_MIN_SCORE=${{ secrets.RECAPTCHA_MIN_SCORE || '0.5' }}
+          EMAIL_RATE_LIMIT_PER_5_MIN=${{ secrets.EMAIL_RATE_LIMIT_PER_5_MIN || '20' }}
           NETWORK=${{ secrets.NETWORK || 'sepolia' }}
           DOMAIN=${{ secrets.DOMAIN }}
           CERTIFICATE_DOMAIN=${{ secrets.CERTIFICATE_DOMAIN }}
@@ -126,12 +129,15 @@ jobs:
           sls info --stage ${{ inputs.environment }}${{ inputs.stage-suffix }} || true
 
       - name: Create deployment artifact
+        # branch names can contain shell syntax, so pass them through env
+        env:
+          BRANCH: ${{ github.ref_name }}
         run: |
           echo "Service: ${{ inputs.service-name }}" > deployment-info.txt
           echo "Environment: ${{ inputs.environment }}" >> deployment-info.txt
           echo "Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> deployment-info.txt
           echo "Commit: ${{ github.sha }}" >> deployment-info.txt
-          echo "Branch: ${{ github.ref_name }}" >> deployment-info.txt
+          echo "Branch: $BRANCH" >> deployment-info.txt
 
       - name: Upload deployment artifact
         uses: actions/upload-artifact@v4
@@ -141,11 +147,13 @@ jobs:
           retention-days: 30
 
       - name: Deployment summary
+        env:
+          BRANCH: ${{ github.ref_name }}
         run: |
           echo "## ✅ ${{ inputs.service-name }} Service Deployed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Environment:** ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
           echo "**Service Path:** ${{ inputs.service-path }}" >> $GITHUB_STEP_SUMMARY
           echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** $BRANCH" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY

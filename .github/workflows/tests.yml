@@ -31,8 +31,6 @@ jobs:
       run: npm run test
 
     # TODO: problematic on github actions atm - this is covered by seed.run integration tests for now, will fix later
-    #       as part of upgrading the storage api
-    # - run: npm run s3-local-setup
     # - run: npm run dev &
     # - run: sleep 40
     # - run: npm run integration:local

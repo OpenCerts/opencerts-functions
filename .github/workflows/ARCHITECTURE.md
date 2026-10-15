@@ -26,10 +26,10 @@ This document describes the architecture and flow of the CI/CD pipeline for Open
 ┌─────────────────────────────────────────────────────────────────────┐
 │                     Workflow Execution                               │
 │                                                                       │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │
-│  │   Tests      │  │   Deploy     │  │   Rollback   │              │
-│  │   Workflow   │  │   Workflow   │  │   Workflow   │              │
-│  └──────┬───────┘  └──────┬───────┘  └──────────────┘              │
+│  ┌──────────────┐  ┌──────────────┐                                │
+│  │   Tests      │  │   Deploy     │                                │
+│  │   Workflow   │  │   Workflow   │                                │
+│  └──────┬───────┘  └──────┬───────┘                                │
 │         │                  │                                          │
 │         ▼                  ▼                                          │
 │  ┌──────────────┐  ┌──────────────────────────────┐                │
@@ -43,33 +43,33 @@ This document describes the architecture and flow of the CI/CD pipeline for Open
 │                   │  (Parallel)        │                            │
 │                   └────────┬───────────┘                            │
 │                            │                                          │
-│         ┌──────────────────┼──────────────────┐                     │
-│         ▼                  ▼                  ▼                       │
-│  ┌──────────┐      ┌──────────┐      ┌──────────┐                  │
-│  │  Email   │      │ Storage  │      │  Verify  │                  │
-│  │ Service  │      │ Service  │      │ Service  │                  │
-│  └────┬─────┘      └────┬─────┘      └────┬─────┘                  │
-└───────┼─────────────────┼─────────────────┼────────────────────────┘
-        │                 │                 │
-        ▼                 ▼                 ▼
+│         ┌──────────────────┴──────────────────┐                     │
+│         ▼                                     ▼                       │
+│  ┌──────────┐                        ┌──────────┐                  │
+│  │  Email   │                        │  Verify  │                  │
+│  │ Service  │                        │ Service  │                  │
+│  └────┬─────┘                        └────┬─────┘                  │
+└───────┼───────────────────────────────────┼────────────────────────┘
+        │                                   │
+        ▼                                   ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                     AWS Infrastructure                               │
 │                                                                       │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │
-│  │   Lambda     │  │   Lambda     │  │   Lambda     │              │
-│  │   (Email)    │  │  (Storage)   │  │  (Verify)    │              │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘              │
-│         │                  │                  │                       │
-│         ▼                  ▼                  ▼                       │
+│  ┌──────────────┐                    ┌──────────────┐              │
+│  │   Lambda     │                    │   Lambda     │              │
+│  │   (Email)    │                    │  (Verify)    │              │
+│  └──────┬───────┘                    └──────┬───────┘              │
+│         │                                     │                       │
+│         ▼                                     ▼                       │
 │  ┌──────────────────────────────────────────────────────┐           │
 │  │              API Gateway                              │           │
 │  └──────────────────────────────────────────────────────┘           │
-│         │                  │                  │                       │
-│         ▼                  ▼                  ▼                       │
-│  ┌──────────┐      ┌──────────┐      ┌──────────┐                  │
-│  │   SES    │      │    S3    │      │ Ethereum │                  │
-│  │          │      │ DynamoDB │      │ Network  │                  │
-│  └──────────┘      └──────────┘      └──────────┘                  │
+│         │                                     │                       │
+│         ▼                                     ▼                       │
+│  ┌──────────┐                        ┌──────────┐                  │
+│  │   SES    │                        │ Ethereum │                  │
+│  │          │                        │ Network  │                  │
+│  └──────────┘                        └──────────┘                  │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -153,12 +153,12 @@ This document describes the architecture and flow of the CI/CD pipeline for Open
                ▼
 ┌─────────────────────────────────────────┐
 │      Deploy Services (Parallel)         │
-│  ┌───────────┬───────────┬───────────┐  │
-│  │   Email   │  Storage  │  Verify   │  │
-│  │  Service  │  Service  │  Service  │  │
-│  └─────┬─────┴─────┬─────┴─────┬─────┘  │
-│        │           │           │         │
-│        └───────────┼───────────┘         │
+│  ┌─────────────────┬─────────────────┐  │
+│  │      Email      │     Verify      │  │
+│  │     Service     │     Service     │  │
+│  └────────┬────────┴────────┬────────┘  │
+│           │                 │            │
+│           └────────┬────────┘            │
 │                    │                     │
 │                    ▼                     │
 │    ┌──────────────────────────────┐     │
@@ -258,7 +258,6 @@ Developer
 │  ┌───────────────────────────┐  │
 │  │ - Run Tests               │  │
 │  │ - Deploy Email Service    │  │
-│  │ - Deploy Storage Service  │  │
 │  │ - Deploy Verify Service   │  │
 │  └───────────────────────────┘  │
 └──────────┬──────────────────────┘
@@ -282,7 +281,6 @@ Developer
 │  │ - Run Tests               │  │
 │  │ - Wait for Approval       │  │
 │  │ - Deploy Email Service    │  │
-│  │ - Deploy Storage Service  │  │
 │  │ - Deploy Verify Service   │  │
 │  └───────────────────────────┘  │
 └──────────┬──────────────────────┘
@@ -316,34 +314,6 @@ Developer
 │         AWS SES                         │
 │         - Send email                    │
 └─────────────────────────────────────────┘
-```
-
-### Storage Service
-
-```
-┌─────────────────────────────────────────┐
-│         API Gateway Endpoints           │
-│         GET  /storage/{id}              │
-│         POST /storage                   │
-│         POST /storage/{id}              │
-└──────────────┬──────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────┐
-│         Lambda Functions                │
-│         - getHandler                    │
-│         - createHandler                 │
-│         - createAtIdHandler             │
-│         - queueNumberHandler            │
-└──────────────┬──────────────────────────┘
-               │
-               ├──────────────────┐
-               ▼                  ▼
-┌──────────────────────┐  ┌──────────────┐
-│      AWS S3          │  │  DynamoDB    │
-│  - Store encrypted   │  │  - Metadata  │
-│    documents         │  │  - Queue     │
-└──────────────────────┘  └──────────────┘
 ```
 
 ### Verify Service
@@ -511,11 +481,11 @@ Developer
        ▼                 ▼
 ┌──────────────┐  ┌──────────────┐
 │  Hotfix      │  │  Rollback    │
-│  - Create    │  │  - Use       │
-│    branch    │  │    rollback  │
-│  - Test      │  │    workflow  │
-│  - Deploy    │  │  - Specify   │
-│              │  │    commit    │
+│  - Create    │  │  - Re-run    │
+│    branch    │  │    deploy    │
+│  - Test      │  │    from last │
+│  - Deploy    │  │    good tag  │
+│              │  │              │
 └──────┬───────┘  └──────┬───────┘
        │                 │
        └────────┬────────┘
@@ -541,20 +511,15 @@ Developer
 
 - **Lambda Auto-scaling:** Automatic based on request volume
 - **API Gateway:** Handles up to 10,000 requests per second by default
-- **S3:** Unlimited storage capacity
-- **DynamoDB:** On-demand scaling or provisioned capacity
 - **Multi-region:** Can be deployed to multiple AWS regions
 
 ## Cost Optimization
 
 - **Lambda:** Pay per invocation and execution time
 - **API Gateway:** Pay per request
-- **S3:** Pay for storage and data transfer
 - **CloudWatch:** Free tier covers basic monitoring
 - **Optimization tips:**
   - Use appropriate Lambda memory settings
-  - Enable S3 lifecycle policies
-  - Use DynamoDB on-demand for variable workloads
   - Monitor and optimize cold starts
 
 ---

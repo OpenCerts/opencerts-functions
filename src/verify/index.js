@@ -2,12 +2,13 @@ import middy from "@middy/core";
 import cors from "@middy/http-cors";
 import { isValidOpenCert } from "@trustvc/trustvc";
 
-import { verify } from "../shared/verify";
+import { verifyRequestDocument } from "../shared/verify";
+import { errorResponse, parseBody } from "../shared/errors";
 
-const handleVerify = async (event) => {
-  const { document } = JSON.parse(event.body);
+const handleVerify = async (event, context) => {
   try {
-    const fragments = await verify(document);
+    const { document } = parseBody(event);
+    const fragments = await verifyRequestDocument(document);
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
@@ -22,10 +23,7 @@ const handleVerify = async (event) => {
       })
     };
   } catch (e) {
-    return {
-      statusCode: 400,
-      body: e.message
-    };
+    return errorResponse(e, context);
   }
 };
 
