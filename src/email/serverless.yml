@@ -8,8 +8,11 @@ provider:
   tracing:
     lambda: true
     apiGateway: true
+  logRetentionInDays: ${env:LOG_RETENTION_IN_DAYS, 30}
   logs:
-    restApi: true
+    restApi:
+      # request/response bodies contain recipient emails and full documents, never log them
+      fullExecutionData: false
   environment:
     INFURA_API_KEY: "${env:INFURA_API_KEY, ''}"
     NODE_OPTIONS: "--experimental-require-module"
@@ -23,9 +26,63 @@ functions:
           path: /
           method: post
           cors: true
+resources:
+  Resources:
+    # per-client (IP) rate limit for requests relying on the captcha, API key holders are exempt
+    # (a request with an invalid API key is rejected before any mail is sent)
+    EmailWebAcl:
+      Type: AWS::WAFv2::WebACL
+      Properties:
+        Name: ${self:service}-${self:provider.stage}-web-acl
+        Scope: REGIONAL
+        DefaultAction:
+          Allow: {}
+        VisibilityConfig:
+          SampledRequestsEnabled: true
+          CloudWatchMetricsEnabled: true
+          MetricName: ${self:service}-${self:provider.stage}-web-acl
+        Rules:
+          - Name: RateLimitPerIp
+            Priority: 0
+            Action:
+              Block: {}
+            Statement:
+              RateBasedStatement:
+                Limit: ${self:custom.EMAIL_RATE_LIMIT_PER_5_MIN}
+                AggregateKeyType: IP
+                ScopeDownStatement:
+                  NotStatement:
+                    Statement:
+                      SizeConstraintStatement:
+                        FieldToMatch:
+                          SingleHeader:
+                            Name: x-api-key
+                        ComparisonOperator: GT
+                        Size: 0
+                        TextTransformations:
+                          - Priority: 0
+                            Type: NONE
+            VisibilityConfig:
+              SampledRequestsEnabled: true
+              CloudWatchMetricsEnabled: true
+              MetricName: ${self:service}-${self:provider.stage}-rate-limit-per-ip
+    EmailWebAclAssociation:
+      Type: AWS::WAFv2::WebACLAssociation
+      # the stage only exists once the deployment has been created
+      DependsOn: ApiGatewayDeployment${sls:instanceId}
+      Properties:
+        ResourceArn:
+          Fn::Join:
+            - ""
+            - - "arn:aws:apigateway:${self:provider.region}::/restapis/"
+              - Ref: ApiGatewayRestApi
+              - "/stages/${self:provider.stage}"
+        WebACLArn:
+          Fn::GetAtt: [EmailWebAcl, Arn]
 custom:
   dotenv:
     basePath: ../../
+  EMAIL_RATE_LIMIT_PER_5_MIN: ${env:EMAIL_RATE_LIMIT_PER_5_MIN, 20} # Max captcha requests per IP in any 5 minute window
   serverless-offline:
     lambdaPort: 3002
     httpPort: 3000

@@ -9,8 +9,11 @@ provider:
   tracing:
     lambda: true
     apiGateway: true
+  logRetentionInDays: ${env:LOG_RETENTION_IN_DAYS, 30}
   logs:
-    restApi: true
+    restApi:
+      # request/response bodies contain full documents, never log them
+      fullExecutionData: false
   environment:
     NETWORK: "${env:NETWORK, 'sepolia'}"
     INFURA_API_KEY: "${env:INFURA_API_KEY, ''}"

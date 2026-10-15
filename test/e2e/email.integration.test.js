@@ -48,7 +48,10 @@ describe("email", () => {
         .expect("Content-Type", /json/)
         .expect(400)
         .expect((res) => {
-          expect(res.body).toEqual({ error: "Invalid certificate" });
+          expect(res.body).toEqual({
+            error: "Invalid certificate",
+            requestId: expect.any(String)
+          });
         });
     },
     API_TIMEOUT
@@ -70,7 +73,8 @@ describe("email", () => {
         .expect(400)
         .expect((res) => {
           expect(res.body).toEqual({
-            error: "Invalid captcha or missing API key"
+            error: "Invalid captcha or missing API key",
+            requestId: expect.any(String)
           });
         });
     },
@@ -92,7 +96,10 @@ describe("email", () => {
         .expect("Content-Type", /json/)
         .expect(400)
         .expect((res) => {
-          expect(res.body).toEqual({ error: "Invalid API key" });
+          expect(res.body).toEqual({
+            error: "Invalid API key",
+            requestId: expect.any(String)
+          });
         });
     },
     API_TIMEOUT

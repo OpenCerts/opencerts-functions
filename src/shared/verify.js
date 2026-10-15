@@ -8,6 +8,7 @@ const {
 } = require("@trustvc/trustvc");
 
 const config = require("./config");
+const { ClientError, logError } = require("./errors");
 
 const IS_MAINNET =
   config.network === "mainnet" || config.network === "homestead";
@@ -61,4 +62,21 @@ export const verify = (document) => {
   return verificationBuilder(verifiers, { network: getNetworkName(document) })(
     document
   );
+};
+
+/**
+ * Verifies a document supplied by the caller. The verifiers report network failures in the
+ * returned fragments, so a throw here means the document is malformed. The underlying error
+ * can expose library internals, so it is logged and replaced with a generic message.
+ */
+export const verifyRequestDocument = async (document) => {
+  if (!document || typeof document !== "object") {
+    throw new ClientError("Missing document");
+  }
+  try {
+    return await verify(document);
+  } catch (e) {
+    logError(e);
+    throw new ClientError("Invalid document");
+  }
 };

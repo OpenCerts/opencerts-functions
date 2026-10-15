@@ -44,7 +44,6 @@ The IAM user needs the following permissions:
         "lambda:*",
         "apigateway:*",
         "s3:*",
-        "dynamodb:*",
         "cloudformation:*",
         "iam:*",
         "logs:*",
@@ -98,16 +97,7 @@ aws ses verify-email-identity --email-address noreply@yourdomain.com --region ap
    - Go to AWS Console → SES → SMTP Settings
    - Create SMTP credentials
 
-### 5. Set Up S3 Bucket (for Storage Service)
-
-The bucket will be created automatically by Serverless Framework, but you can pre-create it:
-
-```bash
-aws s3 mb s3://oc-functions-storage-stg --region ap-southeast-1
-aws s3 mb s3://oc-functions-storage-prod --region ap-southeast-1
-```
-
-### 6. Set Up Custom Domain (Optional)
+### 5. Set Up Custom Domain (Optional)
 
 If using custom domain:
 
@@ -149,13 +139,10 @@ SES_SECRET=<ses-secret-access-key>
 SES_REGION=ap-southeast-1
 RECAPTCHA_SECRET=<your-recaptcha-secret>
 EMAIL_API_KEYS=key1:key2:key3
-```
-
-#### Storage Service Secrets
-```
-BUCKET_NAME=oc-functions-storage
-OBJECT_TTL=31
-ENABLE_STORAGE_UPLOAD_API_KEY=false
+RECAPTCHA_ALLOWED_HOSTNAMES=www.opencerts.io,opencerts.io
+RECAPTCHA_ACTION=
+RECAPTCHA_MIN_SCORE=0.5
+EMAIL_RATE_LIMIT_PER_5_MIN=20
 ```
 
 #### Verify Service Secrets
@@ -211,13 +198,6 @@ Ensure your `serverless.yml` files are properly configured:
 ```yaml
 provider:
   stage: "${opt:stage, 'stg'}"
-  region: ap-southeast-1
-```
-
-**Storage Service** (`src/storage/serverless.yml`):
-```yaml
-provider:
-  stage: ${opt:stage, 'stg'}
   region: ap-southeast-1
 ```
 
@@ -300,7 +280,6 @@ After successful deployment, check:
 ```bash
 # Get API endpoints
 cd src/email && sls info --stage stg
-cd ../storage && sls info --stage stg
 cd ../verify && sls info --stage stg
 ```
 
@@ -311,9 +290,6 @@ Test the endpoints:
 curl -X POST https://your-api-gateway-url/stg/verify \
   -H "Content-Type: application/json" \
   -d '{"document": {...}}'
-
-# Test storage endpoint
-curl https://your-api-gateway-url/stg/storage/test-id
 ```
 
 ### 4. Test Production Deployment
@@ -347,32 +323,17 @@ main branch    → prod environment (automatic, with approval)
 3. Click `Run workflow`
 4. Choose:
    - Environment: `stg` or `prod`
-   - Services: `all` or specific services
+   - Services: `all`, `email` or `verify`
 5. Click `Run workflow`
 
 ### Rollback
 
-If deployment fails or issues occur:
+If deployment fails or issues occur, redeploy the last known good version:
 
-1. Go to `Actions` tab
-2. Select `Rollback Deployment`
-3. Click `Run workflow`
-4. Choose:
-   - Service to rollback
-   - Environment
-   - (Optional) Commit SHA
-5. Click `Run workflow`
-
-### Emergency Rollback
-
-For immediate rollback to a known good version:
-
-```bash
-# Find the last working commit
-git log --oneline
-
-# Trigger rollback via GitHub Actions with that commit SHA
-```
+1. Find the last working commit or tag (`git log --oneline`)
+2. Go to `Actions` tab → `Deploy to AWS` → `Run workflow`
+3. In `Use workflow from`, select that branch or tag
+4. Click `Run workflow`
 
 ## Monitoring
 
@@ -383,9 +344,6 @@ Monitor Lambda function logs:
 ```bash
 # Email service logs
 aws logs tail /aws/lambda/mail-stg-email --follow
-
-# Storage service logs
-aws logs tail /aws/lambda/storage-stg-get --follow
 
 # Verify service logs
 aws logs tail /aws/lambda/verify-stg-verify --follow
@@ -438,13 +396,7 @@ aws cloudwatch put-metric-alarm \
 - Check SES sandbox status
 - Verify recipient emails (if in sandbox)
 
-#### 4. S3 Bucket Already Exists Error
-
-**Solution:**
-- Bucket names must be globally unique
-- Change `BUCKET_NAME` secret to a unique value
-
-#### 5. Tests Fail in CI but Pass Locally
+#### 4. Tests Fail in CI but Pass Locally
 
 **Solution:**
 - Check Node.js version matches (22.x)
